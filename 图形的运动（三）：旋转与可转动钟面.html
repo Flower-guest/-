@@ -243,7 +243,7 @@
             </button>
             <button id="tab-btn-4" onclick="switchStage('stage_4_custom_clock')"
                 class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 text-slate-600 hover:text-slate-900">
-                4. 自由钟面与出题工坊
+                4. 密码锁
             </button>
         </div>
 
@@ -304,13 +304,23 @@
                 </div>
             </div>
 
-            <!-- 模块 1 专属子场景切换栏 -->
+            <!-- 模块 1 专属子场景切换栏 (旋转方向初探) -->
             <div id="m1-subnav"
                 class="hidden px-4 py-2 border-b border-slate-100 bg-slate-50 flex items-center justify-center gap-3 flex-shrink-0">
-                <button onclick="m1ResetToStart()"
-                    class="px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-white text-slate-700 border border-slate-200 hover:bg-slate-100 active:scale-95 transition shadow-2xs flex items-center space-x-1.5">
-                    <span>🔄</span>
-                    <span>复位起点</span>
+                <button id="m1-btn-ccw" onclick="m1StartContinuousRotate('逆时针')"
+                    class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-white text-sky-600 border border-sky-300 hover:bg-sky-50 active:scale-95 transition shadow-2xs flex items-center space-x-1.5">
+                    <span>↺</span>
+                    <span>逆时针转动</span>
+                </button>
+                <button id="m1-btn-cw" onclick="m1StartContinuousRotate('顺时针')"
+                    class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-white text-amber-600 border border-amber-300 hover:bg-amber-50 active:scale-95 transition shadow-2xs flex items-center space-x-1.5">
+                    <span>↻</span>
+                    <span>顺时针转动</span>
+                </button>
+                <button id="m1-btn-stop" onclick="m1StopContinuousRotate()"
+                    class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-white text-rose-600 border border-rose-300 hover:bg-rose-50 active:scale-95 transition shadow-2xs flex items-center space-x-1.5">
+                    <span>⏹</span>
+                    <span>停止</span>
                 </button>
             </div>
 
@@ -355,6 +365,10 @@
                         class="px-3 py-1 rounded-lg text-xs font-bold bg-sky-600 hover:bg-sky-700 text-white transition flex items-center space-x-1 shadow-xs active:scale-95">
                         <span>⚡ 教材5连拍</span>
                     </button>
+                    <button onclick="m3PlayAnimation()" title="演示三角尺顺时针旋转90°过程"
+                        class="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition shadow-2xs flex items-center space-x-1 active:scale-95">
+                        <span>▶️ 演示90°</span>
+                    </button>
                     <button onclick="m3Reset()"
                         class="px-2.5 py-1 rounded-lg text-xs font-bold bg-white text-slate-700 border border-slate-200 hover:bg-slate-100 transition shadow-2xs active:scale-95">
                         <span>🔄 复位</span>
@@ -362,9 +376,51 @@
                 </div>
             </div>
 
-            <!-- 模块 4 专属操作栏 (自由钟面与出题工坊) -->
-            <!-- 模块 4 专属操作栏已按需求移除模式切换按钮 -->
-            <div id="m4-subnav" class="hidden"></div>
+            <!-- 模块 4 专属子场景切换栏 (钟面指针探究：例 6(1) 及演练) -->
+            <div id="m4-subnav"
+                class="hidden px-4 py-2 border-b border-slate-100 bg-slate-50 flex flex-wrap items-center justify-between gap-2 flex-shrink-0">
+                <div class="flex items-center space-x-2 flex-wrap gap-y-1.5">
+                    <span class="text-xs font-bold text-slate-500">探究案例：</span>
+                    <button id="m4-sub-1" onclick="m4SetExample('12_to_1')"
+                        class="px-2.5 py-1 rounded-md text-xs font-bold transition bg-sky-600 text-white shadow-xs">
+                        例 6(1) 12➔1
+                    </button>
+                    <button id="m4-sub-2" onclick="m4SetExample('1_to_3')"
+                        class="px-2.5 py-1 rounded-md text-xs font-bold transition bg-white text-slate-700 border border-slate-200 hover:bg-slate-100">
+                        演练 1➔3
+                    </button>
+                    <button id="m4-sub-3" onclick="m4SetExample('3_to_6')"
+                        class="px-2.5 py-1 rounded-md text-xs font-bold transition bg-white text-slate-700 border border-slate-200 hover:bg-slate-100">
+                        演练 3➔6 (90°)
+                    </button>
+                    <span class="text-slate-300">|</span>
+                    <!-- 任意位置自定义探究组件 -->
+                    <div class="flex items-center space-x-1.5 bg-white px-2 py-0.5 rounded-lg border border-slate-200 text-xs shadow-2xs">
+                        <span class="font-bold text-indigo-700 flex items-center space-x-1">
+                            <span>✨</span>
+                            <span>任意位置：</span>
+                        </span>
+                        <span class="text-slate-500">从</span>
+                        <select id="m4-select-start" onchange="m4ApplyCustomRange()"
+                            class="font-bold text-emerald-700 bg-emerald-50 rounded px-1.5 py-0.5 border border-emerald-200 cursor-pointer focus:outline-none text-xs">
+                            <!-- 动态注入 1~12 -->
+                        </select>
+                        <span class="text-slate-500">到</span>
+                        <select id="m4-select-end" onchange="m4ApplyCustomRange()"
+                            class="font-bold text-sky-700 bg-sky-50 rounded px-1.5 py-0.5 border border-sky-200 cursor-pointer focus:outline-none text-xs">
+                            <!-- 动态注入 1~12 -->
+                        </select>
+                        <button id="m4-sub-custom" onclick="m4ApplyCustomRange()"
+                            class="px-2 py-0.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-bold transition shadow-xs">
+                            开始探究
+                        </button>
+                    </div>
+                </div>
+                <div class="text-xs text-slate-500 hidden xl:flex items-center space-x-1.5">
+                    <span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span>按住红色指针或金色旋钮，亲手顺时针旋转探索</span>
+                </div>
+            </div>
 
             <!-- 画布中心展示视窗 (弹性铺满) -->
             <div class="flex-1 relative flex items-stretch justify-center p-2 sm:p-2.5 bg-slate-50/50 overflow-hidden">
@@ -427,35 +483,47 @@
 
                                     <!-- 拼图实体层 (支持以指定顶点为中心旋转) -->
                                     <g id="m0-puzzle-pieces" filter="url(#m0-puzzle-shadow)">
-                                        <path id="m0-puzzle-piece-1" d="M 360 300 L 540 300 L 360 120 Z" fill="#f97316" stroke="#9a3412" stroke-width="3.5" class="transition-colors cursor-grab" />
                                         <rect id="m0-puzzle-piece-2" x="360" y="300" width="180" height="180" rx="3" fill="#10b981" stroke="#047857" stroke-width="3.5" />
                                         <path id="m0-puzzle-piece-3" d="M 540 300 L 720 480 L 540 480 Z" fill="#3b82f6" stroke="#1d4ed8" stroke-width="3.5" />
+
+                                        <!-- 1号图形整体群组 (包含三角形本体、1号文字、三个旋转顶点A/B/C及其字母标签，旋转时三个顶点随之移动) -->
+                                        <g id="m0-puzzle-group-1">
+                                            <path id="m0-puzzle-piece-1" d="M 360 300 L 540 300 L 360 120 Z" fill="#f97316" stroke="#9a3412" stroke-width="3.5" class="transition-colors cursor-grab" />
+                                            <text id="m0-puzzle-label-1" x="420" y="240" font-size="36" font-weight="900" fill="white" text-anchor="middle" dominant-baseline="central" pointer-events="none">1号</text>
+
+                                            <!-- 1号图形三个旋转中心顶点 -->
+                                            <g id="m0-puzzle-vertices" fill="#ffffff" stroke="#0f172a" stroke-width="3.5" cursor="pointer">
+                                                <circle data-puzzle-vertex="a" cx="360" cy="300" r="13" />
+                                                <circle data-puzzle-vertex="b" cx="540" cy="300" r="13" />
+                                                <circle data-puzzle-vertex="c" cx="360" cy="120" r="13" />
+                                            </g>
+
+                                            <!-- 顶点字母标记 (A / B / C) -->
+                                            <g id="m0-puzzle-vertex-labels" font-size="22" font-weight="900" pointer-events="none">
+                                                <text x="330" y="332" fill="#047857">A</text>
+                                                <text x="564" y="332" fill="#0369a1">B</text>
+                                                <text x="330" y="112" fill="#b45309">C</text>
+                                            </g>
+                                        </g>
                                     </g>
 
-                                    <!-- 拼图序号大号文本标签 -->
+                                    <!-- 2号与3号序号大号文本标签 -->
                                     <g id="m0-puzzle-labels" font-size="36" font-weight="900" fill="white" text-anchor="middle" dominant-baseline="central" pointer-events="none">
-                                        <text id="m0-puzzle-label-1" x="420" y="240">1号</text>
                                         <text id="m0-puzzle-label-2" x="450" y="390">2号</text>
                                         <text id="m0-puzzle-label-3" x="600" y="420">3号</text>
-                                    </g>
-
-                                    <!-- 1号图形三个可选旋转中心顶点 -->
-                                    <g id="m0-puzzle-vertices" fill="#ffffff" stroke="#0f172a" stroke-width="3.5" cursor="pointer">
-                                        <circle data-puzzle-vertex="a" cx="360" cy="300" r="13" />
-                                        <circle data-puzzle-vertex="b" cx="540" cy="300" r="13" />
-                                        <circle data-puzzle-vertex="c" cx="360" cy="120" r="13" />
-                                    </g>
-
-                                    <!-- 顶点字母标记 (A / B / C) -->
-                                    <g id="m0-puzzle-vertex-labels" font-size="22" font-weight="900" pointer-events="none">
-                                        <text x="330" y="332" fill="#047857">A</text>
-                                        <text x="564" y="332" fill="#0369a1">B</text>
-                                        <text x="330" y="112" fill="#b45309">C</text>
                                     </g>
 
                                     <!-- 选中的旋转中心发光波纹圈与文本 -->
                                     <circle id="m0-puzzle-center-ring" cx="360" cy="300" r="22" fill="none" stroke="#0ea5e9" stroke-width="3.5" stroke-dasharray="5 3" opacity="0" class="glow-pulse pointer-events-none" />
                                     <text id="m0-puzzle-center-text" x="385" y="282" font-size="16" font-weight="bold" fill="#0369a1" opacity="0">旋转中心 (点 A)</text>
+
+                                    <!-- 模块一旋转时的生动拟声喷嚏弹幕气泡 (🤧 阿——嚏！) -->
+                                    <g id="m0-puzzle-sneeze-toast" opacity="0" transform="translate(480, 160)" pointer-events="none" style="transition: opacity 0.25s ease, transform 0.3s ease;">
+                                        <rect x="-70" y="-22" width="140" height="44" rx="22" fill="#fffbeb" stroke="#f59e0b" stroke-width="2.5" filter="url(#m0-puzzle-shadow)" />
+                                        <text x="0" y="2" text-anchor="middle" dominant-baseline="central" font-size="18" font-weight="900" fill="#b45309">
+                                            🤧 阿——嚏！
+                                        </text>
+                                    </g>
                                 </svg>
                             </div>
                         </div>
@@ -478,7 +546,7 @@
                             </button>
 
                             <!-- 演示自由旋转 -->
-                            <button onclick="m0PuzzleRotateDemo()"
+                            <button id="m0-puzzle-rotate-demo-btn" onclick="m0PuzzleRotateDemo()"
                                 class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-95 text-white text-xs font-bold transition shadow-xs flex items-center justify-center space-x-1.5">
                                 <span>↻</span>
                                 <span>演示旋转1号图形</span>
@@ -740,176 +808,92 @@
                     <!-- 隐藏废弃原 m2-left-panel 容器占位 -->
                     <div id="m2-left-panel" class="hidden"></div>
 
-                    <!-- Tab 4: 模块四 自由钟面与出题工坊 - 左侧主面板 -->
+                    <!-- Tab 4: 模块四 钟面指针探究 - 左侧主面板 -->
                     <div id="m4-left-panel"
                         class="hidden w-80 xl:w-96 flex-shrink-0 flex flex-col gap-2.5 overflow-y-auto pr-1">
-
-                        <!-- 卡片一：刻度与度数精准设定 (刻度控制) -->
-                        <div class="bg-white rounded-2xl p-3.5 border border-slate-200 shadow-sm flex flex-col gap-3">
-                            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-                                <span class="text-xs font-bold text-slate-800 flex items-center space-x-1.5">
-                                    <span class="text-base">📐</span>
-                                    <span>刻度与度数精准设定</span>
-                                </span>
-                                <span id="m4-deg-angle-type" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-200">
-                                    【直角 · 90°】
-                                </span>
+                        <!-- 探究目标卡片 -->
+                        <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
+                            <div class="flex items-center space-x-2 text-sky-700 mb-2">
+                                <span class="text-base">🎯</span>
+                                <h2 class="font-bold text-sm">当前探究目标</h2>
                             </div>
-
-                            <!-- 开始刻度与结束刻度选择 -->
-                            <div class="grid grid-cols-2 gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-xs">
-                                <div class="flex flex-col gap-1">
-                                    <span class="font-bold text-slate-700 flex items-center space-x-1">
-                                        <span class="text-emerald-600 font-bold">📍</span>
-                                        <span>开始刻度：</span>
-                                    </span>
-                                    <select id="m4-deg-start-hour" onchange="m4OnDegStartHourChange(this.value)"
-                                        class="font-bold text-emerald-800 bg-white rounded-lg px-2 py-1.5 border border-slate-200 cursor-pointer focus:outline-none focus:ring-1 focus:ring-purple-400 text-xs shadow-2xs">
-                                        <option value="12" selected>12 点 (顶部)</option>
-                                        <option value="1">1 点</option>
-                                        <option value="2">2 点</option>
-                                        <option value="3">3 点 (右侧)</option>
-                                        <option value="4">4 点</option>
-                                        <option value="5">5 点</option>
-                                        <option value="6">6 点 (正下)</option>
-                                        <option value="7">7 点</option>
-                                        <option value="8">8 点</option>
-                                        <option value="9">9 点 (左侧)</option>
-                                        <option value="10">10 点</option>
-                                        <option value="11">11 点</option>
-                                    </select>
-                                </div>
-                                <div class="flex flex-col gap-1">
-                                    <span class="font-bold text-slate-700 flex items-center space-x-1">
-                                        <span class="text-rose-600 font-bold">🎯</span>
-                                        <span>结束刻度：</span>
-                                    </span>
-                                    <select id="m4-deg-end-hour" onchange="m4OnDegEndHourChange(this.value)"
-                                        class="font-bold text-rose-800 bg-white rounded-lg px-2 py-1.5 border border-slate-200 cursor-pointer focus:outline-none focus:ring-1 focus:ring-purple-400 text-xs shadow-2xs">
-                                        <option value="12">12 点 (顶部)</option>
-                                        <option value="1">1 点</option>
-                                        <option value="2">2 点</option>
-                                        <option value="3" selected>3 点 (右侧)</option>
-                                        <option value="4">4 点</option>
-                                        <option value="5">5 点</option>
-                                        <option value="6">6 点 (正下)</option>
-                                        <option value="7">7 点</option>
-                                        <option value="8">8 点</option>
-                                        <option value="9">9 点 (左侧)</option>
-                                        <option value="10">10 点</option>
-                                        <option value="11">11 点</option>
-                                    </select>
-                                </div>
+                            <div id="m4-goal-text"
+                                class="text-xs sm:text-sm font-semibold text-slate-800 bg-sky-50/80 p-3 rounded-xl border border-sky-100 leading-relaxed">
+                                观察钟面，指针从“<strong>12</strong>”走到“<strong>1</strong>”，它是怎样旋转的？
                             </div>
+                        </div>
 
-                            <!-- 旋转方向选项：顺时针 / 逆时针 -->
-                            <div class="flex flex-col gap-1.5">
-                                <span class="text-xs font-bold text-slate-700 flex items-center space-x-1">
-                                    <span>🧭</span>
-                                    <span>旋转方向选项：</span>
+                        <!-- 步骤一：定位旋转中心 O -->
+                        <div class="step-box bg-white rounded-2xl border border-slate-200 p-3.5 transition-all duration-300 shadow-sm"
+                            id="m4-step1-box">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-bold text-slate-700 flex items-center space-x-1.5">
+                                    <span
+                                        class="w-5 h-5 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center text-xs font-bold">1</span>
+                                    <span>定位基准点</span>
                                 </span>
+                                <button id="m4-btn-step1" onclick="m4ActionStep1()"
+                                    class="px-2.5 py-1 text-xs font-bold rounded-lg bg-sky-600 hover:bg-sky-700 text-white transition shadow-xs">
+                                    📍 标注旋转中心 O
+                                </button>
+                            </div>
+                            <div id="m4-step1-content"
+                                class="hidden text-xs text-slate-600 bg-sky-50/70 p-2.5 rounded-xl border border-sky-100 leading-relaxed mt-2">
+                                <p class="font-bold text-sky-800 mb-1">【要素一：旋转中心（点 O）】</p>
+                                <p>指针在旋转时，中心点 <strong class="text-sky-700">O</strong>
+                                    的位置始终固定不变，它是整个旋转运动的<strong>基准基点（旋转中心）</strong>。</p>
+                            </div>
+                        </div>
+
+                        <!-- 步骤二：模拟旋转并判断方向 -->
+                        <div class="step-box bg-white rounded-2xl border border-slate-200 p-3.5 transition-all duration-300 opacity-60 shadow-sm"
+                            id="m4-step2-box">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-bold text-slate-700 flex items-center space-x-1.5">
+                                    <span
+                                        class="w-5 h-5 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold"
+                                        id="m4-step2-badge">2</span>
+                                    <span>判断运动方向</span>
+                                </span>
+                                <button id="m4-btn-step2" onclick="m4ActionStep2()" disabled
+                                    class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-200 text-slate-400 cursor-not-allowed transition">
+                                    🔄 模拟旋转并观察
+                                </button>
+                            </div>
+                            <!-- 方向答题槽 (交互选择) -->
+                            <div id="m4-step2-choice"
+                                class="hidden mt-2 p-2.5 bg-amber-50/80 rounded-xl border border-amber-200 text-xs">
+                                <p class="font-bold text-amber-900 mb-2">请问指针是按什么方向旋转的？</p>
                                 <div class="grid grid-cols-2 gap-2">
-                                    <button id="m4-dir-cw-btn" onclick="m4SetDegreeDirection('顺时针')"
-                                        class="py-2 px-3 rounded-xl font-bold text-xs border transition flex items-center justify-center space-x-1.5 bg-amber-500 text-white border-amber-500 shadow-xs active:scale-95">
-                                        <span class="text-sm">↻</span>
-                                        <span>顺时针方向</span>
+                                    <button onclick="m4SelectDirection('顺时针')"
+                                        class="py-1.5 px-2 rounded-lg font-bold border border-amber-300 bg-white hover:bg-amber-100 text-amber-900 text-xs transition">
+                                        ↻ 顺时针方向
                                     </button>
-                                    <button id="m4-dir-ccw-btn" onclick="m4SetDegreeDirection('逆时针')"
-                                        class="py-2 px-3 rounded-xl font-bold text-xs border transition flex items-center justify-center space-x-1.5 bg-white text-slate-700 border-slate-200 hover:bg-slate-50 active:scale-95">
-                                        <span class="text-sm">↺</span>
-                                        <span>逆时针方向</span>
+                                    <button onclick="m4SelectDirection('逆时针')"
+                                        class="py-1.5 px-2 rounded-lg font-bold border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 text-xs transition">
+                                        ↺ 逆时针方向
                                     </button>
                                 </div>
                             </div>
-
-                            <!-- 输入旋转度数：数字输入框 + 滑块联动 -->
-                            <div class="flex flex-col gap-1.5 bg-amber-50/50 p-2.5 rounded-xl border border-amber-200/80">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-xs font-bold text-amber-950 flex items-center space-x-1">
-                                        <span>✍️</span>
-                                        <span>输入旋转度数：</span>
-                                    </span>
-                                    <div class="flex items-center space-x-1 bg-white border border-amber-300 rounded-lg px-2.5 py-0.5 shadow-2xs">
-                                        <input type="number" id="m4-deg-input" min="0" max="360" step="1" value="90"
-                                            oninput="m4OnDegInputChange(this.value)"
-                                            class="w-14 font-mono font-black text-amber-900 bg-transparent text-right text-base focus:outline-none">
-                                        <span class="font-black text-amber-700 text-sm">°</span>
-                                    </div>
-                                </div>
-                                <div class="flex items-center space-x-2 pt-1">
-                                    <span class="text-[11px] text-slate-400 font-mono">0°</span>
-                                    <input type="range" id="m4-deg-slider" min="0" max="360" step="1" value="90"
-                                        oninput="m4OnDegSliderChange(this.value)"
-                                        class="flex-1 accent-amber-500 cursor-pointer">
-                                    <span class="text-[11px] text-slate-400 font-mono">360°</span>
-                                </div>
-                            </div>
-
-                            <!-- 动效演示与复位按钮 -->
-                            <div class="grid grid-cols-2 gap-2 pt-1 border-t border-slate-100">
-                                <button onclick="m4AnimateDegreeRotation()"
-                                    class="py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 active:scale-95 text-white font-bold text-xs transition shadow-sm flex items-center justify-center space-x-1.5">
-                                    <span>▶️</span>
-                                    <span>平滑演示旋转</span>
-                                </button>
-                                <button onclick="m4ResetDegreeMode()"
-                                    class="py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 font-medium text-xs transition border border-slate-200">
-                                    <span>↺ 复位起点</span>
-                                </button>
+                            <div id="m4-step2-content"
+                                class="hidden text-xs text-slate-600 bg-emerald-50/70 p-2.5 rounded-xl border border-emerald-200 leading-relaxed mt-2">
+                                <p class="font-bold text-emerald-800 mb-1">【要素二：旋转方向（顺时针）】</p>
+                                <p>指针与时钟正常走时的方向一致，按照<strong class="text-emerald-700">顺时针方向</strong>旋转。</p>
                             </div>
                         </div>
 
-                        <!-- 卡片二：自由出题与互动挑战 (出题挑战合并显示在此) -->
-                        <div class="bg-white rounded-2xl p-3.5 border border-slate-200 shadow-sm flex flex-col gap-2.5">
-                            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-                                <span class="text-xs font-bold text-slate-800 flex items-center space-x-1.5">
-                                    <span class="text-base">🎲</span>
-                                    <span>自由出题与旋转挑战</span>
-                                </span>
-                                <span id="m4-quiz-status-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 border border-purple-200">
-                                    待出题
-                                </span>
+                        <!-- 算理秘籍口诀卡片 -->
+                        <div
+                            class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-3.5 border border-amber-200 text-xs shadow-2xs">
+                            <div class="font-bold text-amber-900 flex items-center space-x-1.5 mb-1.5">
+                                <span>💡</span>
+                                <span>五年级钟面旋转记忆秘籍</span>
                             </div>
-
-                            <div class="p-2.5 rounded-xl bg-purple-50/70 border border-purple-200 text-xs leading-relaxed">
-                                <div class="font-medium text-slate-500 mb-1 flex items-center justify-between">
-                                    <span>挑战任务目标：</span>
-                                    <span id="m4-quiz-target-deg" class="font-bold text-purple-700"></span>
-                                </div>
-                                <div id="m4-question-text" class="font-bold text-slate-800 leading-normal">
-                                    点击“🎲 随机出题”开始挑战，或拨动指针设定题目！
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-2 pt-0.5">
-                                <button id="m4-random-question-btn" onclick="m4QuickRandomQuiz()"
-                                    class="py-2.5 bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-bold rounded-xl text-xs transition shadow-sm flex items-center justify-center space-x-1">
-                                    <span>🎲</span>
-                                    <span>随机出题</span>
-                                </button>
-                                <button id="m4-verify-btn" onclick="m4VerifyCustomQuiz()"
-                                    class="py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold rounded-xl text-xs transition shadow-sm flex items-center justify-center space-x-1">
-                                    <span>✓</span>
-                                    <span>检查验证</span>
-                                </button>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-2">
-                                <button onclick="m4SetCurrentAsStart()"
-                                    class="py-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold text-xs border border-slate-200 transition active:scale-95 flex items-center justify-center space-x-1">
-                                    <span>📍</span>
-                                    <span>设当前为起点</span>
-                                </button>
-                                <button onclick="m4RevealQuizAnswer()"
-                                    class="py-2 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 font-semibold text-xs border border-sky-200 transition active:scale-95 flex items-center justify-center space-x-1">
-                                    <span>💡</span>
-                                    <span>揭晓答案演示</span>
-                                </button>
-                            </div>
-
-                            <div id="m4-result" class="hidden p-2.5 rounded-xl text-xs leading-relaxed"></div>
+                            <p class="text-amber-800 leading-relaxed">
+                                旋转三要素要记清：<strong>一找中心 O
+                                    点定</strong>，<strong>二看方向顺逆明</strong>，<strong>三数大格乘三十</strong>，完整表达人人夸！
+                            </p>
                         </div>
-
                     </div>
 
                     <!-- 中间大舞台：超大自适应高清钟面 -->
@@ -925,7 +909,7 @@
                         </div>
 
                         <svg id="clock-svg" viewBox="0 0 500 500"
-                            class="h-full max-h-full max-w-full aspect-square drop-shadow-xl select-none cursor-default">
+                            class="h-full max-h-full max-w-full aspect-square drop-shadow-xl select-none cursor-default overflow-visible">
                             <defs>
                                 <!-- 钟面底盘渐变 -->
                                 <radialGradient id="clock-dial-gradient" cx="50%" cy="50%" r="50%">
@@ -969,20 +953,32 @@
                             <circle id="clock-dial-surface" cx="250" cy="250" r="220"
                                 fill="url(#clock-dial-gradient)" />
 
-                            <!-- 钟面上方外圈黄色弧形与方向指示箭头 (根据顺/逆时针实时指示) -->
-                            <g id="clock-top-rim-arrow-group" class="transition-opacity duration-300 pointer-events-none select-none">
-                                <!-- 黄色弧线 -->
-                                <path id="clock-top-rim-arc" d="M 115 57 A 236 236 0 0 1 385 57" fill="none" stroke="#f59e0b" stroke-width="4.5" stroke-dasharray="6 3" />
-                                
-                                <!-- 实体方向指示箭头 (顺时针在右指向顺向，逆时针在左指向逆向) -->
-                                <g id="clock-top-rim-arrow-head" transform="translate(385, 57) rotate(35)">
-                                    <polygon points="5,0 -16,-9 -11,0 -16,9" fill="#f59e0b" stroke="#ffffff" stroke-width="2" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.35))" />
+                            <!-- 钟面上的旋转方向导引弯曲箭头 (位置在黄框与右上/左上刻度外侧，顺时针在右从12到2，逆时针在左从12到10) -->
+                            <g id="clock-dial-direction-guide" class="transition-opacity duration-300 pointer-events-none select-none">
+                                <!-- 顺时针导引 (右侧：外圈平滑圆弧R=246，并在右上黄框处标注“顺时针方向 ↻”，完全不挡表盘数字) -->
+                                <g id="guide-cw" class="transition-opacity duration-300">
+                                    <path d="M 280 20 A 246 246 0 0 1 456 132" fill="none" stroke="#f59e0b" stroke-width="4.5" stroke-linecap="round" filter="drop-shadow(0 2px 5px rgba(245,158,11,0.35))" />
+                                    <g transform="translate(456, 132) rotate(155)">
+                                        <polygon points="7,0 -15,-8 -10,0 -15,8" fill="#f59e0b" stroke="#ffffff" stroke-width="1.8" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.25))" />
+                                    </g>
+                                    <!-- 右上黄框专属提示卡片 (精准对应用户指定黄框位置，高光双层圆角徽标) -->
+                                    <g id="guide-cw-badge" transform="translate(415, 20)">
+                                        <rect x="-65" y="-16" width="130" height="32" rx="16" fill="#fef3c7" stroke="#f59e0b" stroke-width="2.5" filter="drop-shadow(0 4px 10px rgba(245,158,11,0.3))" />
+                                        <text x="0" y="5" text-anchor="middle" font-size="13" font-weight="900" fill="#b45309" letter-spacing="0.5">顺时针方向 ↻</text>
+                                    </g>
                                 </g>
 
-                                <!-- 顶端中央方向文字指示标签 -->
-                                <g id="clock-top-rim-badge" transform="translate(250, 30)">
-                                    <rect x="-42" y="-12" width="84" height="24" rx="12" fill="#ffffff" stroke="#f59e0b" stroke-width="1.8" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.12))" />
-                                    <text id="clock-top-rim-text" x="0" y="4" text-anchor="middle" font-size="12" font-weight="900" fill="#d97706" letter-spacing="0.5">顺时针 ↻</text>
+                                <!-- 逆时针导引 (左侧对应位置：外圈平滑圆弧R=246，并在左上对称黄框处标注“↺ 逆时针方向”) -->
+                                <g id="guide-ccw" class="transition-opacity duration-300 opacity-0" style="display: none;">
+                                    <path d="M 220 20 A 246 246 0 0 0 44 132" fill="none" stroke="#0284c7" stroke-width="4.5" stroke-linecap="round" filter="drop-shadow(0 2px 5px rgba(2,132,199,0.35))" />
+                                    <g transform="translate(44, 132) rotate(25)">
+                                        <polygon points="7,0 -15,-8 -10,0 -15,8" fill="#0284c7" stroke="#ffffff" stroke-width="1.8" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.25))" />
+                                    </g>
+                                    <!-- 左上对称位置专属提示卡片 -->
+                                    <g id="guide-ccw-badge" transform="translate(85, 20)">
+                                        <rect x="-65" y="-16" width="130" height="32" rx="16" fill="#e0f2fe" stroke="#0284c7" stroke-width="2.5" filter="drop-shadow(0 4px 10px rgba(2,132,199,0.3))" />
+                                        <text x="0" y="5" text-anchor="middle" font-size="13" font-weight="900" fill="#0369a1" letter-spacing="0.5">↺ 逆时针方向</text>
+                                    </g>
                                 </g>
                             </g>
 
@@ -1066,12 +1062,6 @@
                                 <circle id="needle-knob-halo" cx="250" cy="44" r="16" fill="none" stroke="#f59e0b"
                                     stroke-width="2" opacity="0.8" class="animate-ping-slow pointer-events-none" />
 
-                                <!-- 时钟外部延伸指针线段与端点 A (时钟外显示指针线段) -->
-                                <g id="clock-external-pointer-group" class="transition-opacity duration-300">
-                                    <line x1="250" y1="44" x2="250" y2="8" stroke="#f59e0b" stroke-width="3" stroke-dasharray="3 3" />
-                                    <circle cx="250" cy="8" r="6" fill="#f59e0b" stroke="#ffffff" stroke-width="2" />
-                                    <text x="250" y="-4" text-anchor="middle" font-size="11" font-weight="bold" fill="#d97706">端点 A</text>
-                                </g>
                                 <!-- 旋钮主体 -->
                                 <circle id="needle-knob-base" cx="250" cy="44" r="12" fill="#f59e0b" stroke="#ffffff"
                                     stroke-width="2.5" filter="drop-shadow(0 2px 5px rgba(0,0,0,0.35))" />
@@ -1114,9 +1104,103 @@
                     <!-- 隐藏废弃原 m2-right-panel 占位 -->
                     <div id="m2-right-panel" class="hidden"></div>
 
-                    <!-- Tab 4: 模块四 自由钟面与出题工坊 - 右侧导学面板 -->
-                    <!-- 右侧面板已按需移除 -->
-                    <div id="m4-right-panel" class="hidden"></div>
+                    <!-- Tab 4: 模块四 钟面指针探究 - 右侧导学面板 -->
+                    <div id="m4-right-panel"
+                        class="hidden w-80 xl:w-96 flex-shrink-0 flex flex-col gap-2.5 overflow-y-auto pl-1">
+                        <!-- 探究步骤状态指示 -->
+                        <div
+                            class="bg-white rounded-2xl p-3.5 border border-slate-200 shadow-sm flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-700 flex items-center space-x-1.5">
+                                <span>🔍</span>
+                                <span>剖析旋转三要素</span>
+                            </span>
+                            <span id="m4-step-badge"
+                                class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600">
+                                未开始
+                            </span>
+                        </div>
+
+                        <!-- 步骤三：展开扇面与大格算理 -->
+                        <div class="step-box bg-white rounded-2xl border border-slate-200 p-3.5 transition-all duration-300 opacity-60 shadow-sm"
+                            id="m4-step3-box">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-bold text-slate-700 flex items-center space-x-1.5">
+                                    <span
+                                        class="w-5 h-5 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold"
+                                        id="m4-step3-badge">3</span>
+                                    <span>计算旋转角度</span>
+                                </span>
+                                <button id="m4-btn-step3" onclick="m4ActionStep3()" disabled
+                                    class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-200 text-slate-400 cursor-not-allowed transition">
+                                    📐 展开扇面与算理
+                                </button>
+                            </div>
+                            <div id="m4-step3-content"
+                                class="hidden text-xs text-slate-600 bg-amber-50/70 p-2.5 rounded-xl border border-amber-200 leading-relaxed mt-2">
+                                <p class="font-bold text-amber-900 mb-1">【要素三：旋转角度（度数算理）】</p>
+                                <div
+                                    class="bg-white p-2 rounded-lg border border-amber-200 font-mono text-xs my-1 text-slate-800">
+                                    <div>• 钟面一整圈（周角）：<strong>360°</strong></div>
+                                    <div>• 钟面共平均分成：<strong>12 个大格</strong></div>
+                                    <div class="text-amber-700 font-bold">• 每个大格：360° ÷ 12 = <strong>30°</strong></div>
+                                </div>
+                                <p id="m4-calc-text" class="text-amber-800 font-semibold mt-1">
+                                    指针走了 1 个大格，旋转角度为：1 × 30° = <strong>30°</strong>。
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- 步骤四：生成标准规范语句 -->
+                        <div class="step-box bg-white rounded-2xl border border-slate-200 p-3.5 transition-all duration-300 opacity-60 shadow-sm"
+                            id="m4-step4-box">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-bold text-slate-700 flex items-center space-x-1.5">
+                                    <span
+                                        class="w-5 h-5 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold"
+                                        id="m4-step4-badge">4</span>
+                                    <span>标准表达生成</span>
+                                </span>
+                                <button id="m4-btn-step4" onclick="m4ActionStep4()" disabled
+                                    class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-200 text-slate-400 cursor-not-allowed transition">
+                                    📜 生成标准描述语
+                                </button>
+                            </div>
+                            <div id="m4-step4-content"
+                                class="hidden text-xs bg-gradient-to-r from-sky-50 to-amber-50 p-3 rounded-xl border-2 border-sky-300 shadow-sm mt-2">
+                                <p class="text-[11px] font-bold text-slate-500 mb-1 uppercase tracking-wider">人教版教材规范表述：
+                                </p>
+                                <p id="m4-final-statement" class="text-sm font-bold text-slate-900 leading-relaxed">
+                                    从“12”到“1”，指针<span class="text-sky-600 underline decoration-2">绕点 O</span> 按<span
+                                        class="text-red-500 underline decoration-2">顺时针方向</span>旋转了 <span
+                                        class="text-amber-600 font-black text-base underline decoration-2">30°</span>。
+                                </p>
+                                <div
+                                    class="flex items-center justify-between text-[11px] text-slate-500 mt-2.5 pt-2 border-t border-slate-200">
+                                    <span>① 中心：点 O</span>
+                                    <span>② 方向：顺时针</span>
+                                    <span id="m4-summary-deg">③ 角度：30°</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 旋转三要素综合梳理卡片 -->
+                        <div
+                            class="bg-gradient-to-br from-indigo-50 to-sky-50 rounded-2xl p-3.5 border border-indigo-200 text-xs shadow-2xs">
+                            <div class="font-bold text-indigo-950 flex items-center space-x-1.5 mb-1.5">
+                                <span>🎯</span>
+                                <span>旋转三要素核心公式</span>
+                            </div>
+                            <div class="space-y-1.5 text-indigo-900/90 leading-relaxed">
+                                <div class="bg-white/80 p-2 rounded-lg border border-indigo-100">
+                                    <span class="font-bold text-indigo-800">旋转角度公式：</span>
+                                    <span class="text-amber-800 font-bold">旋转角度 = 经过的大格数 × 30°</span>
+                                </div>
+                                <p class="text-indigo-800/80">
+                                    掌握<strong>旋转中心</strong>、<strong>旋转方向</strong>和<strong>旋转角度</strong>，图形运动的所有奥秘都能迎刃而解！
+                                </p>
+                            </div>
+                        </div>
+                    </div>
 
                 </div>
 
@@ -1406,8 +1490,26 @@
                     </div>
                 </div>
 
-                <div id="m4-tools" class="hidden flex items-center space-x-2">
-                    <span class="text-xs text-slate-500 font-medium">拨针读数：</span>
+                <div id="m4-tools" class="hidden flex flex-wrap items-center gap-2">
+                    <span class="text-xs text-slate-500 font-medium">快捷试转：</span>
+                    <button onclick="m4QuickRotate(30)"
+                        class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-medium transition">
+                        +1格 (30°)
+                    </button>
+                    <button onclick="m4QuickRotate(60)"
+                        class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-medium transition">
+                        +2格 (60°)
+                    </button>
+                    <button onclick="m4QuickRotate(90)"
+                        class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-medium transition">
+                        +3格 (90°)
+                    </button>
+                    <button onclick="m4QuickRotate(-30)"
+                        class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-medium transition">
+                        -1格 (逆时针30°)
+                    </button>
+                    <span class="text-slate-300">|</span>
+                    <span class="text-xs text-slate-500 font-medium">指针读数：</span>
                     <span class="text-xs px-2.5 py-0.5 bg-sky-50 text-sky-700 border border-sky-200 rounded font-bold">
                         指向：<span id="m4-current-num">12</span> 点
                     </span>
@@ -1416,21 +1518,22 @@
                         <span id="m4-dir-text">↻ 顺时针</span>
                     </button>
                     <span id="m4-deg-badge"
-                        class="text-xs px-2.5 py-0.5 bg-amber-50 text-amber-800 border border-amber-200 rounded font-bold">
-                        相对<span id="m4-from-badge">12</span>点：<span id="m4-val-display">0°</span>
+                        class="text-xs px-2.5 py-0.5 bg-amber-50 text-amber-800 border border-amber-200 rounded font-bold transition-all">
+                        相对起点【<span id="m4-from-badge">12</span>点】：<span id="m4-val-display"
+                            class="font-mono text-amber-700 font-extrabold">***° (?格)</span>
                     </span>
                     <button id="m4-toggle-val-btn" onclick="toggleValueRevealed()"
-                        class="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 active:scale-95 text-white rounded text-xs font-bold transition flex items-center space-x-1 shadow-xs">
+                        class="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 active:scale-95 text-white rounded text-xs font-bold transition flex items-center space-x-1 shadow-xs animate-pulse">
                         <span id="m4-toggle-icon">👁️</span>
-                        <span id="m4-toggle-text">显示数值</span>
+                        <span id="m4-toggle-text">点击显示数值</span>
                     </button>
-                    <button onclick="m4ResetDial()"
-                        class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-medium">
-                        指向 12 点
+                    <button onclick="m4ResetToStart()"
+                        class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-medium transition">
+                        ↺ 复位起点
                     </button>
                     <label class="flex items-center space-x-1 text-xs text-slate-600 cursor-pointer ml-1">
                         <input type="checkbox" id="m4-snap-toggle" checked onchange="toggleSnap(this.checked)"
-                            class="rounded text-purple-600 focus:ring-purple-500">
+                            class="rounded text-sky-600 focus:ring-sky-500">
                         <span>整点磁吸</span>
                     </label>
                 </div>
@@ -1447,6 +1550,23 @@
 
     <!-- 全局纯纯前端 JavaScript 交互核心逻辑 -->
     <script>
+        var globalSnapEnabled = true;
+        function toggleSnap(val) {
+            globalSnapEnabled = !!val;
+            ['m1-snap-toggle', 'm2-snap-toggle', 'm4-snap-toggle'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.checked = globalSnapEnabled;
+            });
+            if (typeof sound !== 'undefined') sound.playClick();
+        }
+
+        function updateClockDragHint(text, icon = '👆') {
+            const iconEl = document.getElementById('clock-drag-icon');
+            const textEl = document.getElementById('clock-drag-text');
+            if (iconEl) iconEl.innerText = icon;
+            if (textEl) textEl.innerHTML = text;
+        }
+
         // ==========================================
         // 1. Web Audio API 音效合成引擎 (100% 离线)
         // ==========================================
@@ -1525,35 +1645,72 @@
                 } catch (e) { }
             }
 
-            // 旋转演示专用的轻量拟声：短促噪声叠加滑音，模拟“喷嚏”提示。
+            // 模块一旋转专用的拟声喷嚏系统：真人高保真音频 + Web Audio 合成双重保障 + 弹幕气泡联动
             playSneeze() {
                 if (!this.enabled) return;
+                
+                // 联动弹出气泡
+                if (typeof m0PuzzleShowSneezeToast === 'function') {
+                    m0PuzzleShowSneezeToast();
+                }
+
+                // 优先播放高保真真人喷嚏音效
+                let audioPlayed = false;
+                try {
+                    if (!this.sneezeAudio) {
+                        this.sneezeAudio = new Audio(REAL_SNEEZE_MP3);
+                        this.sneezeAudio.volume = 0.95;
+                    }
+                    this.sneezeAudio.currentTime = 0;
+                    const p = this.sneezeAudio.play();
+                    if (p && typeof p.then === 'function') {
+                        p.then(() => {
+                            audioPlayed = true;
+                        }).catch(() => {
+                            this.playSneezeSynth();
+                        });
+                    } else {
+                        audioPlayed = true;
+                    }
+                } catch (e) {
+                    this.playSneezeSynth();
+                }
+
+                // 尝试恢复 Web Audio 上下文并双轨增强
+                this.init();
+            }
+
+            // Web Audio 离线合成喷嚏音效 (双保险兜底)
+            playSneezeSynth() {
                 this.init();
                 if (!this.ctx) return;
                 try {
+                    if (this.ctx.state === 'suspended') {
+                        this.ctx.resume();
+                    }
                     const now = this.ctx.currentTime;
-                    // --- 阶段一：“阿…” 吸气与声带蓄力 (0.0s - 0.16s) ---
+                    // --- 阶段一：“阿…” 吸气与声带蓄力 (0.0s - 0.18s) ---
                     const osc1 = this.ctx.createOscillator();
                     const gain1 = this.ctx.createGain();
                     osc1.type = 'triangle';
-                    osc1.frequency.setValueAtTime(320, now);
-                    osc1.frequency.exponentialRampToValueAtTime(560, now + 0.15);
-                    gain1.gain.setValueAtTime(0.01, now);
-                    gain1.gain.linearRampToValueAtTime(0.2, now + 0.13);
-                    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+                    osc1.frequency.setValueAtTime(260, now);
+                    osc1.frequency.exponentialRampToValueAtTime(620, now + 0.18);
+                    gain1.gain.setValueAtTime(0.02, now);
+                    gain1.gain.linearRampToValueAtTime(0.35, now + 0.15);
+                    gain1.gain.exponentialRampToValueAtTime(0.005, now + 0.18);
                     osc1.connect(gain1);
                     gain1.connect(this.ctx.destination);
                     osc1.start(now);
-                    osc1.stop(now + 0.16);
+                    osc1.stop(now + 0.18);
 
-                    // --- 阶段二：“嚏！” 强力爆发气流噪声 + 共鸣音 (0.165s - 0.45s) ---
-                    const tBurst = now + 0.165;
-                    const noiseLen = 0.28;
+                    // --- 阶段二：“嚏！” 强力爆发气流噪声 + 共鸣音 (0.185s - 0.52s) ---
+                    const tBurst = now + 0.185;
+                    const noiseLen = 0.32;
                     const buffer = this.ctx.createBuffer(1, Math.floor(this.ctx.sampleRate * noiseLen), this.ctx.sampleRate);
                     const data = buffer.getChannelData(0);
                     for (let i = 0; i < data.length; i++) {
                         const progress = i / data.length;
-                        const env = Math.pow(1 - progress, 2.5);
+                        const env = Math.pow(1 - progress, 2.2);
                         data[i] = (Math.random() * 2 - 1) * env;
                     }
                     const noise = this.ctx.createBufferSource();
@@ -1562,11 +1719,11 @@
                     const bandpass = this.ctx.createBiquadFilter();
                     bandpass.type = 'bandpass';
                     bandpass.Q.setValueAtTime(2.2, tBurst);
-                    bandpass.frequency.setValueAtTime(2800, tBurst);
-                    bandpass.frequency.exponentialRampToValueAtTime(950, tBurst + noiseLen);
+                    bandpass.frequency.setValueAtTime(3200, tBurst);
+                    bandpass.frequency.exponentialRampToValueAtTime(900, tBurst + noiseLen);
 
                     const noiseGain = this.ctx.createGain();
-                    noiseGain.gain.setValueAtTime(0.42, tBurst);
+                    noiseGain.gain.setValueAtTime(0.7, tBurst);
                     noiseGain.gain.exponentialRampToValueAtTime(0.005, tBurst + noiseLen);
 
                     noise.connect(bandpass);
@@ -1579,14 +1736,14 @@
                     const oscBurst = this.ctx.createOscillator();
                     const gainBurst = this.ctx.createGain();
                     oscBurst.type = 'sawtooth';
-                    oscBurst.frequency.setValueAtTime(450, tBurst);
-                    oscBurst.frequency.exponentialRampToValueAtTime(110, tBurst + 0.18);
-                    gainBurst.gain.setValueAtTime(0.22, tBurst);
-                    gainBurst.gain.exponentialRampToValueAtTime(0.001, tBurst + 0.18);
+                    oscBurst.frequency.setValueAtTime(500, tBurst);
+                    oscBurst.frequency.exponentialRampToValueAtTime(100, tBurst + 0.22);
+                    gainBurst.gain.setValueAtTime(0.38, tBurst);
+                    gainBurst.gain.exponentialRampToValueAtTime(0.001, tBurst + 0.22);
                     oscBurst.connect(gainBurst);
                     gainBurst.connect(this.ctx.destination);
                     oscBurst.start(tBurst);
-                    oscBurst.stop(tBurst + 0.18);
+                    oscBurst.stop(tBurst + 0.22);
                 } catch (e) { }
             }
 
@@ -1943,82 +2100,79 @@
 
         // 统一渲染钟面视觉与读数状态 (支持顺/逆时针自适应与数值遮蔽)
         
-        // 根据实际顺时针/逆时针实时动态更新表盘上方黄色弧形与方向箭头
+        // 根据实际顺时针/逆时针实时动态更新表盘方向导引箭头与徽标卡片
         function updateTopRimDirectionArrow(direction) {
-            const rimArc = document.getElementById('clock-top-rim-arc');
-            const rimArrowHead = document.getElementById('clock-top-rim-arrow-head');
-            const rimText = document.getElementById('clock-top-rim-text');
-            const rimBadgeRect = document.querySelector('#clock-top-rim-badge rect');
+            const isCw = (direction === '顺时针');
+            const guideCW = document.getElementById('guide-cw');
+            const guideCCW = document.getElementById('guide-ccw');
+            if (guideCW) {
+                guideCW.setAttribute('opacity', isCw ? '1' : '0');
+                guideCW.style.display = isCw ? 'inline' : 'none';
+            }
+            if (guideCCW) {
+                guideCCW.setAttribute('opacity', isCw ? '0' : '1');
+                guideCCW.style.display = isCw ? 'none' : 'inline';
+            }
+
             const topIndicator = document.getElementById('clock-top-direction-indicator');
-            const topText = document.getElementById('clock-top-direction-text');
-            const topPath = document.getElementById('clock-top-arrow-path');
-
-            const isCw = direction === '顺时针';
-
-            if (rimArc) {
-                // 顺时针: 从左(11点)往右(1点)画弧；逆时针: 从右(1点)往左(11点)画弧
-                rimArc.setAttribute('d', isCw ? 'M 115 57 A 236 236 0 0 1 385 57' : 'M 385 57 A 236 236 0 0 0 115 57');
-                rimArc.setAttribute('stroke', isCw ? '#f59e0b' : '#0284c7');
-            }
-            if (rimArrowHead) {
-                // 顺时针: 箭头位于右端 (385, 57)，角度 35° (切线顺向向下向右)
-                // 逆时针: 箭头位于左端 (115, 57)，角度 145° (切线逆向向下向左)
-                rimArrowHead.setAttribute('transform', isCw ? 'translate(385, 57) rotate(35)' : 'translate(115, 57) rotate(145)');
-                const poly = rimArrowHead.querySelector('polygon');
-                if (poly) poly.setAttribute('fill', isCw ? '#f59e0b' : '#0284c7');
-            }
-            if (rimText) {
-                rimText.textContent = isCw ? '顺时针 ↻' : '逆时针 ↺';
-                rimText.setAttribute('fill', isCw ? '#d97706' : '#0369a1');
-            }
-            if (rimBadgeRect) {
-                rimBadgeRect.setAttribute('stroke', isCw ? '#f59e0b' : '#0284c7');
-            }
-
-            // 同步顶部浮动小指示条
-            if (topIndicator && topText && topPath) {
-                if (isCw) {
-                    topIndicator.className = 'flex items-center space-x-2 px-5 py-1.5 rounded-full text-xs sm:text-sm font-bold transition-all duration-300 shadow-sm border mb-2 bg-amber-50 text-amber-800 border-amber-300';
-                    topText.textContent = '顺时针方向 ↻';
-                    topPath.setAttribute('d', 'M 4 14 A 8 8 0 0 1 20 12 M 16 8 L 20 12 L 16 16');
+            if (topIndicator) {
+                if (currentStage === 'stage_1_clock_intro') {
+                    topIndicator.classList.add('hidden');
                 } else {
-                    topIndicator.className = 'flex items-center space-x-2 px-5 py-1.5 rounded-full text-xs sm:text-sm font-bold transition-all duration-300 shadow-sm border mb-2 bg-sky-50 text-sky-800 border-sky-300';
-                    topText.textContent = '逆时针方向 ↺';
-                    topPath.setAttribute('d', 'M 20 14 A 8 8 0 0 0 4 12 M 8 8 L 4 12 L 8 16');
+                    topIndicator.classList.toggle('hidden', currentStage === 'stage_3_triangle' || currentStage === 'stage_0_arrow');
+                    const topText = document.getElementById('clock-top-direction-text');
+                    const topPath = document.getElementById('clock-top-arrow-path');
+                    if (isCw) {
+                        topIndicator.className = 'flex items-center space-x-2 px-5 py-1.5 rounded-full text-xs sm:text-sm font-bold transition-all duration-300 shadow-sm border mb-2 bg-amber-50 text-amber-800 border-amber-300';
+                        if (topText) topText.textContent = '顺时针方向 ↻';
+                        if (topPath) topPath.setAttribute('d', 'M 4 14 A 8 8 0 0 1 20 12 M 16 8 L 20 12 L 16 16');
+                    } else {
+                        topIndicator.className = 'flex items-center space-x-2 px-5 py-1.5 rounded-full text-xs sm:text-sm font-bold transition-all duration-300 shadow-sm border mb-2 bg-sky-50 text-sky-800 border-sky-300';
+                        if (topText) topText.textContent = '逆时针方向 ↺';
+                        if (topPath) topPath.setAttribute('d', 'M 20 14 A 8 8 0 0 0 4 12 M 8 8 L 4 12 L 8 16');
+                    }
                 }
             }
         }
-function renderClockState(options = {}) {
-            if (currentStage === 'stage_3_triangle') return;
+
+        function renderClockState(options = {}) {
+            if (currentStage === 'stage_3_triangle' || currentStage === 'stage_0_arrow') return;
+
+            // 模块二 (stage_1_clock_intro) 极简纯净模式：盘面不显示任何扇面、度数、残影或起终点标记，专注方向认知
+            if (currentStage === 'stage_1_clock_intro') {
+                const sectorEl = document.getElementById('clock-sector');
+                const arcEl = document.getElementById('clock-direction-arc');
+                const tagG = document.getElementById('clock-sector-tag');
+                const shadowGroup = document.getElementById('pointer-shadow-group');
+                const markerStart = document.getElementById('marker-start');
+                const markerEnd = document.getElementById('marker-end');
+                const dragHint = document.getElementById('clock-drag-hint');
+                const pulse = document.getElementById('center-pulse-ring');
+
+                if (sectorEl) sectorEl.setAttribute('d', '');
+                if (arcEl) { arcEl.setAttribute('d', ''); arcEl.setAttribute('opacity', '0'); }
+                if (tagG) tagG.setAttribute('opacity', '0');
+                if (shadowGroup) shadowGroup.setAttribute('opacity', '0');
+                if (markerStart) { markerStart.setAttribute('cx', '-999'); markerStart.setAttribute('cy', '-999'); }
+                if (markerEnd) { markerEnd.setAttribute('cx', '-999'); markerEnd.setAttribute('cy', '-999'); }
+                if (dragHint) dragHint.classList.add('hidden');
+                if (pulse) pulse.setAttribute('opacity', '0');
+
+                updateTopRimDirectionArrow(currentRotateDir);
+                return;
+            }
 
             // 1. 获取当前场景起点与参考角度
             let startHour = 12;
             let startAngle = 0;
-            if (currentStage === 'stage_1_clock_intro') {
-                startHour = (typeof m1State !== 'undefined') ? m1State.startNum : 12;
-                startAngle = (typeof m1State !== 'undefined') ? m1State.startAngle : 0;
+            if (currentStage === 'stage_4_custom_clock') {
+                startHour = (typeof m4State !== 'undefined') ? m4State.startNum : 12;
+                startAngle = (typeof m4State !== 'undefined') ? m4State.startAngle : 0;
+                currentRotateDir = '顺时针';
             } else if (currentStage === 'stage_2_clock_quiz') {
                 const q = (typeof m2Quizzes !== 'undefined') ? (m2Quizzes.find(item => item.id === m2CurrentQuizIndex) || m2Quizzes[0]) : { fromNum: 1 };
                 startHour = q.fromNum;
                 startAngle = numberToAngle(q.fromNum);
-            } else if (currentStage === 'stage_4_custom_clock') {
-                if (typeof m4SubMode !== 'undefined' && m4SubMode === 'challenge') {
-                    const q = (typeof m2Quizzes !== 'undefined') ? (m2Quizzes.find(item => item.id === m2CurrentQuizIndex) || m2Quizzes[0]) : { fromNum: 1 };
-                    startHour = q.fromNum;
-                    startAngle = numberToAngle(q.fromNum);
-                    currentRotateDir = q.dir || '顺时针';
-                } else if (typeof m4SubMode !== 'undefined' && m4SubMode === 'degree') {
-                    startHour = (typeof m4DegreeState !== 'undefined') ? m4DegreeState.startHour : 12;
-                    startAngle = numberToAngle(startHour);
-                    currentRotateDir = (typeof m4DegreeState !== 'undefined') ? m4DegreeState.direction : '顺时针';
-                    isValueRevealed = true;
-                } else {
-                    startHour = (typeof m4CreatorState !== 'undefined') ? m4CreatorState.fromNum : 12;
-                    startAngle = numberToAngle(startHour);
-                    if (typeof m4CreatorState !== 'undefined' && !m4CreatorState.quizActive) {
-                        currentRotateDir = m4CreatorState.direction;
-                    }
-                }
             }
 
             // 2. 当前物理指针角度与指向小时
@@ -2049,7 +2203,7 @@ function renderClockState(options = {}) {
                 }
             }
 
-            // 实时更新表盘上方黄色弧形方向指示箭头 (根据当前实际顺时针或逆时针)
+            // 实时更新表盘外侧方向指示箭头
             updateTopRimDirectionArrow(currentRotateDir);
 
             // 5. 扇面与圆弧渲染
@@ -2321,7 +2475,7 @@ function renderClockState(options = {}) {
             }
             m0PuzzleState.revealStep = 0;
             m0PuzzleState.angle = 0;
-            m0PuzzleState.center = { x: 360, y: 300, name: 'a' };
+            m0PuzzleState.center = { x: 540, y: 300, name: 'b' };
             const pieces = document.getElementById('m0-puzzle-pieces');
             const ghost = document.getElementById('m0-puzzle-ghost');
             const ring = document.getElementById('m0-puzzle-center-ring');
@@ -2331,15 +2485,19 @@ function renderClockState(options = {}) {
             const tipBox = document.getElementById('m0-puzzle-tip');
             if (pieces) pieces.setAttribute('opacity', '1');
             if (ghost) ghost.setAttribute('opacity', '0.22');
-            if (ring) ring.setAttribute('opacity', '0');
-            if (centerText) centerText.setAttribute('opacity', '0');
+            if (ring) ring.setAttribute('opacity', '1');
+            if (centerText) centerText.setAttribute('opacity', '1');
             if (arc) arc.setAttribute('opacity', '0');
             if (arcTag) arcTag.setAttribute('opacity', '0');
             if (tipBox) tipBox.classList.add('hidden');
-            document.querySelectorAll('#m0-puzzle-pieces > *').forEach((piece) => {
-                piece.setAttribute('opacity', '0.18');
-                piece.style.animation = '';
-            });
+
+            const p2 = document.getElementById('m0-puzzle-piece-2');
+            const p3 = document.getElementById('m0-puzzle-piece-3');
+            const g1 = document.getElementById('m0-puzzle-group-1');
+            if (p2) p2.setAttribute('opacity', '0.18');
+            if (p3) p3.setAttribute('opacity', '0.18');
+            if (g1) g1.setAttribute('opacity', '0.18');
+
             document.querySelectorAll('#m0-puzzle-labels > text').forEach((label) => {
                 label.setAttribute('opacity', '0.18');
             });
@@ -2350,16 +2508,32 @@ function renderClockState(options = {}) {
                 status.className = 'text-[11px] px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 font-semibold border border-slate-200';
             }
             if (reveal) reveal.innerText = '▶ 依次显示拼图';
+
+            // 重新启用演示旋转1号图形按钮
+            const demoBtn = document.getElementById('m0-puzzle-rotate-demo-btn');
+            if (demoBtn) {
+                demoBtn.disabled = false;
+                demoBtn.className = 'w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-95 text-white text-xs font-bold transition shadow-xs flex items-center justify-center space-x-1.5';
+                demoBtn.innerHTML = '<span>↻</span><span>演示旋转1号图形</span>';
+            }
+
+            m0PuzzleSelectCenter('b');
             m0PuzzleApplyTransform();
         }
 
         function m0PuzzleRevealNext() {
-            const pieces = document.querySelectorAll('#m0-puzzle-pieces > *');
+            const pieces = [
+                document.getElementById('m0-puzzle-group-1'),
+                document.getElementById('m0-puzzle-piece-2'),
+                document.getElementById('m0-puzzle-piece-3')
+            ];
             if (m0PuzzleState.revealStep >= pieces.length) return;
             sound.playStepUnlock();
             const piece = pieces[m0PuzzleState.revealStep];
-            piece.style.animation = 'm0PuzzleFlash 520ms ease-out';
-            piece.setAttribute('opacity', '1');
+            if (piece) {
+                piece.style.animation = 'm0PuzzleFlash 520ms ease-out';
+                piece.setAttribute('opacity', '1');
+            }
             const label = document.getElementById(`m0-puzzle-label-${m0PuzzleState.revealStep + 1}`);
             if (label) label.setAttribute('opacity', '1');
             m0PuzzleState.revealStep += 1;
@@ -2372,13 +2546,12 @@ function renderClockState(options = {}) {
         }
 
         function m0PuzzleApplyTransform() {
-            const piece = document.getElementById('m0-puzzle-piece-1');
-            const label = document.getElementById('m0-puzzle-label-1');
-            if (!piece) return;
+            const group1 = document.getElementById('m0-puzzle-group-1');
+            if (!group1) return;
             const { x, y } = m0PuzzleState.center;
             const transform = `rotate(${m0PuzzleState.angle} ${x} ${y})`;
-            piece.setAttribute('transform', transform);
-            if (label) label.setAttribute('transform', transform);
+            group1.setAttribute('transform', transform);
+
             const ring = document.getElementById('m0-puzzle-center-ring');
             const centerText = document.getElementById('m0-puzzle-center-text');
             if (ring) { ring.setAttribute('cx', x); ring.setAttribute('cy', y); }
@@ -2443,7 +2616,7 @@ function renderClockState(options = {}) {
             tagEl.setAttribute('opacity', '1');
         }
 
-        // 演示旋转 1 号图形 (+90°) 并播放喷嚏音效
+        // 演示旋转 1 号图形：以 B 点为旋转中心顺时针旋转 90°，完成后禁用按钮
         function m0PuzzleRotateDemo() {
             if (m0PuzzleState.animId) {
                 cancelAnimationFrame(m0PuzzleState.animId);
@@ -2451,14 +2624,25 @@ function renderClockState(options = {}) {
             }
             if (m0PuzzleState.revealStep < 3) {
                 m0PuzzleState.revealStep = 3;
-                document.querySelectorAll('#m0-puzzle-pieces > *').forEach((piece) => piece.setAttribute('opacity', '1'));
+                const p2 = document.getElementById('m0-puzzle-piece-2');
+                const p3 = document.getElementById('m0-puzzle-piece-3');
+                const g1 = document.getElementById('m0-puzzle-group-1');
+                if (p2) p2.setAttribute('opacity', '1');
+                if (p3) p3.setAttribute('opacity', '1');
+                if (g1) g1.setAttribute('opacity', '1');
                 document.querySelectorAll('#m0-puzzle-labels > text').forEach((label) => label.setAttribute('opacity', '1'));
             }
+            // 选定顶点 B 为旋转中心
+            m0PuzzleSelectCenter('b');
+
             // 播放喷嚏音效
             sound.playSneeze();
 
-            const start = m0PuzzleState.angle;
-            const end = start + 90;
+            const start = 0;
+            const end = 90;
+            m0PuzzleState.angle = start;
+            m0PuzzleApplyTransform();
+
             const startedAt = performance.now();
             function frame(now) {
                 const progress = Math.min(1, (now - startedAt) / 750);
@@ -2471,18 +2655,27 @@ function renderClockState(options = {}) {
                 } else {
                     m0PuzzleState.angle = end;
                     m0PuzzleApplyTransform();
+                    m0PuzzleRenderArc(start, end, false);
                     m0PuzzleState.animId = null;
+
+                    // 顺时针旋转90°完成后禁用该按钮，不可再点击
+                    const btn = document.getElementById('m0-puzzle-rotate-demo-btn');
+                    if (btn) {
+                        btn.disabled = true;
+                        btn.className = 'w-full py-2.5 rounded-xl bg-slate-200 text-slate-400 font-bold text-xs cursor-not-allowed transition flex items-center justify-center space-x-1.5';
+                        btn.innerHTML = '<span>✓</span><span>1号图形已顺时针旋转90°</span>';
+                    }
                 }
             }
             m0PuzzleState.animId = requestAnimationFrame(frame);
             const status = document.getElementById('m0-puzzle-status');
             if (status) {
-                status.innerText = `1号图形顺时针旋转中 (${Math.round(end)}°)`;
+                status.innerText = `1号图形以B为中心顺时针旋转90°`;
                 status.className = 'text-[11px] px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold border border-amber-300';
             }
         }
 
-        // 方法一：使1号方块逆时针旋转90°；方法二：使1号方块顺时针旋转270°
+        // 方法一：从现有角度逆时针旋转 90°；方法二：从现有角度顺时针旋转 270°
         function m0PuzzleApplyMethod(method) {
             if (m0PuzzleState.animId) {
                 cancelAnimationFrame(m0PuzzleState.animId);
@@ -2490,29 +2683,32 @@ function renderClockState(options = {}) {
             }
             if (m0PuzzleState.revealStep < 3) {
                 m0PuzzleState.revealStep = 3;
-                document.querySelectorAll('#m0-puzzle-pieces > *').forEach((piece) => piece.setAttribute('opacity', '1'));
+                const p2 = document.getElementById('m0-puzzle-piece-2');
+                const p3 = document.getElementById('m0-puzzle-piece-3');
+                const g1 = document.getElementById('m0-puzzle-group-1');
+                if (p2) p2.setAttribute('opacity', '1');
+                if (p3) p3.setAttribute('opacity', '1');
+                if (g1) g1.setAttribute('opacity', '1');
                 document.querySelectorAll('#m0-puzzle-labels > text').forEach((label) => label.setAttribute('opacity', '1'));
             }
-            // 选定顶点 A (360, 300) 为标准旋转中心
-            m0PuzzleSelectCenter('a');
+            // 选定顶点 B 为旋转中心
+            m0PuzzleSelectCenter('b');
 
-            // 1. 当旋转时播放打喷嚏音效
+            // 播放喷嚏音效
             sound.playSneeze();
 
             const isMethod1 = (method === 1);
+            // 按照现有一号图形角度进行对应顺、逆时针度数旋转：
             // 方法一：逆时针旋转 90° (-90°)
             // 方法二：顺时针旋转 270° (+270°)
-            const startAngle = 0;
-            const targetAngle = isMethod1 ? -90 : 270;
+            const startAngle = m0PuzzleState.angle;
+            const targetAngle = isMethod1 ? (startAngle - 90) : (startAngle + 270);
             const duration = isMethod1 ? 850 : 1450;
             const startedAt = performance.now();
 
-            m0PuzzleState.angle = startAngle;
-            m0PuzzleApplyTransform();
-
             const status = document.getElementById('m0-puzzle-status');
             if (status) {
-                status.innerText = isMethod1 ? '方法一：逆时针旋转 90°' : '方法二：顺时针旋转 270°';
+                status.innerText = isMethod1 ? '方法一：绕点B逆时针旋转 90°' : '方法二：绕点B顺时针旋转 270°';
                 status.className = isMethod1
                     ? 'text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold border border-emerald-300'
                     : 'text-[11px] px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 font-bold border border-blue-300';
@@ -2556,6 +2752,19 @@ function renderClockState(options = {}) {
             m0PuzzleApplyTransform();
         }
 
+        function m0PuzzleShowSneezeToast() {
+            const toast = document.getElementById('m0-puzzle-sneeze-toast');
+            if (!toast) return;
+            const cx = (m0PuzzleState.center && m0PuzzleState.center.x) || 480;
+            const cy = ((m0PuzzleState.center && m0PuzzleState.center.y) || 280) - 80;
+            toast.setAttribute('transform', `translate(${cx}, ${cy})`);
+            toast.style.opacity = '1';
+            if (m0PuzzleState.sneezeToastTimer) clearTimeout(m0PuzzleState.sneezeToastTimer);
+            m0PuzzleState.sneezeToastTimer = setTimeout(() => {
+                toast.style.opacity = '0';
+            }, 1000);
+        }
+
         function m0PuzzleSvgPoint(event) {
             const svg = document.getElementById('m0-puzzle-svg');
             const rect = svg.getBoundingClientRect();
@@ -2585,8 +2794,13 @@ function renderClockState(options = {}) {
             const dx = point.x - m0PuzzleState.center.x;
             const dy = point.y - m0PuzzleState.center.y;
             const now = Math.atan2(dy, dx) * 180 / Math.PI;
+            const prevAngle = m0PuzzleState.angle;
             m0PuzzleState.angle = m0PuzzleState.dragBase + now - m0PuzzleState.dragStart;
             m0PuzzleApplyTransform();
+            if (Math.abs(m0PuzzleState.angle - (m0PuzzleState.lastSneezeAngle || 0)) >= 45) {
+                m0PuzzleState.lastSneezeAngle = m0PuzzleState.angle;
+                sound.playSneeze();
+            }
 
             const status = document.getElementById('m0-puzzle-status');
             // if (status) {
@@ -3139,7 +3353,7 @@ function renderClockState(options = {}) {
         // 动画演示第一次
         function m0AnimateFirst(onComplete) {
             if (m0State.animTimerFirst) clearInterval(m0State.animTimerFirst);
-            sound.playWhoosh();
+            sound.playSneeze();
             m0State.angleFirst = 0;
             m0RenderFirst(0);
             if (m0State.viewMode === 'first') m0RenderSingle();
@@ -3161,7 +3375,7 @@ function renderClockState(options = {}) {
         // 动画演示第二次
         function m0AnimateSecond(onComplete) {
             if (m0State.animTimerSecond) clearInterval(m0State.animTimerSecond);
-            sound.playWhoosh();
+            sound.playSneeze();
             m0State.angleSecond = 0;
             m0RenderSecond(0);
             if (m0State.viewMode === 'second') m0RenderSingle();
@@ -3316,27 +3530,31 @@ function renderClockState(options = {}) {
             }
 
             // 切换顶部子操作栏
+            // 离开模块二时停止连续循环转动
+            if (stageId !== 'stage_1_clock_intro') {
+                m1StopContinuousRotate();
+            }
+
+            // 切换顶部子操作栏
             document.getElementById('m0-subnav').classList.add('hidden');
             document.getElementById('m1-subnav').classList.toggle('hidden', stageId !== 'stage_1_clock_intro');
             const m2Sub = document.getElementById('m2-subnav');
             if (m2Sub) m2Sub.classList.add('hidden');
             document.getElementById('m3-subnav').classList.toggle('hidden', stageId !== 'stage_3_triangle');
-            document.getElementById('m4-subnav').classList.add('hidden');
+            document.getElementById('m4-subnav').classList.toggle('hidden', stageId !== 'stage_4_custom_clock');
 
             // 切换画布容器 (线段箭头 vs 钟面 vs 三角网格)
             document.getElementById('arrow-container').classList.toggle('hidden', stageId !== 'stage_0_arrow');
             document.getElementById('clock-container').classList.toggle('hidden', stageId === 'stage_3_triangle' || stageId === 'stage_0_arrow');
-            // 模块二专属：时钟外线段 OA 舞台与钟面上方方向指示器仅在模块二显示
             
+            // 模块二专属：方向指示采用右上黄框和左上对称卡片，隐藏中央浮动指示器
             const clockTopIndicator = document.getElementById('clock-top-direction-indicator');
-            if (clockTopIndicator) clockTopIndicator.classList.toggle('hidden', stageId !== 'stage_1_clock_intro');
-            const clockDragHint = document.getElementById('clock-drag-hint');
-            if (clockDragHint && stageId === 'stage_1_clock_intro') clockDragHint.classList.add('hidden');
+            if (clockTopIndicator) clockTopIndicator.classList.add('hidden');
 
             document.getElementById('triangle-container').classList.toggle('hidden', stageId !== 'stage_3_triangle');
             const globalBottomBar = document.getElementById('global-bottom-bar');
             if (globalBottomBar) {
-                globalBottomBar.classList.toggle('hidden', stageId === 'stage_3_triangle');
+                globalBottomBar.classList.toggle('hidden', stageId === 'stage_3_triangle' || stageId === 'stage_1_clock_intro');
             }
 
             // 切换底部微调工具栏
@@ -3344,7 +3562,6 @@ function renderClockState(options = {}) {
             document.getElementById('m1-tools').classList.add('hidden');
             const m2Tools = document.getElementById('m2-tools');
             if (m2Tools) m2Tools.classList.add('hidden');
-            // document.getElementById('m3-tools').classList.toggle('hidden', stageId !== 'stage_3_triangle');
             document.getElementById('m4-tools').classList.toggle('hidden', stageId !== 'stage_4_custom_clock');
 
             // 切换钟面容器内左右两侧的交互与导学面板
@@ -3358,32 +3575,20 @@ function renderClockState(options = {}) {
             const m4L = document.getElementById('m4-left-panel');
             const m4R = document.getElementById('m4-right-panel');
 
-            if (m1L) m1L.classList.toggle('hidden', !isM1);
-            if (m1R) m1R.classList.toggle('hidden', !isM1);
+            if (m1L) m1L.classList.add('hidden');
+            if (m1R) m1R.classList.add('hidden');
             if (m2L) m2L.classList.add('hidden');
             if (m2R) m2R.classList.add('hidden');
             if (m4L) m4L.classList.toggle('hidden', !isM4);
-            if (m4R) m4R.classList.add('hidden');
+            if (m4R) m4R.classList.toggle('hidden', !isM4);
 
-            // 钟面拖拽提示层显隐与文案更新
+            // 钟面拖拽提示层显隐与文案更新 (模块二保持纯净不显示底部胶囊)
             const dragHint = document.getElementById('clock-drag-hint');
-            if (dragHint && currentStage === 'stage_1_clock_intro') {
-                dragHint.classList.add('hidden');
-            }
-            
             if (dragHint) {
-                dragHint.classList.toggle('hidden', stageId === 'stage_3_triangle' || stageId === 'stage_0_arrow');
+                dragHint.classList.toggle('hidden', stageId === 'stage_1_clock_intro' || stageId === 'stage_3_triangle' || stageId === 'stage_0_arrow');
             }
-            if (stageId === 'stage_1_clock_intro') {
-                updateClockDragHint('按住表盘<strong>红色指针或金色旋钮</strong>，亲手转动探索旋转要素！');
-            } else if (stageId === 'stage_4_custom_clock') {
-                if (typeof m4SubMode !== 'undefined' && m4SubMode === 'degree') {
-                    updateClockDragHint('输入或滑动度数，表盘将实时旋转显示；也可直接在表盘上拨动红色指针！');
-                } else if (typeof m4SubMode !== 'undefined' && m4SubMode === 'quiz') {
-                    updateClockDragHint('按住表盘<strong>红色指针或金色旋钮</strong>，自由拨动或完成出题挑战！');
-                } else {
-                    updateClockDragHint('按住红色指针转动，或点击选项与表盘数字作答！');
-                }
+            if (stageId === 'stage_4_custom_clock') {
+                updateClockDragHint('按住红色指针转动，或点击左侧步骤卡片与选项开展四步探究！');
             }
 
             // 初始化或激活对应模块逻辑
@@ -3404,140 +3609,110 @@ function renderClockState(options = {}) {
                 m0ResetBoth();
                 m0PuzzleReset();
             } else if (currentStage === 'stage_1_clock_intro') {
-                m1SetExample(m1CurrentExample, m1State.startNum, m1State.endNum);
+                m1ResetToStart();
             } else if (currentStage === 'stage_3_triangle') {
                 m3Reset();
             } else if (currentStage === 'stage_4_custom_clock') {
-                m4ResetCurrentMode();
+                m4ResetToStart();
             }
         }
 
         // ==========================================
-        // 4. 模块一：钟面指针旋转探究（例 6(1) 主探究）
+        // 4. 模块二：钟面指针初探 (认识顺/逆时针方向与连续旋转循环)
         // ==========================================
-        let m1CurrentExample = '12_to_1'; // '12_to_1' | '1_to_3' | '3_to_6' | 'custom'
-        let m1State = {
-            step: 0, // 0: 未开始, 1: 定位中心, 2: 旋转并判断方向, 3: 算理展开, 4: 生成标准语
-            startNum: 12,
-            endNum: 1,
-            startAngle: 0,
-            endAngle: 30,
-            bigGrids: 1,
-            degree: 30,
-            isCenterLit: false,
-            isRotated: false,
-            isDirectionVerified: false,
-            isSectorShown: false,
-            isStandardRevealed: false
-        };
+        let m1ContinuousAnimId = null;
+        let m1LastTimestamp = null;
+        const m1ContinuousSpeed = 60; // 60度/秒，转动平缓稳定
 
-        function m1PopulateSelects() {
-            const selStart = document.getElementById('m1-select-start');
-            const selEnd = document.getElementById('m1-select-end');
-            if (!selStart || !selEnd) return;
-            if (selStart.options && selStart.options.length === 12) return;
+        function m1StartContinuousRotate(dir) {
+            sound.playClick();
+            m1StopContinuousRotate();
+            currentRotateDir = dir;
+            updateTopRimDirectionArrow(dir);
 
-            selStart.innerHTML = '';
-            selEnd.innerHTML = '';
-            for (let i = 1; i <= 12; i++) {
-                const opt1 = document.createElement('option');
-                opt1.value = i;
-                opt1.textContent = `${i} 点`;
-                selStart.appendChild(opt1);
+            // 按钮高亮状态更新
+            const btnCCW = document.getElementById('m1-btn-ccw');
+            const btnCW = document.getElementById('m1-btn-cw');
+            const btnStop = document.getElementById('m1-btn-stop');
 
-                const opt2 = document.createElement('option');
-                opt2.value = i;
-                opt2.textContent = `${i} 点`;
-                selEnd.appendChild(opt2);
+            if (btnCCW) {
+                if (dir === '逆时针') {
+                    btnCCW.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 bg-sky-600 text-white shadow-xs';
+                } else {
+                    btnCCW.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 bg-white text-sky-700 border border-sky-300 hover:bg-sky-50 shadow-2xs';
+                }
+            }
+            if (btnCW) {
+                if (dir === '顺时针') {
+                    btnCW.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 bg-amber-500 text-white shadow-xs';
+                } else {
+                    btnCW.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 bg-white text-amber-700 border border-amber-300 hover:bg-amber-50 shadow-2xs';
+                }
+            }
+            if (btnStop) {
+                btnStop.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 bg-rose-50 text-rose-700 border border-rose-300 hover:bg-rose-100 shadow-2xs';
+            }
+
+            m1LastTimestamp = performance.now();
+            function step(now) {
+                const dt = (now - m1LastTimestamp) / 1000;
+                m1LastTimestamp = now;
+
+                const delta = m1ContinuousSpeed * dt;
+                if (dir === '顺时针') {
+                    currentNeedleAngle = (currentNeedleAngle + delta) % 360;
+                } else {
+                    currentNeedleAngle = (currentNeedleAngle - delta + 360) % 360;
+                }
+
+                const needleGroup = document.getElementById('clock-needle-group');
+                if (needleGroup) {
+                    needleGroup.setAttribute('transform', `rotate(${currentNeedleAngle} 250 250)`);
+                }
+                renderClockState();
+                m1ContinuousAnimId = requestAnimationFrame(step);
+            }
+            m1ContinuousAnimId = requestAnimationFrame(step);
+        }
+
+        function m1StopContinuousRotate() {
+            if (m1ContinuousAnimId) {
+                cancelAnimationFrame(m1ContinuousAnimId);
+                m1ContinuousAnimId = null;
+            }
+            m1LastTimestamp = null;
+
+            const btnCCW = document.getElementById('m1-btn-ccw');
+            const btnCW = document.getElementById('m1-btn-cw');
+            const btnStop = document.getElementById('m1-btn-stop');
+
+            if (btnCCW) {
+                btnCCW.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 bg-white text-sky-700 border border-sky-300 hover:bg-sky-50 shadow-2xs';
+            }
+            if (btnCW) {
+                btnCW.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 bg-white text-amber-700 border border-amber-300 hover:bg-amber-50 shadow-2xs';
+            }
+            if (btnStop) {
+                btnStop.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 shadow-2xs';
             }
         }
 
         function m1Init() {
+            m1StopContinuousRotate();
             currentRotateDir = '顺时针';
-            isValueRevealed = true;
-            if (typeof m1State === 'undefined') {
-                m1State = { startNum: 12, startAngle: 0, endNum: 1, degree: 30 };
-            } else {
-                m1State.startNum = 12;
-                m1State.startAngle = 0;
-                m1State.endNum = 1;
-                m1State.degree = 30;
+            currentNeedleAngle = 0;
+            const needleGroup = document.getElementById('clock-needle-group');
+            if (needleGroup) {
+                needleGroup.setAttribute('transform', 'rotate(0 250 250)');
             }
-            setClockNeedleAngle(0, false);
-            renderClockState({ snap: true });
+            updateTopRimDirectionArrow('顺时针');
+            renderClockState();
         }
 
-        // 演示从当前起点分别沿顺时针或逆时针方向旋转同样的角度。
-        // ==========================================
-        // 模块二专属：时钟外线段 OA 同步旋转与钟面上方方向指示箭头
-        // ==========================================
-        function renderModule2LineSegment(needleDeg, startAngle, direction, rotatedDeg) {
-            // 更新钟表上方的方向指示箭头 (指示顺时针 / 逆时针)
-            const topIndicator = document.getElementById('clock-top-direction-indicator');
-            const topText = document.getElementById('clock-top-direction-text');
-            const topPath = document.getElementById('clock-top-arrow-path');
-            const topRimArc = document.getElementById('clock-top-rim-arc');
-
-            if (topIndicator && topText && topPath) {
-                if (direction === '顺时针') {
-                    topIndicator.className = 'flex items-center space-x-2 px-5 py-1.5 rounded-full text-xs sm:text-sm font-bold transition-all duration-300 shadow-sm border mb-2 bg-amber-50 text-amber-800 border-amber-300';
-                    topText.textContent = '顺时针方向 ↻';
-                    topPath.setAttribute('d', 'M 4 14 A 8 8 0 0 1 20 12 M 16 8 L 20 12 L 16 16');
-                    if (topRimArc) {
-                        topRimArc.setAttribute('d', 'M 120 54 A 236 236 0 0 1 380 54');
-                        topRimArc.setAttribute('stroke', '#f59e0b');
-                        topRimArc.setAttribute('marker-end', 'url(#arrow-top-cw)');
-                    }
-                } else {
-                    topIndicator.className = 'flex items-center space-x-2 px-5 py-1.5 rounded-full text-xs sm:text-sm font-bold transition-all duration-300 shadow-sm border mb-2 bg-sky-50 text-sky-800 border-sky-300';
-                    topText.textContent = '逆时针方向 ↺';
-                    topPath.setAttribute('d', 'M 20 14 A 8 8 0 0 0 4 12 M 8 8 L 4 12 L 8 16');
-                    if (topRimArc) {
-                        topRimArc.setAttribute('d', 'M 380 54 A 236 236 0 0 0 120 54');
-                        topRimArc.setAttribute('stroke', '#0284c7');
-                        topRimArc.setAttribute('marker-end', 'url(#arrow-top-ccw)');
-                    }
-                }
-            }
-        }
-
-        // 模块二专属操作：顺时针 / 逆时针每次平滑步进 30°
-        function m1DemoDirection(direction) {
-            if (direction !== '顺时针' && direction !== '逆时针') return;
-            sound.playWhoosh();
-            currentRotateDir = direction;
-            isValueRevealed = true;
-
-            const deltaDeg = (direction === '顺时针' ? 30 : -30);
-            const targetAngle = currentNeedleAngle + deltaDeg;
-            setClockNeedleAngle(targetAngle, true);
-            renderClockState({ snap: true });
-        }
-
-        // 模块二复位起点到 12 点
         function m1ResetToStart() {
             sound.playClick();
-            currentRotateDir = '顺时针';
-            isValueRevealed = true;
-            if (typeof m1State !== 'undefined') {
-                m1State.startNum = 12;
-                m1State.startAngle = 0;
-                m1State.endNum = 1;
-                m1State.degree = 30;
-            }
-            setClockNeedleAngle(0, true);
-            renderClockState({ snap: true });
+            m1Init();
         }
-
-        // 模块二旧步骤向导函数已按需精简移除 (保留必要空桩以防万一)
-        function m1SetExample() {}
-        function m1ApplyCustomRange() {}
-        function m1UpdateStepUI() {}
-        function m1ActionStep1() {}
-        function m1ActionStep2() {}
-        function m1ActionStep3() {}
-        function m1ActionStep4() {}
-        function m1QuickRotate() {}
 
         // ==========================================
         let m2CurrentQuizIndex = 1;
@@ -4587,407 +4762,397 @@ function m3UpdateAngleButtonsHighlight(deg) {
             }
         }
 
+        // ==========================================
+        // 7. 模块四：钟面指针探究（人教版例6四步探究模型，平替原自由工坊）
+        // ==========================================
+        let m4CurrentExample = '12_to_1'; // '12_to_1' | '1_to_3' | '3_to_6' | 'custom'
+        let m4State = {
+            step: 0, // 0: 未开始, 1: 定位中心, 2: 旋转并判断方向, 3: 算理展开, 4: 生成标准语
+            startNum: 12,
+            endNum: 1,
+            startAngle: 0,
+            endAngle: 30,
+            bigGrids: 1,
+            degree: 30,
+            isCenterLit: false,
+            isRotated: false,
+            isDirectionVerified: false,
+            isSectorShown: false,
+            isStandardRevealed: false
+        };
+
+        function m4PopulateSelects() {
+            const selStart = document.getElementById('m4-select-start');
+            const selEnd = document.getElementById('m4-select-end');
+            if (!selStart || !selEnd) return;
+            if (selStart.options && selStart.options.length === 12) return;
+
+            selStart.innerHTML = '';
+            selEnd.innerHTML = '';
+            for (let i = 1; i <= 12; i++) {
+                const opt1 = document.createElement('option');
+                opt1.value = i;
+                opt1.textContent = `${i} 点`;
+                selStart.appendChild(opt1);
+
+                const opt2 = document.createElement('option');
+                opt2.value = i;
+                opt2.textContent = `${i} 点`;
+                selEnd.appendChild(opt2);
+            }
+        }
+
         function m4Init() {
-            isValueRevealed = true;
-            m4ApplyDegreeState(false);
+            m4PopulateSelects();
             setupPointerDragEvents();
-            updateClockDragHint('选择开始/结束刻度或输入度数，也可点击“随机出题”进行挑战！');
+            m4SetExample(m4CurrentExample, m4State.startNum, m4State.endNum);
         }
 
-        // =====================
-        // 刻度与度数旋转设定逻辑
-        // =====================
-        function m4OnDegStartHourChange(val) {
+        function m4SetExample(exampleKey, customStart, customEnd) {
+            m4CurrentExample = exampleKey;
             sound.playClick();
-            m4DegreeState.startHour = parseInt(val) || 12;
-            m4DegreeState.degree = calcHoursDegree(m4DegreeState.startHour, m4DegreeState.endHour, m4DegreeState.direction);
-            m4SyncInputsFromDegree(m4DegreeState.degree);
-            m4ApplyDegreeState(true);
-        }
+            m4PopulateSelects();
 
-        function m4OnDegEndHourChange(val) {
-            sound.playClick();
-            m4DegreeState.endHour = parseInt(val) || 12;
-            m4DegreeState.degree = calcHoursDegree(m4DegreeState.startHour, m4DegreeState.endHour, m4DegreeState.direction);
-            m4SyncInputsFromDegree(m4DegreeState.degree);
-            m4ApplyDegreeState(true);
-        }
+            let startNum = 12;
+            let endNum = 1;
+            let titlePrefix = '例 6(1)';
 
-        function m4SetDegreeDirection(dir) {
-            sound.playClick();
-            m4DegreeState.direction = dir;
-            currentRotateDir = dir;
-            m4DegreeState.degree = calcHoursDegree(m4DegreeState.startHour, m4DegreeState.endHour, dir);
-            m4SyncInputsFromDegree(m4DegreeState.degree);
-            m4UpdateDirectionButtons();
-            m4ApplyDegreeState(true);
-        }
+            const btn1 = document.getElementById('m4-sub-1');
+            const btn2 = document.getElementById('m4-sub-2');
+            const btn3 = document.getElementById('m4-sub-3');
+            const btnCustom = document.getElementById('m4-sub-custom');
 
-        function m4UpdateDirectionButtons() {
-            const cwBtn = document.getElementById('m4-dir-cw-btn');
-            const ccwBtn = document.getElementById('m4-dir-ccw-btn');
-            const isCW = m4DegreeState.direction === '顺时针';
-            if (cwBtn) {
-                cwBtn.className = isCW
-                    ? 'py-2 px-3 rounded-xl font-bold text-xs border transition flex items-center justify-center space-x-1.5 bg-amber-500 text-white border-amber-500 shadow-xs active:scale-95'
-                    : 'py-2 px-3 rounded-xl font-bold text-xs border transition flex items-center justify-center space-x-1.5 bg-white text-slate-700 border-slate-200 hover:bg-slate-50 active:scale-95';
-            }
-            if (ccwBtn) {
-                ccwBtn.className = !isCW
-                    ? 'py-2 px-3 rounded-xl font-bold text-xs border transition flex items-center justify-center space-x-1.5 bg-sky-600 text-white border-sky-600 shadow-xs active:scale-95'
-                    : 'py-2 px-3 rounded-xl font-bold text-xs border transition flex items-center justify-center space-x-1.5 bg-white text-slate-700 border-slate-200 hover:bg-slate-50 active:scale-95';
-            }
-        }
+            const inactiveClass = 'px-2.5 py-1 rounded-md text-xs font-bold transition bg-white text-slate-700 border border-slate-200 hover:bg-slate-100';
+            const activeSky = 'px-2.5 py-1 rounded-md text-xs font-bold transition bg-sky-600 text-white shadow-xs';
+            const activeIndigo = 'px-2 py-0.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-bold transition shadow-xs ring-2 ring-indigo-300';
+            const defaultCustomBtn = 'px-2 py-0.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-bold transition shadow-xs';
 
-        function m4OnDegInputChange(val) {
-            let num = parseFloat(val);
-            if (isNaN(num)) num = 0;
-            num = Math.max(0, Math.min(360, num));
-            m4DegreeState.degree = num;
-            const slider = document.getElementById('m4-deg-slider');
-            if (slider) slider.value = num;
-            m4UpdatePresetButtonsHighlight(num);
-            m4SyncEndHourFromDegree(m4DegreeState.startHour, num, m4DegreeState.direction);
-            m4ApplyDegreeState(false);
-        }
+            if (btn1) btn1.className = inactiveClass;
+            if (btn2) btn2.className = inactiveClass;
+            if (btn3) btn3.className = inactiveClass;
+            if (btnCustom) btnCustom.className = defaultCustomBtn;
 
-        function m4OnDegSliderChange(val) {
-            const num = parseFloat(val) || 0;
-            m4DegreeState.degree = num;
-            const input = document.getElementById('m4-deg-input');
-            if (input) input.value = num;
-            m4UpdatePresetButtonsHighlight(num);
-            m4SyncEndHourFromDegree(m4DegreeState.startHour, num, m4DegreeState.direction);
-            m4ApplyDegreeState(false);
-        }
-
-        function m4SetPresetDegree(deg) {
-            sound.playClick();
-            m4DegreeState.degree = deg;
-            m4SyncInputsFromDegree(deg);
-            m4SyncEndHourFromDegree(m4DegreeState.startHour, deg, m4DegreeState.direction);
-            m4ApplyDegreeState(true);
-        }
-
-        function m4SyncInputsFromDegree(deg) {
-            const input = document.getElementById('m4-deg-input');
-            const slider = document.getElementById('m4-deg-slider');
-            if (input) input.value = deg;
-            if (slider) slider.value = deg;
-            m4UpdatePresetButtonsHighlight(deg);
-        }
-
-        function m4SyncEndHourFromDegree(startHour, deg, dir) {
-            const endSelect = document.getElementById('m4-deg-end-hour');
-            if (!endSelect) return;
-            const endH = calcEndHourFromDegree(startHour, deg, dir);
-            m4DegreeState.endHour = endH;
-            endSelect.value = endH;
-        }
-
-        function m4UpdatePresetButtonsHighlight(deg) {
-            document.querySelectorAll('.m4-preset-btn').forEach(btn => {
-                const bDeg = parseFloat(btn.dataset.deg || btn.innerText);
-                if (bDeg === deg) {
-                    btn.className = 'm4-preset-btn py-1.5 px-1 text-center rounded-lg border border-amber-400 bg-amber-100 font-black text-amber-900 transition active:scale-95 shadow-2xs';
-                } else {
-                    btn.className = 'm4-preset-btn py-1.5 px-1 text-center rounded-lg border border-slate-200 bg-white hover:bg-amber-50 font-bold text-slate-700 transition active:scale-95 shadow-2xs';
-                }
-            });
-        }
-
-        function m4ApplyDegreeState(animate = true) {
-            const startHour = m4DegreeState.startHour;
-            const startAngle = numberToAngle(startHour);
-            const deg = m4DegreeState.degree;
-            const dir = m4DegreeState.direction;
-
-            currentRotateDir = dir;
-            isValueRevealed = true;
-
-            let targetAngle = 0;
-            if (dir === '顺时针') {
-                targetAngle = (startAngle + deg) % 360;
-            } else {
-                targetAngle = (startAngle - (deg % 360) + 360) % 360;
+            if (exampleKey === '12_to_1') {
+                startNum = 12;
+                endNum = 1;
+                titlePrefix = '例 6(1)';
+                if (btn1) btn1.className = activeSky;
+            } else if (exampleKey === '1_to_3') {
+                startNum = 1;
+                endNum = 3;
+                titlePrefix = '演练案例';
+                if (btn2) btn2.className = activeSky;
+            } else if (exampleKey === '3_to_6') {
+                startNum = 3;
+                endNum = 6;
+                titlePrefix = '演练案例';
+                if (btn3) btn3.className = activeSky;
+            } else if (exampleKey === 'custom') {
+                startNum = parseInt(customStart, 10) || 3;
+                endNum = parseInt(customEnd, 10) || 6;
+                titlePrefix = '自主探究';
+                if (btnCustom) btnCustom.className = activeIndigo;
             }
 
-            setClockNeedleAngle(targetAngle, animate);
+            const selStart = document.getElementById('m4-select-start');
+            const selEnd = document.getElementById('m4-select-end');
+            if (selStart) selStart.value = startNum;
+            if (selEnd) selEnd.value = endNum;
 
-            let endHour = Math.round(targetAngle / 30);
-            if (endHour === 0) endHour = 12;
-            m4DegreeState.endHour = endHour;
-            const endSelect = document.getElementById('m4-deg-end-hour');
-            if (endSelect && deg % 30 === 0) {
-                endSelect.value = endHour;
-            }
+            let grids = (endNum - startNum + 12) % 12;
+            if (grids === 0) grids = 12;
+            const degree = grids * 30;
+            const startAngle = numberToAngle(startNum);
+            const endAngle = numberToAngle(endNum);
 
-            setMarker('start', startHour);
-            if (deg > 0) {
-                setMarker('end', endHour);
-            } else {
-                clearMarker('end');
-            }
-
-            m4UpdateDirectionButtons();
-            m4UpdateAngleTypeBadge(deg);
-            renderClockState({ isFullCircle: deg >= 360 });
-        }
-
-        function m4UpdateAngleTypeBadge(deg) {
-            const tagEl = document.getElementById('m4-deg-angle-type');
-            if (!tagEl) return;
-            let angleType = '';
-            if (deg === 90) angleType = '【直角 · 90°】';
-            else if (deg === 180) angleType = '【平角 · 180°】';
-            else if (deg === 360) angleType = '【周角 · 360°】';
-            else if (deg > 0 && deg < 90) angleType = `【锐角 · ${deg}°】`;
-            else if (deg > 90 && deg < 180) angleType = `【钝角 · ${deg}°】`;
-            else if (deg > 180 && deg < 360) angleType = `【优角 · ${deg}°】`;
-            else if (deg === 0) angleType = '【0° · 未旋转】';
-            tagEl.innerText = angleType;
-        }
-
-        function m4AnimateDegreeRotation() {
-            if (m4DegreeState.animTimer) {
-                cancelAnimationFrame(m4DegreeState.animTimer);
-                m4DegreeState.animTimer = null;
-            }
-            sound.playWhoosh();
-
-            const targetDeg = m4DegreeState.degree;
-            const duration = 750;
-            const startTime = performance.now();
-            const startHour = m4DegreeState.startHour;
-            const startAngle = numberToAngle(startHour);
-            const dir = m4DegreeState.direction;
-
-            function step(now) {
-                const elapsed = now - startTime;
-                const progress = Math.min(1, elapsed / duration);
-                const ease = 1 - Math.pow(1 - progress, 3);
-                const curDeg = Math.round(targetDeg * ease);
-
-                let curAngle = 0;
-                if (dir === '顺时针') {
-                    curAngle = (startAngle + curDeg) % 360;
-                } else {
-                    curAngle = (startAngle - (curDeg % 360) + 360) % 360;
-                }
-
-                setClockNeedleAngle(curAngle, false);
-
-                let curEndHour = Math.round(curAngle / 30);
-                if (curEndHour === 0) curEndHour = 12;
-
-                const input = document.getElementById('m4-deg-input');
-                const slider = document.getElementById('m4-deg-slider');
-                if (input) input.value = curDeg;
-                if (slider) slider.value = curDeg;
-
-                m4UpdateAngleTypeBadge(curDeg);
-                renderClockState({ isFullCircle: curDeg >= 360 });
-
-                if (progress < 1) {
-                    m4DegreeState.animTimer = requestAnimationFrame(step);
-                } else {
-                    m4DegreeState.animTimer = null;
-                    setClockNeedleAngle(curAngle, true);
-                    renderClockState({ isFullCircle: targetDeg >= 360 });
-                }
-            }
-            m4DegreeState.animTimer = requestAnimationFrame(step);
-        }
-
-        function m4ResetDegreeMode() {
-            sound.playClick();
-            if (m4DegreeState.animTimer) {
-                cancelAnimationFrame(m4DegreeState.animTimer);
-                m4DegreeState.animTimer = null;
-            }
-            m4DegreeState.startHour = 12;
-            m4DegreeState.endHour = 3;
-            m4DegreeState.direction = '顺时针';
-            m4DegreeState.degree = 90;
-
-            const startSelect = document.getElementById('m4-deg-start-hour');
-            if (startSelect) startSelect.value = '12';
-            const endSelect = document.getElementById('m4-deg-end-hour');
-            if (endSelect) endSelect.value = '3';
-
-            m4SyncInputsFromDegree(90);
-            m4UpdateDirectionButtons();
-            m4ApplyDegreeState(true);
-
-            const result = document.getElementById('m4-result');
-            if (result) result.classList.add('hidden');
-        }
-
-        // =====================
-        // 自由出题与互动挑战逻辑
-        // =====================
-        function m4QuickRandomQuiz() {
-            sound.playClick();
-            const startHour = Math.floor(Math.random() * 12) + 1;
-            const dir = Math.random() > 0.4 ? '顺时针' : '逆时针';
-            const gridsChoices = [1, 2, 3, 4, 5, 6, 8, 9];
-            const grids = gridsChoices[Math.floor(Math.random() * gridsChoices.length)];
-            const targetDeg = grids * 30;
-            const targetHour = calcEndHourFromDegree(startHour, targetDeg, dir);
-
-            m4QuizState = {
-                active: true,
-                startHour: startHour,
-                targetHour: targetHour,
-                direction: dir,
-                degree: targetDeg,
-                grids: grids
+            m4State = {
+                step: 0,
+                startNum: startNum,
+                endNum: endNum,
+                startAngle: startAngle,
+                endAngle: endAngle,
+                bigGrids: grids,
+                degree: degree,
+                isCenterLit: false,
+                isRotated: false,
+                isDirectionVerified: false,
+                isSectorShown: false,
+                isStandardRevealed: false
             };
 
-            // 同步上方设定
-            m4DegreeState.startHour = startHour;
-            m4DegreeState.endHour = startHour; // 初始在起点
-            m4DegreeState.direction = dir;
-            m4DegreeState.degree = 0;
-            currentRotateDir = dir;
-
-            const startSelect = document.getElementById('m4-deg-start-hour');
-            if (startSelect) startSelect.value = startHour;
-            const endSelect = document.getElementById('m4-deg-end-hour');
-            if (endSelect) endSelect.value = startHour;
-
-            m4UpdateDirectionButtons();
-            m4SyncInputsFromDegree(0);
-
-            // 更新挑战题目文案
-            const qEl = document.getElementById('m4-question-text');
-            const targetBadge = document.getElementById('m4-quiz-target-deg');
-            const statusBadge = document.getElementById('m4-quiz-status-badge');
-            if (qEl) {
-                qEl.innerHTML = `从【<strong class="text-emerald-700 font-bold">${startHour}点</strong>】起，指针绕点 O 按【<strong class="${dir === '顺时针' ? 'text-amber-700' : 'text-sky-700'} font-bold">${dir}方向</strong>】旋转 <strong class="text-purple-800 font-black">${targetDeg}°</strong>（${grids}个大格），请拨动红色指针到目标刻度！`;
+            const goalText = document.getElementById('m4-goal-text');
+            if (goalText) {
+                goalText.innerHTML = `${titlePrefix}：观察钟面，指针从“<strong>${startNum}</strong>”走到“<strong>${endNum}</strong>”，它是怎样旋转的？`;
             }
-            if (targetBadge) targetBadge.innerText = `目标：${targetDeg}° (${grids}格)`;
-            if (statusBadge) {
-                statusBadge.innerText = '挑战中';
-                statusBadge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200 animate-pulse';
+            const calcText = document.getElementById('m4-calc-text');
+            if (calcText) {
+                calcText.innerHTML = `指针走了 <strong>${grids}</strong> 个大格，旋转角度为：${grids} × 30° = <strong>${degree}°</strong>。`;
+            }
+            const finalStmt = document.getElementById('m4-final-statement');
+            if (finalStmt) {
+                finalStmt.innerHTML = `从“${startNum}”到“${endNum}”，指针<span class="text-sky-600 underline decoration-2">绕点 O</span> 按<span class="text-red-500 underline decoration-2">顺时针方向</span>旋转了 <span class="text-amber-600 font-black text-base underline decoration-2">${degree}°</span>。`;
+            }
+            const summaryDeg = document.getElementById('m4-summary-deg');
+            if (summaryDeg) {
+                summaryDeg.innerHTML = `③ 角度：${degree}°`;
             }
 
-            const result = document.getElementById('m4-result');
-            if (result) result.classList.add('hidden');
-
-            // 表盘复位到起点，等待学生作答
-            setMarker('start', startHour);
-            clearMarker('end');
-            setClockNeedleAngle(numberToAngle(startHour), true);
+            currentRotateDir = '顺时针';
             isValueRevealed = false;
+            setClockNeedleAngle(m4State.startAngle, false);
+            clearMarkers();
+            const pulse = document.getElementById('center-pulse-ring');
+            if (pulse) pulse.setAttribute('opacity', '0');
             renderClockState({ snap: true });
-            updateClockDragHint(`题目已生成！请按住<strong>红色指针</strong>${dir}旋转到目标位置，然后点击“检查验证”！`);
+            updateClockDragHint(`当前起点为 <strong>${m4State.startNum} 点</strong>，按住指针或金色旋钮，亲手顺时针转动到 ${m4State.endNum} 点！`);
+
+            m4UpdateStepUI();
         }
 
-        function m4VerifyCustomQuiz() {
-            const result = document.getElementById('m4-result');
-            if (!result) return;
-            if (!m4QuizState.active) {
-                result.className = 'p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs leading-relaxed';
-                result.innerHTML = '💡 请先点击上方“<strong>🎲 随机出题</strong>”生成题目，拨动指针后再点击检查验证！';
-                result.classList.remove('hidden');
+        function m4ApplyCustomRange() {
+            const selStart = document.getElementById('m4-select-start');
+            const selEnd = document.getElementById('m4-select-end');
+            if (!selStart || !selEnd) return;
+            const startVal = parseInt(selStart.value, 10);
+            const endVal = parseInt(selEnd.value, 10);
+            if (startVal === endVal) {
+                sound.playError();
+                alert('提示：起点和终点请选择不同的数字哦，比如从 3 到 6！');
                 return;
             }
+            m4SetExample('custom', startVal, endVal);
+        }
 
-            const needleDeg = (currentNeedleAngle % 360 + 360) % 360;
-            let currentHour = Math.round(needleDeg / 30);
-            if (currentHour === 0) currentHour = 12;
-
-            const isCorrect = (currentHour === m4QuizState.targetHour);
-
-            if (isCorrect) {
-                sound.playSuccess();
-                result.className = 'p-3 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs leading-relaxed shadow-xs';
-                result.innerHTML = `<div class="font-bold text-emerald-950 mb-1 flex items-center space-x-1"><span>🎉</span><span>太棒了，完全正确！</span></div>
-                <div>从【${m4QuizState.startHour}点】绕点 O 按${m4QuizState.direction}旋转了 <strong>${m4QuizState.degree}°</strong>（${m4QuizState.grids}个大格），精准指向【<strong>${m4QuizState.targetHour}点</strong>】！</div>`;
-                result.classList.remove('hidden');
-
-                const statusBadge = document.getElementById('m4-quiz-status-badge');
-                if (statusBadge) {
-                    statusBadge.innerText = '挑战成功 ✓';
-                    statusBadge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200';
+        function m4UpdateStepUI() {
+            // 步骤 1
+            const b1 = document.getElementById('m4-step1-box');
+            const c1 = document.getElementById('m4-step1-content');
+            if (m4State.step >= 1) {
+                if (b1) b1.classList.add('border-sky-300', 'bg-sky-50/20');
+                if (c1) c1.classList.remove('hidden');
+                const btn1 = document.getElementById('m4-btn-step1');
+                if (btn1) {
+                    btn1.className = 'px-2.5 py-1 text-xs font-bold rounded-md bg-emerald-600 text-white shadow-xs';
+                    btn1.innerText = '✓ 中心点 O 已锁定';
                 }
+            } else {
+                if (b1) b1.classList.remove('border-sky-300', 'bg-sky-50/20');
+                if (c1) c1.classList.add('hidden');
+                const btn1 = document.getElementById('m4-btn-step1');
+                if (btn1) {
+                    btn1.className = 'px-2.5 py-1 text-xs font-bold rounded-md bg-sky-600 hover:bg-sky-700 text-white transition shadow-xs cursor-pointer';
+                    btn1.innerText = '📍 标注旋转中心 O';
+                }
+            }
 
-                // 呈现目标扇面与标记
-                setMarker('end', m4QuizState.targetHour);
-                isValueRevealed = true;
-                m4DegreeState.endHour = m4QuizState.targetHour;
-                m4DegreeState.degree = m4QuizState.degree;
-                m4SyncInputsFromDegree(m4QuizState.degree);
-                const endSelect = document.getElementById('m4-deg-end-hour');
-                if (endSelect) endSelect.value = m4QuizState.targetHour;
-                renderClockState();
+            // 步骤 2
+            const b2 = document.getElementById('m4-step2-box');
+            const c2 = document.getElementById('m4-step2-content');
+            const choice2 = document.getElementById('m4-step2-choice');
+            const btn2 = document.getElementById('m4-btn-step2');
+            if (m4State.step >= 1) {
+                if (b2) b2.classList.remove('opacity-60');
+                if (btn2) {
+                    btn2.disabled = false;
+                    btn2.className = 'px-2.5 py-1 text-xs font-bold rounded-md bg-sky-600 hover:bg-sky-700 text-white transition shadow-xs cursor-pointer';
+                }
+            } else {
+                if (b2) b2.classList.add('opacity-60');
+                if (btn2) {
+                    btn2.disabled = true;
+                    btn2.className = 'px-2.5 py-1 text-xs font-bold rounded-md bg-slate-200 text-slate-400 cursor-not-allowed transition';
+                }
+            }
+
+            if (m4State.step >= 2) {
+                if (b2) b2.classList.add('border-emerald-300', 'bg-emerald-50/20');
+                if (m4State.isDirectionVerified) {
+                    if (choice2) choice2.classList.add('hidden');
+                    if (c2) c2.classList.remove('hidden');
+                    if (btn2) {
+                        btn2.className = 'px-2.5 py-1 text-xs font-bold rounded-md bg-emerald-600 text-white shadow-xs';
+                        btn2.innerText = '✓ 顺时针旋转';
+                    }
+                } else {
+                    if (choice2) choice2.classList.remove('hidden');
+                    if (c2) c2.classList.add('hidden');
+                }
+            } else {
+                if (choice2) choice2.classList.add('hidden');
+                if (c2) c2.classList.add('hidden');
+            }
+
+            // 步骤 3
+            const b3 = document.getElementById('m4-step3-box');
+            const c3 = document.getElementById('m4-step3-content');
+            const btn3 = document.getElementById('m4-btn-step3');
+            if (m4State.isDirectionVerified) {
+                if (b3) b3.classList.remove('opacity-60');
+                if (btn3) {
+                    btn3.disabled = false;
+                    btn3.className = 'px-2.5 py-1 text-xs font-bold rounded-md bg-amber-500 hover:bg-amber-600 text-white transition shadow-xs cursor-pointer';
+                }
+            } else {
+                if (b3) b3.classList.add('opacity-60');
+                if (btn3) {
+                    btn3.disabled = true;
+                    btn3.className = 'px-2.5 py-1 text-xs font-bold rounded-md bg-slate-200 text-slate-400 cursor-not-allowed transition';
+                }
+            }
+
+            if (m4State.step >= 3) {
+                if (b3) b3.classList.add('border-amber-300', 'bg-amber-50/30');
+                if (c3) c3.classList.remove('hidden');
+                if (btn3) {
+                    btn3.className = 'px-2.5 py-1 text-xs font-bold rounded-md bg-emerald-600 text-white shadow-xs';
+                    btn3.innerText = `✓ 扇面度数 (${m4State.degree}°)`;
+                }
+            } else {
+                if (c3) c3.classList.add('hidden');
+            }
+
+            // 步骤 4
+            const b4 = document.getElementById('m4-step4-box');
+            const c4 = document.getElementById('m4-step4-content');
+            const btn4 = document.getElementById('m4-btn-step4');
+            if (m4State.step >= 3) {
+                if (b4) b4.classList.remove('opacity-60');
+                if (btn4) {
+                    btn4.disabled = false;
+                    btn4.className = 'px-2.5 py-1 text-xs font-bold rounded-md bg-sky-600 hover:bg-sky-700 text-white transition shadow-xs cursor-pointer';
+                }
+            } else {
+                if (b4) b4.classList.add('opacity-60');
+                if (btn4) {
+                    btn4.disabled = true;
+                    btn4.className = 'px-2.5 py-1 text-xs font-bold rounded-md bg-slate-200 text-slate-400 cursor-not-allowed transition';
+                }
+            }
+
+            if (m4State.step >= 4) {
+                if (b4) b4.classList.add('border-sky-400', 'bg-sky-50/40');
+                if (c4) c4.classList.remove('hidden');
+                if (btn4) {
+                    btn4.className = 'px-2.5 py-1 text-xs font-bold rounded-md bg-emerald-600 text-white shadow-xs';
+                    btn4.innerText = '✓ 表达已掌握';
+                }
+            } else {
+                if (c4) c4.classList.add('hidden');
+            }
+
+            // 徽章文字更新
+            const badge = document.getElementById('m4-step-badge');
+            if (badge) {
+                const stepNames = ['未开始', '第 1 步：定位中心', '第 2 步：观察方向', '第 3 步：展开算理', '完成探究'];
+                badge.innerText = stepNames[m4State.step];
+                if (m4State.step === 4) {
+                    badge.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700';
+                } else {
+                    badge.className = 'text-[11px] font-bold px-2 py-0.5 rounded-full bg-sky-100 text-sky-700';
+                }
+            }
+        }
+
+        // 第 1 步：定位中心点 O
+        function m4ActionStep1() {
+            sound.playStepUnlock();
+            m4State.step = Math.max(m4State.step, 1);
+            m4State.isCenterLit = true;
+
+            const pulse = document.getElementById('center-pulse-ring');
+            if (pulse) pulse.setAttribute('opacity', '1');
+
+            m4UpdateStepUI();
+        }
+
+        // 第 2 步：模拟旋转
+        function m4ActionStep2() {
+            if (m4State.step < 1) return;
+            sound.playWhoosh();
+            currentRotateDir = '顺时针';
+            isValueRevealed = false;
+            const targetAngle = m4State.startAngle + m4State.degree;
+            setClockNeedleAngle(targetAngle, true);
+            renderClockState({ snap: true });
+
+            m4State.step = Math.max(m4State.step, 2);
+            m4UpdateStepUI();
+        }
+
+        // 第 2 步：选择方向
+        function m4SelectDirection(choice) {
+            if (choice === '顺时针') {
+                sound.playSuccess();
+                m4State.isDirectionVerified = true;
+                m4UpdateStepUI();
             } else {
                 sound.playError();
-                result.className = 'p-3 rounded-xl bg-rose-50 border border-rose-300 text-rose-900 text-xs leading-relaxed shadow-xs';
-                result.innerHTML = `<div class="font-bold text-rose-950 mb-1 flex items-center space-x-1"><span>🤔</span><span>还差一点点，再试一试！</span></div>
-                <div>当前指针指向【<strong>${currentHour}点</strong>】。算理提示：从【${m4QuizState.startHour}点】${m4QuizState.direction}走 <strong>${m4QuizState.grids}个大格</strong>（${m4QuizState.grids} × 30° = ${m4QuizState.degree}°），目标刻度应是【<strong>${m4QuizState.targetHour}点</strong>】。继续拨动指针试试吧！</div>`;
-                result.classList.remove('hidden');
+                alert('提示：请仔细观察红色箭头的运动轨迹，它与时钟正常走动方向一致，叫做“顺时针方向”哦！');
             }
         }
 
-        function m4RevealQuizAnswer() {
-            if (!m4QuizState.active) {
-                // 没有激活题目时，直接演示当前设定的度数
-                m4AnimateDegreeRotation();
-                return;
-            }
+        // 第 3 步：展开扇面与算理
+        function m4ActionStep3() {
+            if (!m4State.isDirectionVerified) return;
+            sound.playStepUnlock();
+            currentRotateDir = '顺时针';
+            isValueRevealed = true;
+            renderClockState({ snap: true });
+
+            m4State.step = Math.max(m4State.step, 3);
+            m4State.isSectorShown = true;
+            m4UpdateStepUI();
+        }
+
+        // 第 4 步：生成标准描述语
+        function m4ActionStep4() {
+            if (m4State.step < 3) return;
+            sound.playSuccess();
+            m4State.step = 4;
+            m4State.isStandardRevealed = true;
+            m4UpdateStepUI();
+        }
+
+        // 模块 4 底部快捷旋转工具
+        function m4QuickRotate(deltaDeg) {
             sound.playWhoosh();
-            m4DegreeState.degree = m4QuizState.degree;
-            m4DegreeState.endHour = m4QuizState.targetHour;
-            m4SyncInputsFromDegree(m4QuizState.degree);
-            const endSelect = document.getElementById('m4-deg-end-hour');
-            if (endSelect) endSelect.value = m4QuizState.targetHour;
-            m4AnimateDegreeRotation();
-
-            const result = document.getElementById('m4-result');
-            if (result) {
-                result.className = 'p-2.5 rounded-xl bg-sky-50 border border-sky-200 text-sky-900 text-xs leading-relaxed';
-                result.innerHTML = `💡 <strong>答案揭晓</strong>：从【${m4QuizState.startHour}点】${m4QuizState.direction}旋转 ${m4QuizState.degree}°（${m4QuizState.grids}个大格）指向【<strong>${m4QuizState.targetHour}点</strong>】。`;
-                result.classList.remove('hidden');
+            if (deltaDeg < 0) {
+                currentRotateDir = '逆时针';
+            } else if (deltaDeg > 0) {
+                currentRotateDir = '顺时针';
             }
+            isValueRevealed = false;
+            const targetDeg = currentNeedleAngle + deltaDeg;
+            setClockNeedleAngle(targetDeg, true);
+            renderClockState({ snap: true });
         }
 
-        function m4SetCurrentAsStart() {
+        function m4ResetToStart() {
             sound.playClick();
-            let hour = Math.round(((currentNeedleAngle % 360) + 360) % 360 / 30);
-            if (hour === 0) hour = 12;
-
-            m4DegreeState.startHour = hour;
-            m4DegreeState.endHour = hour;
-            m4DegreeState.degree = 0;
-
-            const startSelect = document.getElementById('m4-deg-start-hour');
-            if (startSelect) startSelect.value = hour;
-            const endSelect = document.getElementById('m4-deg-end-hour');
-            if (endSelect) endSelect.value = hour;
-
-            m4SyncInputsFromDegree(0);
-            m4ApplyDegreeState(true);
-
-            const qEl = document.getElementById('m4-question-text');
-            if (qEl) {
-                qEl.innerHTML = `已将当前指针【<strong class="text-emerald-700">${hour} 点</strong>】设为起始刻度！`;
-            }
-            const result = document.getElementById('m4-result');
-            if (result) result.classList.add('hidden');
-            updateClockDragHint(`已将【${hour} 点】设为起始刻度！`);
+            currentRotateDir = '顺时针';
+            isValueRevealed = false;
+            setClockNeedleAngle(m4State.startAngle, true);
+            renderClockState({ snap: true });
+            updateClockDragHint(`已复位到起点 【<strong>${m4State.startNum} 点</strong>】`);
         }
 
-        // 兼容辅助
-        function m4SetDirection(dir) { m4SetDegreeDirection(dir); }
-        function m4ResetCurrentMode() { m4ResetDegreeMode(); }
-        function m4ResetDial() { m4ResetDegreeMode(); }
+        function m4ResetDial() {
+            m4ResetToStart();
+        }
+
+        function m4SetDirection(dir) {
+            currentRotateDir = dir;
+            renderClockState({ snap: true });
+        }
+
+        function m4ResetCurrentMode() {
+            m4ResetToStart();
+        }
+
         function m4SetSubMode() {}
         function m2SelectQuiz() {}
         function m2CheckAnswer() {}
         function m2ShowHint() {}
-        let globalSnapEnabled = true;
         function toggleSnap(val) {
             globalSnapEnabled = !!val;
             ['m1-snap-toggle', 'm2-snap-toggle', 'm4-snap-toggle'].forEach(id => {
@@ -5004,15 +5169,6 @@ function m3UpdateAngleButtonsHighlight(deg) {
             if (textEl) textEl.innerHTML = text;
         }
 
-        function m1ResetToStart() {
-            sound.playClick();
-            currentRotateDir = '顺时针';
-            isValueRevealed = false;
-            setClockNeedleAngle(m1State.startAngle, true);
-            renderClockState({ snap: true });
-            updateClockDragHint(`已复位到起点 【<strong>${m1State.startNum} 点</strong>】`);
-        }
-
         function m2ResetToStart() {
             sound.playClick();
             const q = m2Quizzes.find(item => item.id === m2CurrentQuizIndex) || m2Quizzes[0];
@@ -5022,17 +5178,6 @@ function m3UpdateAngleButtonsHighlight(deg) {
             setClockNeedleAngle(startAngle, true);
             renderClockState({ snap: true });
             updateClockDragHint(`已复位到起点 【<strong>${q.fromNum} 点</strong>】`);
-        }
-
-        function m4ResetDial() {
-            sound.playClick();
-            currentRotateDir = '顺时针';
-            isValueRevealed = false;
-            const resetHour = m4CreatorState.initialLocked ? m4CreatorState.fromNum : 12;
-            setClockNeedleAngle(numberToAngle(resetHour), true);
-            m4CreatorState.toNum = resetHour;
-            renderClockState({ snap: true });
-            updateClockDragHint(`已复位指向 <strong>${resetHour} 点</strong>`);
         }
 
         // ==========================================
