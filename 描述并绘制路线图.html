@@ -1,0 +1,1891 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>位置与方向（二）：描述并绘制路线图 - 交互教学课件</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="./tailwind/tailwind.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        },
+                        amber: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                        }
+                    },
+                    animation: {
+                        'pulse-glow': 'pulseGlow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 3s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        pulseGlow: {
+                            '0%, 100%': { opacity: 1, filter: 'drop-shadow(0 0 8px rgba(59, 130, 246, 0.6))' },
+                            '50%': { opacity: 0.7, filter: 'drop-shadow(0 0 2px rgba(59, 130, 246, 0.2))' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-4px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap');
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            height: 100vh;
+            overflow: hidden;
+            margin: 0;
+            font-size: 15px;
+        }
+
+        /* Glassmorphism elements */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-card {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.5);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(148, 163, 184, 0.8);
+        }
+
+        /* Card Flip effect for secrets */
+        .flip-card {
+            perspective: 1000px;
+        }
+
+        .flip-card-inner {
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-front,
+        .flip-card-back {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+
+        .flip-card-back {
+            transform: rotateY(180deg);
+        }
+    </style>
+</head>
+
+<body class="flex flex-col h-screen text-slate-100 bg-slate-950">
+
+    <!-- HEADER / NAVIGATION -->
+    <header class="flex-none h-16 glass-panel border-b border-slate-800 px-6 flex items-center justify-between z-30">
+        <div class="flex items-center space-x-3">
+            <div
+                class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/20 ring-1 ring-white/20">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+            </div>
+            <div>
+                <div class="flex items-center space-x-3">
+                    <h1
+                        class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-indigo-200 to-amber-300">
+                        位置与方向（二）· 描述并绘制路线图
+                    </h1>
+                    <span
+                        class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">人教版六上
+                        P9</span>
+                </div>
+                <p class="text-xs text-slate-400">例5与“做一做”· 核心数学算理与互动解构课件</p>
+            </div>
+        </div>
+
+        <!-- STAGE NAVIGATION TABS -->
+        <nav class="flex space-x-1.5 p-1.5 bg-slate-900/90 rounded-xl border border-slate-800">
+            <button id="tab-stage_1_forward" onclick="switchStage('stage_1_forward')"
+                class="tab-btn px-4 py-2 text-sm font-bold rounded-lg transition-all flex items-center space-x-2 bg-blue-600 text-white shadow-md">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+                <span>1. 放学回家路线 (例5)</span>
+            </button>
+            <button id="tab-stage_2_return" onclick="switchStage('stage_2_return')"
+                class="tab-btn px-4 py-2 text-sm font-bold rounded-lg transition-all flex items-center space-x-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+                </svg>
+                <span>2. 原路返回探秘 (相对性)</span>
+            </button>
+            <button id="tab-stage_3_draw" onclick="switchStage('stage_3_draw')"
+                class="tab-btn px-4 py-2 text-sm font-bold rounded-lg transition-all flex items-center space-x-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+                <span>3. 听描述画路线 (做一做)</span>
+            </button>
+            <button id="tab-stage_4_custom" onclick="switchStage('stage_4_custom')"
+                class="tab-btn px-4 py-2 text-sm font-bold rounded-lg transition-all flex items-center space-x-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                </svg>
+                <span>4. 自主出题工坊 (沙盒)</span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- MAIN APP CONTENT AREA (72% SVG CANVAS / 28% DRAWER) -->
+    <main class="flex-1 flex overflow-hidden p-4 gap-4">
+
+        <!-- LEFT: SVG MAP & INTERACTIVE CANVAS (72%) -->
+        <section
+            class="w-[72%] h-full flex flex-col glass-panel rounded-2xl border border-slate-800 overflow-hidden relative shadow-2xl">
+            <!-- CANVAS TOP TOOLBAR -->
+            <div
+                class="h-12 bg-slate-900/90 border-b border-slate-800/80 px-4 flex items-center justify-between text-sm text-slate-300 z-10">
+                <div class="flex items-center space-x-3" id="canvas-status-tag">
+                    <span
+                        class="inline-flex items-center px-3 py-1 rounded-md bg-blue-500/10 text-blue-400 border border-blue-500/20 font-bold text-xs">
+                        <span class="w-2.5 h-2.5 rounded-full bg-blue-400 mr-2 animate-ping"></span>
+                        交互视窗地图
+                    </span>
+                    <span id="canvas-subtitle"
+                        class="text-slate-300 font-medium text-xs">点击右侧引导按钮可重复开关显隐观测点、角度与距离</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <!-- CANVAS ZOOM CONTROLS -->
+                    <div class="flex items-center space-x-1 bg-slate-800 p-1 rounded-lg border border-slate-700">
+                        <button onclick="zoomOut()"
+                            class="w-7 h-7 flex items-center justify-center rounded text-slate-300 hover:text-white hover:bg-slate-700 font-bold transition text-xs"
+                            title="缩小地图视角 (也可向下滚动鼠标滚轮)">➖</button>
+                        <button onclick="resetZoom()"
+                            class="px-2.5 h-7 flex items-center justify-center rounded text-amber-300 hover:bg-slate-700 font-bold transition text-xs"
+                            title="点击复位 100% 视角与拖拽位置">
+                            <span id="label-zoom-percent">100%</span>
+                        </button>
+                        <button onclick="zoomIn()"
+                            class="w-7 h-7 flex items-center justify-center rounded text-slate-300 hover:text-white hover:bg-slate-700 font-bold transition text-xs"
+                            title="放大地图视角 (也可向上滚动鼠标滚轮)">➕</button>
+                    </div>
+
+                    <button id="btn-toggle-protractor" onclick="toggleProtractorOverlay()"
+                        class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold flex items-center space-x-1 border border-slate-700 transition"
+                        title="开关当前观测点的360°半透明量角器刻度盘">
+                        <span id="label-protractor">📐 量角器辅助: 关</span>
+                    </button>
+                    <button id="btn-toggle-grid" onclick="toggleGridLines()"
+                        class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold flex items-center space-x-1 border border-slate-700 transition"
+                        title="开关地图背景底纹坐标网格线">
+                        <span id="label-grid">🌐 坐标网格: 开</span>
+                    </button>
+                    <button onclick="resetCurrentStageCanvas()"
+                        class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white text-xs font-bold flex items-center space-x-1 border border-slate-700 transition"
+                        title="重置本探究关卡的所有已揭晓答案与地图状态">
+                        <span>🔄 复位重置</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- SVG CANVAS CONTAINER -->
+            <div class="flex-1 relative bg-slate-950 flex items-center justify-center overflow-hidden"
+                id="svg-viewport">
+                <svg id="main-svg" class="w-full h-full cursor-grab select-none" viewBox="0 0 900 580"
+                    preserveAspectRatio="xMidYMid meet">
+                    <defs>
+                        <!-- Grid pattern -->
+                        <pattern id="grid-pattern" width="40" height="40" patternUnits="userSpaceOnUse">
+                            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="1" />
+                        </pattern>
+                    </defs>
+
+                    <!-- Background Grid -->
+                    <rect width="100%" height="100%" fill="url(#grid-pattern)" id="svg-grid-bg" />
+
+                    <!-- ZOOM & PAN CONTAINER GROUP -->
+                    <g id="svg-zoom-group" transform="translate(0, 0) scale(1)">
+                        <!-- STAGE LAYERS CONTAINER -->
+                        <g id="svg-layer-content">
+                            <!-- Dynamic content rendered by JS -->
+                        </g>
+                    </g>
+
+                    <!-- SCALE RULER LEGEND (BOTTOM-LEFT) -->
+                    <g transform="translate(30, 505)" class="select-none pointer-events-none">
+                        <rect x="0" y="0" width="200" height="52" rx="10" fill="#0f172a" fill-opacity="0.9"
+                            stroke="#334155" stroke-width="1.5" />
+                        <text x="14" y="20" fill="#94a3b8" font-size="12" font-weight="bold">比例尺与图例</text>
+                        <line x1="14" y1="36" x2="64" y2="36" stroke="#fbbf24" stroke-width="4"
+                            stroke-linecap="round" />
+                        <line x1="14" y1="31" x2="14" y2="41" stroke="#fbbf24" stroke-width="2.5" />
+                        <line x1="64" y1="31" x2="64" y2="41" stroke="#fbbf24" stroke-width="2.5" />
+                        <text x="76" y="39" fill="#f8fafc" font-size="13" font-weight="bold" id="scale-legend-text">1格线段
+                            = 100米</text>
+                    </g>
+
+                    <!-- COMPASS ROSE (TOP-RIGHT STATIC) -->
+                    <g transform="translate(830, 75)" class="select-none pointer-events-none opacity-90">
+                        <circle cx="0" cy="0" r="32" fill="#0f172a" fill-opacity="0.7" stroke="#334155"
+                            stroke-width="2" />
+                        <circle cx="0" cy="0" r="3" fill="#38bdf8" />
+                        <!-- N E S W -->
+                        <line x1="0" y1="-26" x2="0" y2="26" stroke="#64748b" stroke-width="1.5"
+                            stroke-dasharray="2 2" />
+                        <line x1="-26" y1="0" x2="26" y2="0" stroke="#64748b" stroke-width="1.5"
+                            stroke-dasharray="2 2" />
+                        <polygon points="0,-26 -5,-10 5,-10" fill="#ef4444" />
+                        <text x="0" y="-31" fill="#ef4444" font-size="13" font-weight="bold"
+                            text-anchor="middle">北</text>
+                        <text x="0" y="42" fill="#94a3b8" font-size="13" font-weight="bold"
+                            text-anchor="middle">南</text>
+                        <text x="40" y="4" fill="#94a3b8" font-size="13" font-weight="bold"
+                            text-anchor="middle">东</text>
+                        <text x="-40" y="4" fill="#94a3b8" font-size="13" font-weight="bold"
+                            text-anchor="middle">西</text>
+                    </g>
+                </svg>
+            </div>
+        </section>
+
+        <!-- RIGHT: STEPWISE GUIDANCE & REVELATION DRAWER (28%) -->
+        <aside
+            class="w-[28%] h-full flex flex-col glass-panel rounded-2xl border border-slate-800 overflow-hidden shadow-2xl relative">
+
+            <!-- DRAWER HEADER -->
+            <div
+                class="h-14 bg-slate-900/90 border-b border-slate-800 px-5 flex items-center justify-between flex-none">
+                <div class="flex items-center space-x-2">
+                    <div class="w-3 h-3 rounded-full bg-amber-400 animate-ping"></div>
+                    <h2 class="text-base font-bold text-slate-100" id="drawer-title">导学推进与揭晓台</h2>
+                </div>
+                <span
+                    class="text-xs px-2.5 py-1 rounded-md bg-amber-500/10 text-amber-300 border border-amber-500/20 font-bold"
+                    id="drawer-badge">支持重复开关</span>
+            </div>
+
+            <!-- DRAWER BODY SCROLL AREA -->
+            <div class="flex-1 overflow-y-auto p-4 space-y-4" id="drawer-content">
+                <!-- Content injected dynamically based on active Stage -->
+            </div>
+
+            <!-- DRAWER FOOTER / SUMMARY CARD TRIGGER -->
+            <div class="p-3.5 bg-slate-900/90 border-t border-slate-800 flex-none text-center">
+                <button id="btn-global-summary" onclick="toggleGlobalSummaryModal()"
+                    class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-sm font-bold shadow-lg shadow-blue-500/25 transition flex items-center justify-center space-x-2">
+                    <span>📜 核心算理与总结报告卡片</span>
+                </button>
+            </div>
+        </aside>
+    </main>
+
+    <!-- SUMMARY / FLASHCARD MODAL -->
+    <div id="summary-modal"
+        class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div
+            class="w-full max-w-2xl glass-panel rounded-2xl border border-slate-700 shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+            <div class="px-6 py-4 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <span class="text-2xl">💡</span>
+                    <h3 class="text-lg font-bold text-amber-300" id="modal-title">人教版《位置与方向（二）》算法与规律卡片</h3>
+                </div>
+                <button onclick="toggleGlobalSummaryModal()"
+                    class="text-slate-400 hover:text-white text-2xl font-bold px-2">&times;</button>
+            </div>
+            <div class="p-6 space-y-4 overflow-y-auto text-sm text-slate-200" id="modal-body">
+                <!-- Injected summary -->
+            </div>
+            <div class="px-6 py-3 bg-slate-900 border-t border-slate-800 text-right">
+                <button onclick="toggleGlobalSummaryModal()"
+                    class="px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold">关闭卡片</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AUDIO SYNTHESIZER FOR CLICK/REVEAL (BROWSER NATIVE) -->
+    <script>
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function playSound(type) {
+            try {
+                if (!audioCtx) audioCtx = new AudioCtx();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.exponentialRampToValueAtTime(800, now + 0.05);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                    osc.start(now);
+                    osc.stop(now + 0.05);
+                } else if (type === 'reveal') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+                    osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'hide') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(600, now);
+                    osc.frequency.exponentialRampToValueAtTime(300, now + 0.1);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                    osc.start(now);
+                    osc.stop(now + 0.1);
+                } else if (type === 'correct') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(587.33, now);
+                    osc.frequency.setValueAtTime(880, now + 0.1);
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                    osc.start(now);
+                    osc.stop(now + 0.4);
+                }
+            } catch (e) {
+                // Audio fallback silence
+            }
+        }
+    </script>
+
+    <!-- MAIN APP STATE MACHINE & SVG CONTROLLER SCRIPT -->
+    <script>
+        // ==========================================
+        // 1. DATA MODELS & STATE DEFINITIONS
+        // ==========================================
+
+        const AppState = {
+            currentStage: 'stage_1_forward', // stage_1_forward | stage_2_return | stage_3_draw | stage_4_custom
+            showProtractor: false,
+            showGridLines: true,
+
+            // STAGE 1 (Example 5 Forward Route)
+            stage1: {
+                activeSegmentIdx: 0, // 0: 学校->邮局, 1: 邮局->书店, 2: 书店->小明家
+                segments: [
+                    {
+                        id: 0,
+                        fromName: '学校',
+                        toName: '邮局',
+                        fromPos: { x: 180, y: 150 },
+                        toPos: { x: 280, y: 323.2 },
+                        baseDir: '南',
+                        biasDir: '东',
+                        angle: 30,
+                        distance: 200,
+                        scaleSteps: 2,
+                        isOriginPlaced: false,
+                        isAngleMeasured: false,
+                        isDistanceMeasured: false,
+                        isSummaryRevealed: false
+                    },
+                    {
+                        id: 1,
+                        fromName: '邮局',
+                        toName: '书店',
+                        fromPos: { x: 280, y: 323.2 },
+                        toPos: { x: 580, y: 496.4 },
+                        baseDir: '南',
+                        biasDir: '东',
+                        angle: 30,
+                        distance: 600,
+                        scaleSteps: 6,
+                        isOriginPlaced: false,
+                        isAngleMeasured: false,
+                        isDistanceMeasured: false,
+                        isSummaryRevealed: false
+                    },
+                    {
+                        id: 2,
+                        fromName: '书店',
+                        toName: '小明家',
+                        fromPos: { x: 580, y: 496.4 },
+                        toPos: { x: 830, y: 496.4 },
+                        baseDir: '正',
+                        biasDir: '东',
+                        angle: 0,
+                        distance: 500,
+                        scaleSteps: 5,
+                        isOriginPlaced: false,
+                        isAngleMeasured: false,
+                        isDistanceMeasured: false,
+                        isSummaryRevealed: false
+                    }
+                ]
+            },
+
+            // STAGE 2 (Return Route Exploration)
+            stage2: {
+                activeReturnIdx: 0,
+                showAlternateInteriorAngle: true,
+                returns: [
+                    {
+                        id: 0,
+                        fromName: '小明家',
+                        toName: '书店',
+                        goDesc: '书店向正东走 500 米到小明家',
+                        fromPos: { x: 830, y: 496.4 },
+                        toPos: { x: 580, y: 496.4 },
+                        isOriginPlaced: false,
+                        isDirectionRevealed: false,
+                        isDistanceRevealed: false,
+                        dirAns: '向正西方向',
+                        distAns: '500 米'
+                    },
+                    {
+                        id: 1,
+                        fromName: '书店',
+                        toName: '邮局',
+                        goDesc: '邮局向南偏东 30° 走 600 米到书店',
+                        fromPos: { x: 580, y: 496.4 },
+                        toPos: { x: 280, y: 323.2 },
+                        isOriginPlaced: false,
+                        isDirectionRevealed: false,
+                        isDistanceRevealed: false,
+                        dirAns: '向北偏西 30° 方向',
+                        distAns: '600 米'
+                    },
+                    {
+                        id: 2,
+                        fromName: '邮局',
+                        toName: '学校',
+                        goDesc: '学校向南偏东 30° 走 200 米到邮局',
+                        fromPos: { x: 280, y: 323.2 },
+                        toPos: { x: 180, y: 150 },
+                        isOriginPlaced: false,
+                        isDirectionRevealed: false,
+                        isDistanceRevealed: false,
+                        dirAns: '向北偏西 30° 方向',
+                        distAns: '200 米'
+                    }
+                ]
+            },
+
+            // STAGE 3 (Draw from Description - P9 "做一做")
+            stage3: {
+                currentStep: 1,
+                startPlaced: false,
+                segment1Done: false,
+                originShifted: false,
+                segment2Done: false,
+                verified: false,
+
+                startPos: { x: 350, y: 120 }, // 家
+                intersectionPos: { x: 350, y: 240 }, // 路口
+                parkPos: { x: 350 - 240 * Math.sin(Math.PI / 6), y: 240 + 240 * Math.cos(Math.PI / 6) }
+            },
+
+            // STAGE 4 (Custom Route Sandbox Workshop)
+            stage4: {
+                mode: 'creator',
+                scaleRatio: 100,
+                waypoints: [
+                    { id: 'wpt_1', name: 'A少年宫', x: 200, y: 180 },
+                    { id: 'wpt_2', name: 'B图书馆', x: 450, y: 250 },
+                    { id: 'wpt_3', name: 'C体育馆', x: 700, y: 420 }
+                ],
+                customSegments: [
+                    { fromId: 'wpt_1', toId: 'wpt_2', angle: 60, baseDir: '南', biasDir: '东', dist: 300, isDirRevealed: false, isDistRevealed: false },
+                    { fromId: 'wpt_2', toId: 'wpt_3', angle: 30, baseDir: '南', biasDir: '东', dist: 400, isDirRevealed: false, isDistRevealed: false }
+                ]
+            }
+        };
+
+        // ==========================================
+        // CANVAS ZOOM & PAN CONTROLLER
+        // ==========================================
+        let zoomScale = 1.0;
+        let panX = 0;
+        let panY = 0;
+        let isDraggingCanvas = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+
+        function updateZoomTransform() {
+            const zoomGroup = document.getElementById('svg-zoom-group');
+            if (zoomGroup) {
+                zoomGroup.setAttribute('transform', `translate(${panX}, ${panY}) scale(${zoomScale})`);
+            }
+            const zoomLabel = document.getElementById('label-zoom-percent');
+            if (zoomLabel) {
+                zoomLabel.textContent = `${Math.round(zoomScale * 100)}%`;
+            }
+        }
+
+        function zoomIn() {
+            playSound('click');
+            zoomScale = Math.min(2.5, Math.round((zoomScale + 0.15) * 100) / 100);
+            updateZoomTransform();
+        }
+
+        function zoomOut() {
+            playSound('click');
+            zoomScale = Math.max(0.5, Math.round((zoomScale - 0.15) * 100) / 100);
+            updateZoomTransform();
+        }
+
+        function resetZoom() {
+            zoomScale = 1.0;
+            panX = 0;
+            panY = 0;
+            updateZoomTransform();
+        }
+
+        function initZoomPanEvents() {
+            const viewport = document.getElementById('svg-viewport');
+            if (!viewport) return;
+
+            viewport.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const delta = e.deltaY < 0 ? 0.1 : -0.1;
+                zoomScale = Math.max(0.5, Math.min(2.5, Math.round((zoomScale + delta) * 100) / 100));
+                updateZoomTransform();
+            }, { passive: false });
+
+            viewport.addEventListener('mousedown', (e) => {
+                if (e.target.closest('button') || e.target.closest('select') || e.target.closest('input')) return;
+                isDraggingCanvas = true;
+                dragStartX = e.clientX - panX;
+                dragStartY = e.clientY - panY;
+                viewport.style.cursor = 'grabbing';
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDraggingCanvas) return;
+                panX = e.clientX - dragStartX;
+                panY = e.clientY - dragStartY;
+                updateZoomTransform();
+            });
+
+            window.addEventListener('mouseup', () => {
+                if (isDraggingCanvas) {
+                    isDraggingCanvas = false;
+                    const vp = document.getElementById('svg-viewport');
+                    if (vp) vp.style.cursor = 'grab';
+                }
+            });
+        }
+
+        // ==========================================
+        // 2. STAGE SWITCHER & CORE ROUTER
+        // ==========================================
+
+        function switchStage(stageId) {
+            playSound('click');
+            AppState.currentStage = stageId;
+            resetZoom();
+
+            // Update Tab styling
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = 'tab-btn px-4 py-2 text-sm font-bold rounded-lg transition-all flex items-center space-x-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50';
+            });
+            const activeBtn = document.getElementById(`tab-${stageId}`);
+            if (activeBtn) {
+                activeBtn.className = 'tab-btn px-4 py-2 text-sm font-bold rounded-lg transition-all flex items-center space-x-2 bg-blue-600 text-white shadow-md shadow-blue-500/20';
+            }
+
+            // Update subtitles
+            const subTitleEl = document.getElementById('canvas-subtitle');
+            if (stageId === 'stage_1_forward') subTitleEl.innerText = '点击右侧引导按钮可重复开关显隐观测点、角度与距离';
+            if (stageId === 'stage_2_return') subTitleEl.innerText = '探秘【原路返回】：对调起点与终点，观察方向互逆与角度、距离的保持规律';
+            if (stageId === 'stage_3_draw') subTitleEl.innerText = '虚拟尺规交互台：听描述在图纸上完成规范五步尺规标绘 (人教版做一做)';
+            if (stageId === 'stage_4_custom') subTitleEl.innerText = '自主出题工坊：自由落点连线、设置参数，一键封装出题与互动解题沙盒';
+
+            renderSVG();
+            renderDrawer();
+        }
+
+        // Global toggle controls
+        function toggleProtractorOverlay() {
+            playSound('click');
+            AppState.showProtractor = !AppState.showProtractor;
+
+            const btn = document.getElementById('btn-toggle-protractor');
+            const lbl = document.getElementById('label-protractor');
+            if (btn && lbl) {
+                if (AppState.showProtractor) {
+                    btn.className = 'px-3 py-1.5 rounded-lg bg-amber-500/20 text-amber-300 text-xs font-bold flex items-center space-x-1 border border-amber-500/50 shadow transition';
+                    lbl.innerText = '📐 量角器辅助: 开';
+                } else {
+                    btn.className = 'px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold flex items-center space-x-1 border border-slate-700 transition';
+                    lbl.innerText = '📐 量角器辅助: 关';
+                }
+            }
+            renderSVG();
+        }
+
+        function toggleGridLines() {
+            playSound('click');
+            AppState.showGridLines = !AppState.showGridLines;
+
+            const btn = document.getElementById('btn-toggle-grid');
+            const lbl = document.getElementById('label-grid');
+            if (btn && lbl) {
+                if (AppState.showGridLines) {
+                    btn.className = 'px-3 py-1.5 rounded-lg bg-blue-500/20 text-blue-300 text-xs font-bold flex items-center space-x-1 border border-blue-500/50 transition';
+                    lbl.innerText = '🌐 坐标网格: 开';
+                } else {
+                    btn.className = 'px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 text-xs font-bold flex items-center space-x-1 border border-slate-700 transition';
+                    lbl.innerText = '🌐 坐标网格: 关';
+                }
+            }
+            document.getElementById('svg-grid-bg').style.display = AppState.showGridLines ? 'block' : 'none';
+        }
+
+        function resetCurrentStageCanvas() {
+            playSound('click');
+            resetZoom();
+            if (AppState.currentStage === 'stage_1_forward') {
+                AppState.stage1.segments.forEach(s => {
+                    s.isOriginPlaced = false;
+                    s.isAngleMeasured = false;
+                    s.isDistanceMeasured = false;
+                    s.isSummaryRevealed = false;
+                });
+            } else if (AppState.currentStage === 'stage_2_return') {
+                AppState.stage2.returns.forEach(r => {
+                    r.isOriginPlaced = false;
+                    r.isDirectionRevealed = false;
+                    r.isDistanceRevealed = false;
+                });
+            } else if (AppState.currentStage === 'stage_3_draw') {
+                AppState.stage3.currentStep = 1;
+                AppState.stage3.startPlaced = false;
+                AppState.stage3.segment1Done = false;
+                AppState.stage3.originShifted = false;
+                AppState.stage3.segment2Done = false;
+                AppState.stage3.verified = false;
+            } else if (AppState.currentStage === 'stage_4_custom') {
+                AppState.stage4.customSegments.forEach(s => {
+                    s.isDirRevealed = false;
+                    s.isDistRevealed = false;
+                });
+            }
+            renderSVG();
+            renderDrawer();
+        }
+
+        // ==========================================
+        // 3. SVG RENDERING ENGINE (PERFECT LAYER HIERARCHY)
+        // ==========================================
+
+        function renderSVG() {
+            const container = document.getElementById('svg-layer-content');
+            container.innerHTML = '';
+
+            const stage = AppState.currentStage;
+
+            if (stage === 'stage_1_forward') {
+                renderStage1SVG(container);
+            } else if (stage === 'stage_2_return') {
+                renderStage2SVG(container);
+            } else if (stage === 'stage_3_draw') {
+                renderStage3SVG(container);
+            } else if (stage === 'stage_4_custom') {
+                renderStage4SVG(container);
+            }
+        }
+
+        // ---- RENDER STAGE 1 (Example 5 Forward) ----
+        function renderStage1SVG(g) {
+            const segs = AppState.stage1.segments;
+            const activeIdx = AppState.stage1.activeSegmentIdx;
+            const currentSeg = segs[activeIdx];
+
+            // Layer 1: Path lines
+            segs.forEach((seg, idx) => {
+                const isPassed = idx <= activeIdx;
+                const isCurrent = idx === activeIdx;
+
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", seg.fromPos.x);
+                line.setAttribute("y1", seg.fromPos.y);
+                line.setAttribute("x2", seg.toPos.x);
+                line.setAttribute("y2", seg.toPos.y);
+                line.setAttribute("stroke", isCurrent ? "#3b82f6" : (isPassed ? "#60a5fa" : "#334155"));
+                line.setAttribute("stroke-width", isCurrent ? "4.5" : "2.5");
+                if (!isPassed) line.setAttribute("stroke-dasharray", "5 5");
+                g.appendChild(line);
+
+                // Scale Ticks
+                if (seg.isDistanceMeasured) {
+                    drawScaleTicks(g, seg.fromPos, seg.toPos, seg.scaleSteps, 100);
+                }
+            });
+
+            // Layer 2: Protractor Overlay (Drawn underneath crosshair & markers)
+            if (AppState.showProtractor && currentSeg.fromPos) {
+                drawProtractorOverlaySVG(g, currentSeg.fromPos, currentSeg);
+            }
+
+            // Layer 3: Compass Crosshair
+            if (currentSeg.isOriginPlaced) {
+                drawCompassCrosshair(g, currentSeg.fromPos, currentSeg.fromName);
+            }
+
+            // Layer 4: Angle Sector Arc & Ray Line
+            segs.forEach((seg, idx) => {
+                if (seg.isAngleMeasured && seg.angle > 0) {
+                    drawAngleSectorArc(g, seg.fromPos, seg.baseDir, seg.biasDir, seg.angle, true);
+                }
+            });
+
+            // Layer 5 (Top-most): Station Node Markers & Badges
+            const waypoints = [
+                { name: '学校', pos: segs[0].fromPos, icon: '🏫', color: '#3b82f6' },
+                { name: '邮局', pos: segs[0].toPos, icon: '📮', color: '#10b981' },
+                { name: '书店', pos: segs[1].toPos, icon: '📚', color: '#f59e0b' },
+                { name: '小明家', pos: segs[2].toPos, icon: '🏠', color: '#ec4899' }
+            ];
+
+            waypoints.forEach((wpt, i) => {
+                const isSelected = (i === activeIdx || i === activeIdx + 1);
+                drawStationMarker(g, wpt.pos, wpt.name, wpt.icon, wpt.color, isSelected);
+            });
+        }
+
+        // ---- RENDER STAGE 2 (Return Route Exploration) ----
+        function renderStage2SVG(g) {
+            const retList = AppState.stage2.returns;
+            const activeIdx = AppState.stage2.activeReturnIdx;
+            const curRet = retList[activeIdx];
+
+            // Layer 1: Path lines
+            retList.forEach((ret, idx) => {
+                const isCurrent = idx === activeIdx;
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", ret.fromPos.x);
+                line.setAttribute("y1", ret.fromPos.y);
+                line.setAttribute("x2", ret.toPos.x);
+                line.setAttribute("y2", ret.toPos.y);
+                line.setAttribute("stroke", isCurrent ? "#f59e0b" : "#475569");
+                line.setAttribute("stroke-width", isCurrent ? "4.5" : "2");
+                g.appendChild(line);
+
+                if (isCurrent || ret.isDirectionRevealed) {
+                    drawArrowHead(g, ret.fromPos, ret.toPos, "#f59e0b");
+                }
+            });
+
+            // Layer 2: Protractor Overlay
+            if (AppState.showProtractor && curRet.fromPos) {
+                drawProtractorOverlaySVG(g, curRet.fromPos, curRet);
+            }
+
+            // Layer 3: Alternate Interior Angle Lines & Crosshair
+            if (curRet.id === 1 && curRet.isDirectionRevealed) {
+                const p1 = curRet.fromPos;
+                const parLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                parLine.setAttribute("x1", p1.x - 140);
+                parLine.setAttribute("y1", p1.y);
+                parLine.setAttribute("x2", p1.x + 140);
+                parLine.setAttribute("y2", p1.y);
+                parLine.setAttribute("stroke", "#38bdf8");
+                parLine.setAttribute("stroke-width", "2");
+                parLine.setAttribute("stroke-dasharray", "4 4");
+                g.appendChild(parLine);
+
+                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                text.setAttribute("x", p1.x - 130);
+                text.setAttribute("y", p1.y - 12);
+                text.setAttribute("fill", "#38bdf8");
+                text.setAttribute("font-size", "13");
+                text.setAttribute("font-weight", "bold");
+                text.textContent = "平行基准线 (内错角相等: 30°)";
+                g.appendChild(text);
+            }
+
+            if (curRet.isOriginPlaced) {
+                drawCompassCrosshair(g, curRet.fromPos, curRet.fromName);
+            }
+
+            // Layer 4 (Top-most): Station Node Markers & Badges
+            const waypoints = [
+                { name: '小明家', pos: retList[0].fromPos, icon: '🏠', color: '#ec4899' },
+                { name: '书店', pos: retList[0].toPos, icon: '📚', color: '#f59e0b' },
+                { name: '邮局', pos: retList[1].toPos, icon: '📮', color: '#10b981' },
+                { name: '学校', pos: retList[2].toPos, icon: '🏫', color: '#3b82f6' }
+            ];
+
+            waypoints.forEach((wpt) => {
+                drawStationMarker(g, wpt.pos, wpt.name, wpt.icon, wpt.color, true);
+            });
+        }
+
+        // ---- RENDER STAGE 3 (Draw Route - P9 做一做) ----
+        function renderStage3SVG(g) {
+            const st = AppState.stage3;
+
+            if (st.verified) {
+                const std1 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                std1.setAttribute("x1", st.startPos.x);
+                std1.setAttribute("y1", st.startPos.y);
+                std1.setAttribute("x2", st.intersectionPos.x);
+                std1.setAttribute("y2", st.intersectionPos.y);
+                std1.setAttribute("stroke", "#ef4444");
+                std1.setAttribute("stroke-width", "4.5");
+                std1.setAttribute("stroke-dasharray", "6 4");
+                std1.setAttribute("opacity", "0.85");
+                g.appendChild(std1);
+
+                const std2 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                std2.setAttribute("x1", st.intersectionPos.x);
+                std2.setAttribute("y1", st.intersectionPos.y);
+                std2.setAttribute("x2", st.parkPos.x);
+                std2.setAttribute("y2", st.parkPos.y);
+                std2.setAttribute("stroke", "#ef4444");
+                std2.setAttribute("stroke-width", "4.5");
+                std2.setAttribute("stroke-dasharray", "6 4");
+                std2.setAttribute("opacity", "0.85");
+                g.appendChild(std2);
+            }
+
+            if (AppState.showProtractor) {
+                const activePos = st.originShifted ? st.intersectionPos : st.startPos;
+                drawProtractorOverlaySVG(g, activePos, { angle: 30, baseDir: '南', biasDir: '西' });
+            }
+
+            if (st.startPlaced) {
+                drawCompassCrosshair(g, st.startPos, "起点 (家)");
+            }
+
+            if (st.segment1Done) {
+                const line1 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line1.setAttribute("x1", st.startPos.x);
+                line1.setAttribute("y1", st.startPos.y);
+                line1.setAttribute("x2", st.intersectionPos.x);
+                line1.setAttribute("y2", st.intersectionPos.y);
+                line1.setAttribute("stroke", "#10b981");
+                line1.setAttribute("stroke-width", "4.5");
+                g.appendChild(line1);
+
+                drawStationMarker(g, st.intersectionPos, "路口", "🚦", "#10b981", true);
+                drawScaleTicks(g, st.startPos, st.intersectionPos, 1, 50);
+            }
+
+            if (st.originShifted) {
+                drawCompassCrosshair(g, st.intersectionPos, "新观测点 (路口)");
+            }
+
+            if (st.segment2Done) {
+                const line2 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line2.setAttribute("x1", st.intersectionPos.x);
+                line2.setAttribute("y1", st.intersectionPos.y);
+                line2.setAttribute("x2", st.parkPos.x);
+                line2.setAttribute("y2", st.parkPos.y);
+                line2.setAttribute("stroke", "#f59e0b");
+                line2.setAttribute("stroke-width", "4.5");
+                g.appendChild(line2);
+
+                drawStationMarker(g, st.parkPos, "公园", "🏞️", "#f59e0b", true);
+                drawScaleTicks(g, st.intersectionPos, st.parkPos, 2, 50);
+                drawAngleSectorArc(g, st.intersectionPos, '南', '西', 30, true);
+            }
+
+            drawStationMarker(g, st.startPos, "出发点 (家)", "🏠", "#3b82f6", true);
+        }
+
+        // ---- RENDER STAGE 4 (Custom Sandbox Workshop) ----
+        function renderStage4SVG(g) {
+            const wpts = AppState.stage4.waypoints;
+            const segs = AppState.stage4.customSegments;
+
+            segs.forEach(seg => {
+                const wFrom = wpts.find(w => w.id === seg.fromId);
+                const wTo = wpts.find(w => w.id === seg.toId);
+                if (wFrom && wTo) {
+                    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                    line.setAttribute("x1", wFrom.x);
+                    line.setAttribute("y1", wFrom.y);
+                    line.setAttribute("x2", wTo.x);
+                    line.setAttribute("y2", wTo.y);
+                    line.setAttribute("stroke", "#8b5cf6");
+                    line.setAttribute("stroke-width", "4");
+                    g.appendChild(line);
+
+                    if (seg.isDirRevealed) {
+                        drawAngleSectorArc(g, { x: wFrom.x, y: wFrom.y }, seg.baseDir, seg.biasDir, seg.angle, true);
+                    }
+                    if (seg.isDistRevealed) {
+                        drawScaleTicks(g, { x: wFrom.x, y: wFrom.y }, { x: wTo.x, y: wTo.y }, Math.round(seg.dist / AppState.stage4.scaleRatio), AppState.stage4.scaleRatio);
+                    }
+                }
+            });
+
+            wpts.forEach((w) => {
+                drawStationMarker(g, { x: w.x, y: w.y }, w.name, `📍`, "#8b5cf6", true);
+            });
+        }
+
+        // ==========================================
+        // 4. SVG UTILITY GRAPHICS HELPERS (PERFECT SPACING & ZERO OVERLAPS)
+        // ==========================================
+
+        function drawStationMarker(g, pos, name, icon, color, isSelected) {
+            const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            group.setAttribute("transform", `translate(${pos.x}, ${pos.y})`);
+
+            if (isSelected) {
+                const pulse = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                pulse.setAttribute("r", "22");
+                pulse.setAttribute("fill", color);
+                pulse.setAttribute("fill-opacity", "0.25");
+                pulse.setAttribute("class", "animate-ping opacity-75");
+                group.appendChild(pulse);
+            }
+
+            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            circle.setAttribute("r", "16");
+            circle.setAttribute("fill", "#0f172a");
+            circle.setAttribute("stroke", color);
+            circle.setAttribute("stroke-width", "3");
+            group.appendChild(circle);
+
+            const iconText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            iconText.setAttribute("text-anchor", "middle");
+            iconText.setAttribute("dominant-baseline", "central");
+            iconText.setAttribute("font-size", "14");
+            iconText.textContent = icon;
+            group.appendChild(iconText);
+
+            // Name Tag Badge (Positioned Above Node)
+            const tagGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            tagGroup.setAttribute("transform", "translate(0, -32)");
+
+            const textWidth = name.length * 16 + 22;
+            const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            rect.setAttribute("x", -textWidth / 2);
+            rect.setAttribute("y", -14);
+            rect.setAttribute("width", textWidth);
+            rect.setAttribute("height", "28");
+            rect.setAttribute("rx", "8");
+            rect.setAttribute("fill", "#1e293b");
+            rect.setAttribute("stroke", color);
+            rect.setAttribute("stroke-width", "2");
+            tagGroup.appendChild(rect);
+
+            const nameText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            nameText.setAttribute("text-anchor", "middle");
+            nameText.setAttribute("dominant-baseline", "central");
+            nameText.setAttribute("fill", "#f8fafc");
+            nameText.setAttribute("font-size", "14");
+            nameText.setAttribute("font-weight", "bold");
+            nameText.textContent = name;
+            tagGroup.appendChild(nameText);
+
+            group.appendChild(tagGroup);
+            g.appendChild(group);
+        }
+
+        function drawCompassCrosshair(g, pos, name) {
+            const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            group.setAttribute("transform", `translate(${pos.x}, ${pos.y})`);
+
+            const centerGlow = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            centerGlow.setAttribute("r", "8");
+            centerGlow.setAttribute("fill", "#3b82f6");
+            centerGlow.setAttribute("fill-opacity", "0.4");
+            centerGlow.setAttribute("class", "animate-pulse");
+            group.appendChild(centerGlow);
+
+            const len = 70;
+            const axes = [
+                { label: '北', lx: 0, ly: -len - 14, color: '#ef4444' },
+                { label: '东', lx: len + 16, ly: 2, color: '#38bdf8' },
+                { label: '南', lx: 0, ly: len + 16, color: '#38bdf8' },
+                { label: '西', lx: -len - 16, ly: 2, color: '#38bdf8' }
+            ];
+
+            const vLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            vLine.setAttribute("x1", 0); vLine.setAttribute("y1", -len); vLine.setAttribute("x2", 0); vLine.setAttribute("y2", len);
+            vLine.setAttribute("stroke", "#64748b"); vLine.setAttribute("stroke-width", "1.5"); vLine.setAttribute("stroke-dasharray", "3 3");
+            group.appendChild(vLine);
+
+            const hLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            hLine.setAttribute("x1", -len); hLine.setAttribute("y1", 0); hLine.setAttribute("x2", len); hLine.setAttribute("y2", 0);
+            hLine.setAttribute("stroke", "#64748b"); hLine.setAttribute("stroke-width", "1.5"); hLine.setAttribute("stroke-dasharray", "3 3");
+            group.appendChild(hLine);
+
+            axes.forEach(a => {
+                const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                t.setAttribute("x", a.lx);
+                t.setAttribute("y", a.ly);
+                t.setAttribute("fill", a.color);
+                t.setAttribute("font-size", "14");
+                t.setAttribute("font-weight", "bold");
+                t.setAttribute("text-anchor", "middle");
+                t.setAttribute("dominant-baseline", "central");
+                t.textContent = a.label;
+                group.appendChild(t);
+            });
+
+            // Origin Label Banner (Positioned Safely at Top-Left: x = -70, y = -len - 18)
+            const textBg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            textBg.setAttribute("x", -135);
+            textBg.setAttribute("y", -len - 30);
+            textBg.setAttribute("width", 130);
+            textBg.setAttribute("height", "24");
+            textBg.setAttribute("rx", "6");
+            textBg.setAttribute("fill", "#0f172a");
+            textBg.setAttribute("stroke", "#3b82f6");
+            textBg.setAttribute("stroke-width", "1.5");
+            group.appendChild(textBg);
+
+            const obsText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            obsText.setAttribute("x", -70);
+            obsText.setAttribute("y", -len - 18);
+            obsText.setAttribute("fill", "#60a5fa");
+            obsText.setAttribute("font-size", "12");
+            obsText.setAttribute("font-weight", "bold");
+            obsText.setAttribute("text-anchor", "middle");
+            obsText.setAttribute("dominant-baseline", "central");
+            obsText.textContent = `📍 观测点: ${name}`;
+            group.appendChild(obsText);
+
+            g.appendChild(group);
+        }
+
+        function drawProtractorOverlaySVG(g, pos, segInfo) {
+            const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            group.setAttribute("transform", `translate(${pos.x}, ${pos.y})`);
+            group.setAttribute("class", "cursor-pointer");
+
+            const r = 105; // Compact radius to avoid invading adjacent stations
+
+            // Glass Translucent Backdrop Circle
+            const bgCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            bgCircle.setAttribute("r", r);
+            bgCircle.setAttribute("fill", "rgba(15, 23, 42, 0.45)");
+            bgCircle.setAttribute("stroke", "#38bdf8");
+            bgCircle.setAttribute("stroke-width", "1.5");
+            group.appendChild(bgCircle);
+
+            // Inner Concentric Guide Ring
+            const innerRing = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            innerRing.setAttribute("r", "60");
+            innerRing.setAttribute("fill", "none");
+            innerRing.setAttribute("stroke", "#0284c7");
+            innerRing.setAttribute("stroke-width", "1");
+            innerRing.setAttribute("stroke-dasharray", "3 3");
+            group.appendChild(innerRing);
+
+            // Ticks & Degree Numbers around 360 deg
+            for (let deg = 0; deg < 360; deg += 5) {
+                const rad = (deg * Math.PI) / 180;
+                const isMajor = (deg % 30 === 0 || deg % 45 === 0);
+                const isMedium = (deg % 10 === 0);
+                const isCardinalAngle = (deg === 0 || deg === 90 || deg === 180 || deg === 270);
+
+                const tickLen = isMajor ? 10 : (isMedium ? 6 : 3);
+                const tickColor = isMajor ? "#fbbf24" : (isMedium ? "#38bdf8" : "#0284c7");
+                const tickWidth = isMajor ? "2" : "1";
+
+                const x1 = (r - tickLen) * Math.cos(rad);
+                const y1 = (r - tickLen) * Math.sin(rad);
+                const x2 = r * Math.cos(rad);
+                const y2 = r * Math.sin(rad);
+
+                const t = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                t.setAttribute("x1", x1); t.setAttribute("y1", y1); t.setAttribute("x2", x2); t.setAttribute("y2", y2);
+                t.setAttribute("stroke", tickColor); t.setAttribute("stroke-width", tickWidth);
+                group.appendChild(t);
+
+                // Major degree text labels (30°, 45°, 60°...), skipping exact cardinal angles (0, 90, 180, 270)
+                if (isMajor && !isCardinalAngle) {
+                    const labelDist = r - 15;
+                    const lx = labelDist * Math.cos(rad);
+                    const ly = labelDist * Math.sin(rad);
+
+                    const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                    txt.setAttribute("x", lx);
+                    txt.setAttribute("y", ly);
+                    txt.setAttribute("fill", "#7dd3fc");
+                    txt.setAttribute("font-size", "10");
+                    txt.setAttribute("font-weight", "bold");
+                    txt.setAttribute("text-anchor", "middle");
+                    txt.setAttribute("dominant-baseline", "central");
+                    txt.textContent = `${deg}°`;
+                    group.appendChild(txt);
+                }
+            }
+
+            // Target Angle Pointer Ray Line & Callout Tag
+            if (segInfo && segInfo.angle > 0) {
+                let baseAngleDeg = 90;
+                if (segInfo.baseDir === '北') baseAngleDeg = 270;
+                if (segInfo.baseDir === '东') baseAngleDeg = 0;
+                if (segInfo.baseDir === '西') baseAngleDeg = 180;
+
+                let targetAngleDeg = baseAngleDeg;
+                if (segInfo.baseDir === '南' && segInfo.biasDir === '东') targetAngleDeg = 90 - segInfo.angle;
+                if (segInfo.baseDir === '南' && segInfo.biasDir === '西') targetAngleDeg = 90 + segInfo.angle;
+                if (segInfo.baseDir === '北' && segInfo.biasDir === '东') targetAngleDeg = 270 + segInfo.angle;
+                if (segInfo.baseDir === '北' && segInfo.biasDir === '西') targetAngleDeg = 270 - segInfo.angle;
+
+                const targetRad = (targetAngleDeg * Math.PI) / 180;
+                const rx = r * Math.cos(targetRad);
+                const ry = r * Math.sin(targetRad);
+
+                const ray = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                ray.setAttribute("x1", 0); ray.setAttribute("y1", 0);
+                ray.setAttribute("x2", rx); ray.setAttribute("y2", ry);
+                ray.setAttribute("stroke", "#fbbf24");
+                ray.setAttribute("stroke-width", "3");
+                ray.setAttribute("stroke-dasharray", "4 2");
+                group.appendChild(ray);
+
+                const badgeGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                badgeGroup.setAttribute("transform", `translate(${rx * 1.12}, ${ry * 1.12})`);
+
+                const bRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                bRect.setAttribute("x", -24); bRect.setAttribute("y", -11);
+                bRect.setAttribute("width", 48); bRect.setAttribute("height", "22");
+                bRect.setAttribute("rx", "4");
+                bRect.setAttribute("fill", "#0f172a");
+                bRect.setAttribute("stroke", "#fbbf24");
+                bRect.setAttribute("stroke-width", "1.5");
+                badgeGroup.appendChild(bRect);
+
+                const bTxt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                bTxt.setAttribute("x", 0); bTxt.setAttribute("y", 0);
+                bTxt.setAttribute("fill", "#fbbf24");
+                bTxt.setAttribute("font-size", "11");
+                bTxt.setAttribute("font-weight", "bold");
+                bTxt.setAttribute("text-anchor", "middle");
+                bTxt.setAttribute("dominant-baseline", "central");
+                bTxt.textContent = `${segInfo.angle}°`;
+                badgeGroup.appendChild(bTxt);
+
+                group.appendChild(badgeGroup);
+            }
+
+            // Interactive Hover Angle Inspector Badge
+            const hoverTag = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            hoverTag.setAttribute("display", "none");
+
+            const hRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            hRect.setAttribute("x", -50); hRect.setAttribute("y", -12);
+            hRect.setAttribute("width", 100); hRect.setAttribute("height", "24");
+            hRect.setAttribute("rx", "6");
+            hRect.setAttribute("fill", "#1e1b4b");
+            hRect.setAttribute("stroke", "#38bdf8");
+            hRect.setAttribute("stroke-width", "1.5");
+            hoverTag.appendChild(hRect);
+
+            const hTxt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            hTxt.setAttribute("x", 0); hTxt.setAttribute("y", 0);
+            hTxt.setAttribute("fill", "#38bdf8");
+            hTxt.setAttribute("font-size", "11");
+            hTxt.setAttribute("font-weight", "bold");
+            hTxt.setAttribute("text-anchor", "middle");
+            hTxt.setAttribute("dominant-baseline", "central");
+            hTxt.textContent = "刻度: 0°";
+            hoverTag.appendChild(hTxt);
+
+            group.appendChild(hoverTag);
+
+            group.onmousemove = (e) => {
+                const rect = group.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left - rect.width / 2;
+                const mouseY = e.clientY - rect.top - rect.height / 2;
+                let deg = Math.round((Math.atan2(mouseY, mouseX) * 180) / Math.PI);
+                if (deg < 0) deg += 360;
+
+                hoverTag.setAttribute("transform", `translate(${mouseX * 0.8}, ${mouseY * 0.8})`);
+                hoverTag.setAttribute("display", "block");
+                hTxt.textContent = `量角刻度: ${deg}°`;
+            };
+
+            group.onmouseleave = () => {
+                hoverTag.setAttribute("display", "none");
+            };
+
+            g.appendChild(group);
+        }
+
+        function drawAngleSectorArc(g, pos, baseDir, biasDir, angle, isRevealed) {
+            if (!isRevealed || angle <= 0) return;
+
+            const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            group.setAttribute("transform", `translate(${pos.x}, ${pos.y})`);
+
+            const r = 44;
+
+            let baseAngleDeg = 90;
+            if (baseDir === '北') baseAngleDeg = 270;
+            if (baseDir === '东') baseAngleDeg = 0;
+            if (baseDir === '西') baseAngleDeg = 180;
+
+            let targetAngleDeg = baseAngleDeg;
+            if (baseDir === '南' && biasDir === '东') targetAngleDeg = 90 - angle;
+            if (baseDir === '南' && biasDir === '西') targetAngleDeg = 90 + angle;
+            if (baseDir === '北' && biasDir === '东') targetAngleDeg = 270 + angle;
+            if (baseDir === '北' && biasDir === '西') targetAngleDeg = 270 - angle;
+
+            const startRad = (baseAngleDeg * Math.PI) / 180;
+            const endRad = (targetAngleDeg * Math.PI) / 180;
+
+            const x1 = r * Math.cos(startRad);
+            const y1 = r * Math.sin(startRad);
+            const x2 = r * Math.cos(endRad);
+            const y2 = r * Math.sin(endRad);
+
+            const sweepFlag = targetAngleDeg > baseAngleDeg ? 1 : 0;
+            const d = `M 0 0 L ${x1} ${y1} A ${r} ${r} 0 0 ${sweepFlag} ${x2} ${y2} Z`;
+
+            const sector = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            sector.setAttribute("d", d);
+            sector.setAttribute("fill", "rgba(245, 158, 11, 0.35)");
+            sector.setAttribute("stroke", "#f59e0b");
+            sector.setAttribute("stroke-width", "2");
+            group.appendChild(sector);
+
+            const midRad = (startRad + endRad) / 2;
+            const textDist = r + 18;
+            const tx = textDist * Math.cos(midRad);
+            const ty = textDist * Math.sin(midRad);
+
+            const angleText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            angleText.setAttribute("x", tx);
+            angleText.setAttribute("y", ty);
+            angleText.setAttribute("fill", "#fbbf24");
+            angleText.setAttribute("font-size", "14");
+            angleText.setAttribute("font-weight", "bold");
+            angleText.setAttribute("text-anchor", "middle");
+            angleText.setAttribute("dominant-baseline", "central");
+            angleText.textContent = `${angle}°`;
+            group.appendChild(angleText);
+
+            g.appendChild(group);
+        }
+
+        function drawScaleTicks(g, p1, p2, steps, stepMeterVal) {
+            const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+
+            const dx = p2.x - p1.x;
+            const dy = p2.y - p1.y;
+            const totalDist = Math.hypot(dx, dy);
+
+            if (totalDist === 0) return;
+
+            const unitDx = dx / steps;
+            const unitDy = dy / steps;
+
+            const nx = -dy / totalDist * 7;
+            const ny = dx / totalDist * 7;
+
+            for (let i = 1; i <= steps; i++) {
+                const tx = p1.x + unitDx * i;
+                const ty = p1.y + unitDy * i;
+
+                const tick = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                tick.setAttribute("x1", tx - nx);
+                tick.setAttribute("y1", ty - ny);
+                tick.setAttribute("x2", tx + nx);
+                tick.setAttribute("y2", ty + ny);
+                tick.setAttribute("stroke", "#fbbf24");
+                tick.setAttribute("stroke-width", "2.5");
+                group.appendChild(tick);
+
+                const tickText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                tickText.setAttribute("x", tx + nx * 2.4);
+                tickText.setAttribute("y", ty + ny * 2.4);
+                tickText.setAttribute("fill", "#fbbf24");
+                tickText.setAttribute("font-size", "12");
+                tickText.setAttribute("font-weight", "bold");
+                tickText.setAttribute("text-anchor", "middle");
+                tickText.setAttribute("dominant-baseline", "central");
+                tickText.textContent = `${i * stepMeterVal}m`;
+                group.appendChild(tickText);
+            }
+
+            g.appendChild(group);
+        }
+
+        function drawArrowHead(g, p1, p2, color) {
+            const dx = p2.x - p1.x;
+            const dy = p2.y - p1.y;
+            const angle = Math.atan2(dy, dx);
+
+            const mx = (p1.x + p2.x) / 2;
+            const my = (p1.y + p2.y) / 2;
+
+            const arrow = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+            const size = 10;
+            const pA = `${mx + size * Math.cos(angle)},${my + size * Math.sin(angle)}`;
+            const pB = `${mx - size * Math.cos(angle - Math.PI / 6)},${my - size * Math.sin(angle - Math.PI / 6)}`;
+            const pC = `${mx - size * Math.cos(angle + Math.PI / 6)},${my - size * Math.sin(angle + Math.PI / 6)}`;
+
+            arrow.setAttribute("points", `${pA} ${pB} ${pC}`);
+            arrow.setAttribute("fill", color);
+            g.appendChild(arrow);
+        }
+
+        // ==========================================
+        // 5. DRAWER UI RENDERER & TOGGLE REVELATION HANDLERS
+        // ==========================================
+
+        function renderDrawer() {
+            const container = document.getElementById('drawer-content');
+            container.innerHTML = '';
+
+            const stage = AppState.currentStage;
+
+            if (stage === 'stage_1_forward') {
+                renderStage1Drawer(container);
+            } else if (stage === 'stage_2_return') {
+                renderStage2Drawer(container);
+            } else if (stage === 'stage_3_draw') {
+                renderStage3Drawer(container);
+            } else if (stage === 'stage_4_custom') {
+                renderStage4Drawer(container);
+            }
+        }
+
+        // ---- STAGE 1 DRAWER UI ----
+        function renderStage1Drawer(container) {
+            const segs = AppState.stage1.segments;
+            const activeIdx = AppState.stage1.activeSegmentIdx;
+            const cur = segs[activeIdx];
+
+            // 1. Segment Tabs
+            const navDiv = document.createElement('div');
+            navDiv.className = 'grid grid-cols-3 gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800';
+            segs.forEach((s, idx) => {
+                const isActive = idx === activeIdx;
+                const btn = document.createElement('button');
+                btn.className = `py-2 text-xs font-bold rounded-lg transition ${isActive ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'}`;
+                btn.innerText = `第${idx + 1}段: ${s.fromName}➔${s.toName}`;
+                btn.onclick = () => {
+                    playSound('click');
+                    AppState.stage1.activeSegmentIdx = idx;
+                    renderSVG();
+                    renderDrawer();
+                };
+                navDiv.appendChild(btn);
+            });
+            container.appendChild(navDiv);
+
+            // 2. Step Revelation Chain Card (TOGGLE REVELATION SUPPORT)
+            const chainCard = document.createElement('div');
+            chainCard.className = 'glass-card p-4 rounded-xl space-y-4 border border-slate-800';
+
+            chainCard.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-bold text-amber-400">🎯 当前探索：${cur.fromName} ➔ ${cur.toName}</span>
+                    <span class="text-xs text-slate-400 font-medium">比例尺 1段 = 100m</span>
+                </div>
+
+                <!-- STEP 1: ORIGIN CROSSHAIR -->
+                <div class="p-3.5 rounded-xl bg-slate-900/90 border ${cur.isOriginPlaced ? 'border-emerald-500/60 bg-emerald-950/25' : 'border-slate-800'} space-y-2">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-6 h-6 rounded-full ${cur.isOriginPlaced ? 'bg-emerald-500' : 'bg-slate-700'} text-slate-950 text-xs font-extrabold flex items-center justify-center">1</span>
+                            <span class="text-sm font-bold text-slate-200">定位本段观测点</span>
+                        </div>
+                        <button onclick="revealStage1Step('origin')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition shadow ${cur.isOriginPlaced ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/50 hover:bg-emerald-500/30' : 'bg-blue-600 hover:bg-blue-500 text-white'}">
+                            ${cur.isOriginPlaced ? '🙈 点击隐藏十字标' : '📍 点击建立方向标'}
+                        </button>
+                    </div>
+                    ${cur.isOriginPlaced ? `<p class="text-xs text-emerald-300 bg-emerald-500/10 p-2.5 rounded-lg border border-emerald-500/20 leading-relaxed font-medium">💡 算理强化：以【${cur.fromName}】为起点出发，就以【${cur.fromName}】为<b>观测点</b>建立方向标！</p>` : ''}
+                </div>
+
+                <!-- STEP 2: ANGLE SECTOR & QUIZ -->
+                <div class="p-3.5 rounded-xl bg-slate-900/90 border ${cur.isAngleMeasured ? 'border-emerald-500/60 bg-emerald-950/25' : 'border-slate-800'} space-y-2">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-6 h-6 rounded-full ${cur.isAngleMeasured ? 'bg-emerald-500' : 'bg-slate-700'} text-slate-950 text-xs font-extrabold flex items-center justify-center">2</span>
+                            <span class="text-sm font-bold text-slate-200">测量行走偏角</span>
+                        </div>
+                        <button onclick="revealStage1Step('angle')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition shadow ${cur.isAngleMeasured ? 'bg-amber-500/20 text-amber-300 border border-amber-500/50 hover:bg-amber-500/30' : 'bg-amber-600 hover:bg-amber-500 text-white'}">
+                            ${cur.isAngleMeasured ? '🙈 点击隐藏偏角' : '🧭 调出量角揭晓'}
+                        </button>
+                    </div>
+                    ${cur.isAngleMeasured ? `
+                        <div class="text-sm text-amber-300 bg-amber-500/10 p-2.5 rounded-lg border border-amber-500/20 font-bold">
+                            方向结论：向 <b>${cur.baseDir}</b> 偏 <b>${cur.biasDir} ${cur.angle}°</b> 方向
+                        </div>
+                    ` : ''}
+                </div>
+
+                <!-- STEP 3: DISTANCE STEPPING -->
+                <div class="p-3.5 rounded-xl bg-slate-900/90 border ${cur.isDistanceMeasured ? 'border-emerald-500/60 bg-emerald-950/25' : 'border-slate-800'} space-y-2">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-6 h-6 rounded-full ${cur.isDistanceMeasured ? 'bg-emerald-500' : 'bg-slate-700'} text-slate-950 text-xs font-extrabold flex items-center justify-center">3</span>
+                            <span class="text-sm font-bold text-slate-200">卡尺核算实际路程</span>
+                        </div>
+                        <button onclick="revealStage1Step('distance')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition shadow ${cur.isDistanceMeasured ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/50 hover:bg-indigo-500/30' : 'bg-indigo-600 hover:bg-indigo-500 text-white'}">
+                            ${cur.isDistanceMeasured ? '🙈 点击隐藏距离' : '📏 点击步进核算'}
+                        </button>
+                    </div>
+                    ${cur.isDistanceMeasured ? `
+                        <div class="text-sm text-indigo-300 bg-indigo-500/10 p-2.5 rounded-lg border border-indigo-500/20 font-bold flex justify-between">
+                            <span>线段格数：${cur.scaleSteps} 格</span>
+                            <span>实际距离：<b>${cur.distance} 米</b></span>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            container.appendChild(chainCard);
+
+            // 3. Segment Report Card
+            const reportCard = document.createElement('div');
+            reportCard.className = 'glass-card p-4 rounded-xl border border-slate-800 space-y-3';
+            const allRevealed = cur.isOriginPlaced && cur.isAngleMeasured && cur.isDistanceMeasured;
+
+            reportCard.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-bold text-slate-300">📜 本段标准教材规范描述</span>
+                    <button onclick="revealStage1Step('summary')" class="px-3 py-1 text-xs rounded-lg font-bold transition ${cur.isSummaryRevealed ? 'bg-slate-700 text-amber-300 border border-amber-500/30' : 'bg-slate-800 hover:bg-slate-700 text-slate-300'}">
+                        ${cur.isSummaryRevealed ? '🙈 点击隐藏描述' : '👁 点击揭晓描述'}
+                    </button>
+                </div>
+                <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-sm leading-relaxed text-slate-200 font-medium">
+                    ${cur.isSummaryRevealed || allRevealed ? `
+                        <span class="text-blue-400 font-bold">从【${cur.fromName}】出发</span>，向 <span class="text-amber-400 font-bold">${cur.baseDir}偏${cur.biasDir} ${cur.angle}°</span> 方向走 <span class="text-emerald-400 font-bold">${cur.distance}米</span> 到达【${cur.toName}】。
+                    ` : `
+                        <span class="text-slate-500 italic">点击上方按钮解锁标准语法描述...</span>
+                    `}
+                </div>
+            `;
+            container.appendChild(reportCard);
+        }
+
+        // TOGGLE REVELATION FUNCTION FOR STAGE 1
+        function revealStage1Step(stepType) {
+            const seg = AppState.stage1.segments[AppState.stage1.activeSegmentIdx];
+            let isOpening = false;
+
+            if (stepType === 'origin') { seg.isOriginPlaced = !seg.isOriginPlaced; isOpening = seg.isOriginPlaced; }
+            if (stepType === 'angle') { seg.isAngleMeasured = !seg.isAngleMeasured; isOpening = seg.isAngleMeasured; }
+            if (stepType === 'distance') { seg.isDistanceMeasured = !seg.isDistanceMeasured; isOpening = seg.isDistanceMeasured; }
+            if (stepType === 'summary') { seg.isSummaryRevealed = !seg.isSummaryRevealed; isOpening = seg.isSummaryRevealed; }
+
+            playSound(isOpening ? 'reveal' : 'hide');
+            renderSVG();
+            renderDrawer();
+        }
+
+        // ---- STAGE 2 DRAWER UI ----
+        function renderStage2Drawer(container) {
+            const retList = AppState.stage2.returns;
+            const activeIdx = AppState.stage2.activeReturnIdx;
+            const cur = retList[activeIdx];
+
+            const navDiv = document.createElement('div');
+            navDiv.className = 'grid grid-cols-3 gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800';
+            retList.forEach((r, idx) => {
+                const isActive = idx === activeIdx;
+                const btn = document.createElement('button');
+                btn.className = `py-2 text-xs font-bold rounded-lg transition ${isActive ? 'bg-amber-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'}`;
+                btn.innerText = `返程${idx + 1}: ${r.fromName}➔${r.toName}`;
+                btn.onclick = () => {
+                    playSound('click');
+                    AppState.stage2.activeReturnIdx = idx;
+                    renderSVG();
+                    renderDrawer();
+                };
+                navDiv.appendChild(btn);
+            });
+            container.appendChild(navDiv);
+
+            const card = document.createElement('div');
+            card.className = 'glass-card p-4 rounded-xl border border-slate-800 space-y-4';
+
+            card.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-bold text-amber-400">🔄 往返相对性对比解构</span>
+                </div>
+
+                <div class="p-3 rounded-xl bg-blue-950/40 border border-blue-500/30 text-xs space-y-1">
+                    <div class="text-xs text-blue-400 font-bold">【去时路段描述】</div>
+                    <div class="text-blue-200 font-bold text-sm">${cur.goDesc}</div>
+                </div>
+
+                <!-- RETURN STEP 1 -->
+                <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-bold text-slate-200">1. 返程新观测点</span>
+                        <button onclick="revealStage2Step('origin')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition ${cur.isOriginPlaced ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-blue-600 text-white'}">
+                            ${cur.isOriginPlaced ? '🙈 点击隐藏方向标' : '📍 点击建方向标'}
+                        </button>
+                    </div>
+                </div>
+
+                <!-- RETURN STEP 2 -->
+                <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-bold text-slate-200">2. 相对方向与内错角</span>
+                        <button onclick="revealStage2Step('direction')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition ${cur.isDirectionRevealed ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'bg-amber-600 text-white'}">
+                            ${cur.isDirectionRevealed ? '🙈 点击隐藏方向' : '🧭 揭晓返程方向'}
+                        </button>
+                    </div>
+                    ${cur.isDirectionRevealed ? `
+                        <div class="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-sm text-amber-300 font-bold">
+                            返程方向：<span class="text-white bg-amber-600 px-2 py-0.5 rounded font-bold">${cur.dirAns}</span>
+                        </div>
+                    ` : ''}
+                </div>
+
+                <!-- RETURN STEP 3 -->
+                <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-bold text-slate-200">3. 返程实际距离</span>
+                        <button onclick="revealStage2Step('distance')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition ${cur.isDistanceRevealed ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40' : 'bg-indigo-600 text-white'}">
+                            ${cur.isDistanceRevealed ? '🙈 点击隐藏距离' : '📏 揭晓距离'}
+                        </button>
+                    </div>
+                    ${cur.isDistanceRevealed ? `
+                        <div class="p-2.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-sm text-indigo-300 font-bold">
+                            返程距离：<span class="text-white font-extrabold">${cur.distAns}</span> (与去时完全相同)
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            container.appendChild(card);
+
+            // Secret Flashcard
+            const flipContainer = document.createElement('div');
+            flipContainer.className = 'flip-card cursor-pointer my-2';
+            flipContainer.onclick = () => {
+                flipContainer.classList.toggle('flipped');
+                playSound('click');
+            };
+
+            flipContainer.innerHTML = `
+                <div class="flip-card-inner glass-card rounded-xl border border-amber-500/30 p-4 text-center">
+                    <div class="flip-card-front flex flex-col items-center justify-center space-y-1.5">
+                        <span class="text-3xl">💡</span>
+                        <span class="text-sm font-bold text-amber-300">点击翻转：原路返回核心秘诀口诀</span>
+                        <span class="text-xs text-slate-400">（起点终点对调，方向如何变？）</span>
+                    </div>
+                    <div class="flip-card-back flex flex-col items-center justify-center space-y-1.5">
+                        <span class="text-sm font-bold text-emerald-400">🌟 原路返回四大铁律 🌟</span>
+                        <p class="text-xs text-slate-100 leading-relaxed font-bold">
+                            起点终点互换，距离数值不变，<br/>
+                            角度大小不变，方向完全相反！<br/>
+                            <span class="text-amber-300 font-semibold">(东变西、南变北，南偏东30° ➔ 北偏西30°)</span>
+                        </p>
+                    </div>
+                </div>
+            `;
+            container.appendChild(flipContainer);
+        }
+
+        // TOGGLE REVELATION FUNCTION FOR STAGE 2
+        function revealStage2Step(type) {
+            const cur = AppState.stage2.returns[AppState.stage2.activeReturnIdx];
+            let isOpening = false;
+
+            if (type === 'origin') { cur.isOriginPlaced = !cur.isOriginPlaced; isOpening = cur.isOriginPlaced; }
+            if (type === 'direction') { cur.isDirectionRevealed = !cur.isDirectionRevealed; isOpening = cur.isDirectionRevealed; }
+            if (type === 'distance') { cur.isDistanceRevealed = !cur.isDistanceRevealed; isOpening = cur.isDistanceRevealed; }
+
+            playSound(isOpening ? 'reveal' : 'hide');
+            renderSVG();
+            renderDrawer();
+        }
+
+        // ---- STAGE 3 DRAWER UI ----
+        function renderStage3Drawer(container) {
+            const st = AppState.stage3;
+
+            const card = document.createElement('div');
+            card.className = 'glass-card p-4 rounded-xl border border-slate-800 space-y-4';
+
+            card.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-bold text-blue-400">📐 做一做 P9 画路线规程</span>
+                    <span class="text-xs text-slate-400 font-medium">比例尺 1格 = 50m</span>
+                </div>
+
+                <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 text-sm text-amber-300 font-medium leading-relaxed">
+                    <b>情境题目：</b>“我沿正南方向走 50m 到路口，再沿南偏西 30° 方向走 100m 到公园。”
+                </div>
+
+                <!-- STEP 1 -->
+                <div class="p-3.5 rounded-xl bg-slate-900 border ${st.startPlaced ? 'border-emerald-500/50 bg-emerald-950/20' : 'border-slate-800'} space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-bold text-slate-200">1. 定起点并建坐标系</span>
+                        <button onclick="handleStage3Action(1)" class="px-3 py-1.5 rounded-lg text-xs font-bold ${st.startPlaced ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-blue-600 text-white'}">
+                            ${st.startPlaced ? '🙈 隐藏家起点' : '📍 定起点 (家)'}
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 2 -->
+                <div class="p-3.5 rounded-xl bg-slate-900 border ${st.segment1Done ? 'border-emerald-500/50 bg-emerald-950/20' : 'border-slate-800'} space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-bold text-slate-200">2. 画第1段 (正南 50m 到路口)</span>
+                        <button onclick="handleStage3Action(2)" class="px-3 py-1.5 rounded-lg text-xs font-bold ${st.segment1Done ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-blue-600 text-white'}" ${!st.startPlaced ? 'disabled opacity-50' : ''}>
+                            ${st.segment1Done ? '🙈 隐藏第1段' : '🖊 标定路口线段'}
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 3 -->
+                <div class="p-3.5 rounded-xl bg-slate-900 border ${st.originShifted ? 'border-emerald-500/50 bg-emerald-950/20' : 'border-amber-500/50'} space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-bold text-amber-300">3. 观测点跃迁 (关键易错!)</span>
+                        <button onclick="handleStage3Action(3)" class="px-3 py-1.5 rounded-lg text-xs font-bold ${st.originShifted ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-amber-600 text-white'}" ${!st.segment1Done ? 'disabled opacity-50' : ''}>
+                            ${st.originShifted ? '🙈 隐藏路口坐标' : '📍 在路口设新十字标'}
+                        </button>
+                    </div>
+                    <p class="text-xs text-slate-400 leading-relaxed">🚨 算理防错：走到路口后，观测点已变为【路口】，必须重新确立坐标系！</p>
+                </div>
+
+                <!-- STEP 4 -->
+                <div class="p-3.5 rounded-xl bg-slate-900 border ${st.segment2Done ? 'border-emerald-500/50 bg-emerald-950/20' : 'border-slate-800'} space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-bold text-slate-200">4. 画第2段 (南偏西 30° 100m)</span>
+                        <button onclick="handleStage3Action(4)" class="px-3 py-1.5 rounded-lg text-xs font-bold ${st.segment2Done ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-blue-600 text-white'}" ${!st.originShifted ? 'disabled opacity-50' : ''}>
+                            ${st.segment2Done ? '🙈 隐藏第2段' : '🖊 画第二段到公园'}
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 5 -->
+                <div class="pt-2">
+                    <button onclick="handleStage3Action(5)" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold shadow-lg ${!st.segment2Done ? 'opacity-50 cursor-not-allowed' : ''}" ${!st.segment2Done ? 'disabled' : ''}>
+                        ${st.verified ? '🙈 隐藏标准答案对比' : '✨ 揭晓标准作图重合核验'}
+                    </button>
+                </div>
+            `;
+            container.appendChild(card);
+
+            if (st.verified) {
+                const verCard = document.createElement('div');
+                verCard.className = 'glass-card p-4 rounded-xl border border-emerald-500/40 bg-emerald-950/30 space-y-2 text-sm text-emerald-200 animate-fade-in';
+                verCard.innerHTML = `
+                    <div class="flex items-center space-x-2 font-bold text-emerald-400 text-base">
+                        <span>🎉 作图核验成功！精准度 100%</span>
+                    </div>
+                    <p class="leading-relaxed text-xs">
+                        红色虚线为教材标准示意图。你的标绘完全契合“定起点 ➔ 建立坐标系 ➔ 旋转量角 ➔ 截取比例距离”作图规范！
+                    </p>
+                `;
+                container.appendChild(verCard);
+            }
+        }
+
+        function handleStage3Action(step) {
+            const st = AppState.stage3;
+            if (step === 1) { st.startPlaced = !st.startPlaced; }
+            else if (step === 2) { st.segment1Done = !st.segment1Done; }
+            else if (step === 3) { st.originShifted = !st.originShifted; }
+            else if (step === 4) { st.segment2Done = !st.segment2Done; }
+            else if (step === 5) { st.verified = !st.verified; }
+
+            playSound('click');
+            renderSVG();
+            renderDrawer();
+        }
+
+        // ---- STAGE 4 DRAWER UI ----
+        function renderStage4Drawer(container) {
+            const st = AppState.stage4;
+
+            const card = document.createElement('div');
+            card.className = 'glass-card p-4 rounded-xl border border-slate-800 space-y-4';
+
+            card.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-bold text-purple-400">🧪 开放式出题实验室</span>
+                    <div class="flex space-x-1 p-1 bg-slate-900 rounded-lg">
+                        <button onclick="switchStage4Mode('creator')" class="px-2.5 py-1 text-xs font-bold rounded ${st.mode === 'creator' ? 'bg-purple-600 text-white' : 'text-slate-400'}">出题制图</button>
+                        <button onclick="switchStage4Mode('solver')" class="px-2.5 py-1 text-xs font-bold rounded ${st.mode === 'solver' ? 'bg-purple-600 text-white' : 'text-slate-400'}">交互做题</button>
+                    </div>
+                </div>
+
+                ${st.mode === 'creator' ? `
+                    <div class="space-y-3 text-xs">
+                        <div class="p-3 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 space-y-1">
+                            <div class="font-bold text-purple-300 text-sm">操作指南：</div>
+                            <p class="text-xs text-slate-400 leading-relaxed font-medium">自定义生成站点路线图。可修改比例尺，并一键封装为试题卡。</p>
+                        </div>
+                        <div class="flex items-center justify-between pt-1">
+                            <label class="text-slate-200 font-bold text-xs">比例尺基准:</label>
+                            <select onchange="updateStage4Scale(this.value)" class="bg-slate-900 text-purple-300 px-3 py-1.5 rounded-lg border border-slate-700 text-xs font-bold">
+                                <option value="50" ${st.scaleRatio === 50 ? 'selected' : ''}>1格 = 50米</option>
+                                <option value="100" ${st.scaleRatio === 100 ? 'selected' : ''}>1格 = 100米</option>
+                                <option value="200" ${st.scaleRatio === 200 ? 'selected' : ''}>1格 = 200米</option>
+                            </select>
+                        </div>
+                        <button onclick="switchStage4Mode('solver')" class="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-lg shadow-purple-500/20">
+                            🔒 封装生成路线试题
+                        </button>
+                    </div>
+                ` : `
+                    <div class="space-y-4 text-xs">
+                        <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-2.5">
+                            <span class="font-bold text-purple-300 text-sm">试题 1: A少年宫 ➔ B图书馆</span>
+                            <div class="flex items-center justify-between pt-1 space-x-2">
+                                <button onclick="revealStage4Ans(0, 'dir')" class="flex-1 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-purple-300 font-bold text-xs border border-slate-700">
+                                    ${st.customSegments[0].isDirRevealed ? '🙈 隐藏 (南偏东 60°)' : '👁 偷看方向'}
+                                </button>
+                                <button onclick="revealStage4Ans(0, 'dist')" class="flex-1 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-purple-300 font-bold text-xs border border-slate-700">
+                                    ${st.customSegments[0].isDistRevealed ? '🙈 隐藏 (300米)' : '📏 偷看距离'}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-2.5">
+                            <span class="font-bold text-purple-300 text-sm">试题 2: B图书馆 ➔ C体育馆</span>
+                            <div class="flex items-center justify-between pt-1 space-x-2">
+                                <button onclick="revealStage4Ans(1, 'dir')" class="flex-1 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-purple-300 font-bold text-xs border border-slate-700">
+                                    ${st.customSegments[1].isDirRevealed ? '🙈 隐藏 (南偏东 30°)' : '👁 偷看方向'}
+                                </button>
+                                <button onclick="revealStage4Ans(1, 'dist')" class="flex-1 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-purple-300 font-bold text-xs border border-slate-700">
+                                    ${st.customSegments[1].isDistRevealed ? '🙈 隐藏 (400米)' : '📏 偷看距离'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `}
+            `;
+            container.appendChild(card);
+        }
+
+        function switchStage4Mode(mode) {
+            AppState.stage4.mode = mode;
+            playSound('click');
+            renderSVG();
+            renderDrawer();
+        }
+
+        function updateStage4Scale(val) {
+            AppState.stage4.scaleRatio = parseInt(val);
+            document.getElementById('scale-legend-text').textContent = `1格线段 = ${val}米`;
+            renderSVG();
+        }
+
+        // TOGGLE REVELATION FUNCTION FOR STAGE 4
+        function revealStage4Ans(idx, type) {
+            const seg = AppState.stage4.customSegments[idx];
+            let isOpening = false;
+
+            if (type === 'dir') { seg.isDirRevealed = !seg.isDirRevealed; isOpening = seg.isDirRevealed; }
+            if (type === 'dist') { seg.isDistRevealed = !seg.isDistRevealed; isOpening = seg.isDistRevealed; }
+
+            playSound(isOpening ? 'reveal' : 'hide');
+            renderSVG();
+            renderDrawer();
+        }
+
+        // ==========================================
+        // 6. SUMMARY & MODAL CONTROLLER
+        // ==========================================
+
+        function toggleGlobalSummaryModal() {
+            playSound('click');
+            const modal = document.getElementById('summary-modal');
+            const body = document.getElementById('modal-body');
+
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                body.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="p-4 rounded-xl bg-blue-950/40 border border-blue-500/30">
+                            <h4 class="font-bold text-blue-300 text-base mb-2">📌 1. 描述路线的三要素规范</h4>
+                            <p class="leading-relaxed text-sm">
+                                描述路线必须包含：<b>观测点 (起点)</b>、<b>偏转方向与角度</b>、<b>实际行走距离</b>。<br/>
+                                <span class="text-amber-300 font-bold">标准格式：从 [起点] 出发，向 [基准方向] 偏 [偏转方向] [角度]° 方向走 [距离] 米到达 [终点]。</span>
+                            </p>
+                        </div>
+
+                        <div class="p-4 rounded-xl bg-amber-950/40 border border-amber-500/30">
+                            <h4 class="font-bold text-amber-300 text-base mb-2">📌 2. 观测点跃迁规律 (每走一段起点就变)</h4>
+                            <p class="leading-relaxed text-sm">
+                                每走到一个新的站点，该站点就成为<b>新的起点/观测点</b>。必须在该点重新画出十字方向标，建立新的直角坐标系。
+                            </p>
+                        </div>
+
+                        <div class="p-4 rounded-xl bg-emerald-950/40 border border-emerald-500/30">
+                            <h4 class="font-bold text-emerald-300 text-base mb-2">📌 3. 原路返回相对性 (内错角与方向互逆)</h4>
+                            <p class="leading-relaxed text-sm">
+                                原路返回时：<b>起点终点互换，距离数值不变，角度数值不变，方向完全相反</b> (如：南偏东 30° ➔ 返程变为 北偏西 30°)。
+                            </p>
+                        </div>
+
+                        <div class="p-4 rounded-xl bg-purple-950/40 border border-purple-500/30">
+                            <h4 class="font-bold text-purple-300 text-base mb-2">📌 4. 听描述规范画图五步法</h4>
+                            <p class="leading-relaxed text-sm">
+                                <b>① 定起点建坐标系</b> ➔ <b>② 用量角器量偏角</b> ➔ <b>③ 沿角度画射线</b> ➔ <b>④ 按比例尺截取段数标距离</b> ➔ <b>⑤ 标注终点名称</b>。
+                            </p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        // ==========================================
+        // 7. INITIALIZATION ON LOAD
+        // ==========================================
+        window.addEventListener('DOMContentLoaded', () => {
+            initZoomPanEvents();
+            switchStage('stage_1_forward');
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,2651 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="text-[15px] xl:text-[17px] 2xl:text-[19px]">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="人教版小学数学四年级上册第一单元《大数的认识》数的大小比较互动教学课件。全流程主动探索与点击揭晓，配备数位透视镜、激光逐位扫描、算法决策树与自主出题实验室。">
+    <title>数的大小比较 · 互动探究课件</title>
+
+    <!-- Google Fonts 预连接与引入 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800;900&family=Noto+Sans+SC:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <!-- 本地 Tailwind CSS 运行时 -->
+    <script src="./tailwind/tailwind.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            900: '#0c4a6e',
+                        },
+                        amber: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        },
+                        emerald: {
+                            400: '#34d399',
+                            500: '#10b981',
+                            600: '#059669',
+                        },
+                        sky: {
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                        },
+                        rose: {
+                            400: '#fb7185',
+                            500: '#f43f5e',
+                            600: '#e11d48',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans SC', 'Outfit', '-apple-system', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Courier New', 'monospace']
+                    }
+                }
+            }
+        };
+    </script>
+
+    <style>
+        :root {
+            --bg-dark-base: #090d16;
+            --bg-dark-panel: rgba(15, 23, 42, 0.75);
+            --bg-dark-card: rgba(30, 41, 59, 0.7);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --border-glass-hover: rgba(56, 189, 248, 0.3);
+            --shadow-glow-sky: 0 0 25px rgba(2, 132, 199, 0.25);
+            --shadow-glow-amber: 0 0 25px rgba(245, 158, 11, 0.25);
+            --shadow-glow-emerald: 0 0 25px rgba(16, 185, 129, 0.25);
+
+            /* 数位格响应式尺寸变量 (超大幅度增大，满足白板与大屏教学) */
+            --digit-w: 90px;
+            --digit-h: 110px;
+            --digit-font-size: 2.8rem;
+            /* 45px */
+        }
+
+        @media (min-width: 1700px) {
+            :root {
+                --digit-w: 104px;
+                --digit-h: 126px;
+                --digit-font-size: 3.4rem;
+                /* 54px */
+            }
+        }
+
+        @media (max-width: 1366px) {
+            :root {
+                --digit-w: 74px;
+                --digit-h: 92px;
+                --digit-font-size: 2.2rem;
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', 'Outfit', sans-serif;
+            background-color: var(--bg-dark-base);
+            color: #f8fafc;
+            height: 100vh;
+            overflow: hidden;
+            background-image:
+                radial-gradient(circle at 15% 15%, rgba(2, 132, 199, 0.12) 0%, transparent 45%),
+                radial-gradient(circle at 85% 80%, rgba(245, 158, 11, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.05) 0%, transparent 60%);
+            background-attachment: fixed;
+        }
+
+        /* 隐藏滚动条但保留滚动功能 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.3);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* 玻璃拟态卡片与面板 */
+        .glass-card {
+            background: rgba(30, 41, 59, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            border-color: var(--border-glass-hover);
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+        }
+
+        /* 动效与关键帧 */
+        @keyframes cardReveal {
+            0% {
+                opacity: 0;
+                transform: translateY(12px) scale(0.97);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .anim-card-reveal {
+            animation: cardReveal 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes errorShake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            20%,
+            60% {
+                transform: translateX(-6px);
+            }
+
+            40%,
+            80% {
+                transform: translateX(6px);
+            }
+        }
+
+        .shake-error {
+            animation: errorShake 0.4s ease-in-out;
+        }
+
+        @keyframes goldPulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 14px rgba(245, 158, 11, 0.5), inset 0 0 10px rgba(245, 158, 11, 0.35);
+                border-color: #fbbf24;
+            }
+
+            50% {
+                box-shadow: 0 0 30px rgba(245, 158, 11, 0.95), inset 0 0 20px rgba(245, 158, 11, 0.65);
+                border-color: #f59e0b;
+            }
+        }
+
+        .laser-spotlight {
+            animation: goldPulse 1.4s infinite ease-in-out;
+            background: linear-gradient(180deg, rgba(245, 158, 11, 0.35) 0%, rgba(245, 158, 11, 0.12) 100%);
+        }
+
+        /* 按钮点击涟漪效果 */
+        .btn-interactive {
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .btn-interactive:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-interactive:active {
+            transform: translateY(1px) scale(0.98);
+        }
+
+        /* 数位格固定尺寸，确保上下严格垂直对齐，放大字号与格栅让展示更气派 */
+        .digit-cell {
+            width: var(--digit-w);
+            height: var(--digit-h);
+            min-width: var(--digit-w);
+            font-size: var(--digit-font-size);
+            line-height: 1;
+        }
+
+        /* 16 位密集模式自适应 */
+        .dense-mode .digit-cell {
+            width: 58px !important;
+            height: 74px !important;
+            min-width: 58px !important;
+            font-size: 1.6rem !important;
+        }
+
+        @media (min-width: 1700px) {
+            .dense-mode .digit-cell {
+                width: 70px !important;
+                height: 88px !important;
+                min-width: 70px !important;
+                font-size: 1.95rem !important;
+            }
+        }
+
+        /* 全屏礼花画布 */
+        #confettiCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+        }
+    </style>
+</head>
+
+<body class="flex flex-col h-screen select-none">
+    <!-- 礼花画布 -->
+    <canvas id="confettiCanvas"></canvas>
+
+    <!-- 3 栏核心左右布局容器 (与 小数乘小数 结构高度一致) -->
+    <div id="app-container" class="flex h-screen w-screen overflow-hidden p-4 gap-4">
+
+        <!-- ============================================================= -->
+        <!-- 1. 左侧：导航与控制中心 (w-64)                                -->
+        <!-- ============================================================= -->
+        <aside
+            class="w-64 lg:w-72 glass-panel rounded-2xl p-4 flex flex-col justify-between shrink-0 border border-white/10 shadow-2xl">
+            <div class="space-y-4">
+
+                <!-- 模块垂直切换 Tab 组 (人教版例6与闯关实验室) -->
+                <nav class="flex flex-col gap-2.5">
+                    <button id="nav-btn-stage_1_pk" onclick="setStage('stage_1_pk')"
+                        class="nav-stage-btn w-full px-4 py-3.5 rounded-xl text-base font-extrabold transition-all duration-200 flex items-center justify-between text-left group cursor-pointer bg-gradient-to-r from-sky-600 to-indigo-600 text-white shadow-lg shadow-sky-600/30 ring-2 ring-sky-400/50">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <span class="text-xl shrink-0">🌾</span>
+                            <span class="truncate">1. 农产品情境 (例6)</span>
+                        </div>
+                    </button>
+
+                    <button id="nav-btn-stage_2_scaling" onclick="setStage('stage_2_scaling')"
+                        class="nav-stage-btn w-full px-4 py-3.5 rounded-xl text-base font-extrabold transition-all duration-200 flex items-center justify-between text-left group cursor-pointer text-slate-300 hover:text-white hover:bg-white/10">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <span class="text-xl shrink-0">🔬</span>
+                            <span class="truncate">2. 数位透视镜 (例6)</span>
+                        </div>
+                    </button>
+
+                    <button id="nav-btn-stage_3_flowchart" onclick="setStage('stage_3_flowchart')"
+                        class="nav-stage-btn w-full px-4 py-3.5 rounded-xl text-base font-extrabold transition-all duration-200 flex items-center justify-between text-left group cursor-pointer text-slate-300 hover:text-white hover:bg-white/10">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <span class="text-xl shrink-0">🌲</span>
+                            <span class="truncate">3. 算法决策树 (归纳)</span>
+                        </div>
+                    </button>
+
+                    <button id="nav-btn-stage_4_quiz" onclick="setStage('stage_4_quiz')"
+                        class="nav-stage-btn w-full px-4 py-3.5 rounded-xl text-base font-extrabold transition-all duration-200 flex items-center justify-between text-left group cursor-pointer text-slate-300 hover:text-white hover:bg-white/10">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <span class="text-xl shrink-0">🎯</span>
+                            <span class="truncate">4. 做一做诊断 (练习)</span>
+                        </div>
+                    </button>
+
+                    <button id="nav-btn-stage_5_custom_lab" onclick="setStage('stage_5_custom_lab')"
+                        class="nav-stage-btn w-full px-4 py-3.5 rounded-xl text-base font-extrabold transition-all duration-200 flex items-center justify-between text-left group cursor-pointer text-amber-300 hover:text-white hover:bg-amber-500/15">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <span class="text-xl shrink-0">🧪</span>
+                            <span class="truncate">5. 自主出题 (拓展)</span>
+                        </div>
+                        <span class="w-3 h-3 rounded-full bg-amber-400 animate-pulse shrink-0"></span>
+                    </button>
+                </nav>
+            </div>
+
+            <!-- 底部工具控制区 -->
+            <div class="pt-4 border-t border-white/10 space-y-3">
+                <div class="grid grid-cols-2 gap-2.5">
+                    <!-- 音效切换 -->
+                    <button onclick="toggleSound()"
+                        class="p-3 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 hover:text-white transition-colors border border-white/10 text-sm md:text-base flex items-center justify-center gap-2 font-bold cursor-pointer"
+                        title="切换音效">
+                        <svg id="icon-sound-on" class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                        </svg>
+                        <svg id="icon-sound-off" class="w-5 h-5 hidden text-slate-500" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+                        </svg>
+                        <span id="sound-label">音效开</span>
+                    </button>
+
+                    <!-- 重置当前模块 -->
+                    <button onclick="resetCurrentStage()"
+                        class="p-3 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 hover:text-white transition-colors border border-white/10 text-sm md:text-base flex items-center justify-center gap-2 font-bold cursor-pointer"
+                        title="重置当前阶段">
+                        <svg class="w-5 h-5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        <span>重置</span>
+                    </button>
+                </div>
+
+                <!-- 全屏切换 -->
+                <button onclick="toggleFullscreen()"
+                    class="w-full p-3.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 hover:text-white transition-colors border border-white/10 text-sm md:text-base flex items-center justify-center gap-2 font-bold cursor-pointer"
+                    title="切换全屏演示">
+                    <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" />
+                    </svg>
+                    <span>全屏演示</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- ============================================================= -->
+        <!-- 2. 中间：主体交互探究大屏 (flex-1)                            -->
+        <!-- ============================================================= -->
+        <main class="flex-1 flex flex-col min-w-0 overflow-y-auto pr-1 gap-4">
+
+            <!-- --------------------------------------------------------- -->
+            <!-- 模块 1：农产品情境探索 (例 6)                              -->
+            <!-- --------------------------------------------------------- -->
+            <div id="stage-panel-stage_1_pk" class="stage-panel flex flex-col gap-4 h-full">
+                <!-- 顶部情境 Banner -->
+                <div
+                    class="glass-card p-6 bg-gradient-to-r from-amber-950/40 via-slate-800/60 to-sky-950/40 border-amber-500/30 relative overflow-hidden">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
+                            <div
+                                class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-base font-extrabold">
+                                <span>🌱 例 6 · 我国农产品大丰收情境</span>
+                            </div>
+                            <div
+                                class="flex items-center gap-2 px-4 py-2 rounded-full bg-sky-500/20 border border-sky-400/40 text-sky-200 text-sm md:text-base font-bold shadow-md">
+                                <span class="text-lg">🤖</span>
+                                <span>小助手提示：面对庞大数据，不数一数位数，眼睛容易被骗哦！</span>
+                            </div>
+                        </div>
+
+                        <h2 class="text-2xl md:text-3xl font-black text-white tracking-wide">
+                            我国这四种农产品的产量各是多少？哪种更多？
+                        </h2>
+
+                        <!-- 4 种农产品卡片网格 -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-1">
+                            <!-- 稻谷 -->
+                            <div id="crop-card-rice" onclick="stage1ToggleSelect('rice')"
+                                class="cursor-pointer group p-4 rounded-2xl bg-slate-900/80 border border-white/10 hover:border-amber-400 transition-all flex flex-col justify-between shadow-lg">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-3xl md:text-4xl">🌾</span>
+                                    <span id="badge-rice"
+                                        class="w-7 h-7 rounded-full bg-slate-800 text-xs font-black flex items-center justify-center text-slate-400 border border-white/10">空</span>
+                                </div>
+                                <div class="mt-3">
+                                    <div class="text-sm md:text-base font-bold text-slate-200">稻谷产量</div>
+                                    <div class="font-mono text-lg md:text-xl font-black text-amber-400 mt-0.5">207534900
+                                        <span class="text-xs text-slate-400 font-normal">吨</span>
+                                    </div>
+                                    <div class="text-xs text-slate-400 mt-1">9位数 (含亿级)</div>
+                                </div>
+                            </div>
+                            <!-- 小麦 -->
+                            <div id="crop-card-wheat" onclick="stage1ToggleSelect('wheat')"
+                                class="cursor-pointer group p-4 rounded-2xl bg-slate-900/80 border border-white/10 hover:border-amber-400 transition-all flex flex-col justify-between shadow-lg">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-3xl md:text-4xl">🌿</span>
+                                    <span id="badge-wheat"
+                                        class="w-7 h-7 rounded-full bg-slate-800 text-xs font-black flex items-center justify-center text-slate-400 border border-white/10">空</span>
+                                </div>
+                                <div class="mt-3">
+                                    <div class="text-sm md:text-base font-bold text-slate-200">小麦产量</div>
+                                    <div class="font-mono text-lg md:text-xl font-black text-amber-400 mt-0.5">140099400
+                                        <span class="text-xs text-slate-400 font-normal">吨</span>
+                                    </div>
+                                    <div class="text-xs text-slate-400 mt-1">9位数 (含亿级)</div>
+                                </div>
+                            </div>
+                            <!-- 玉米 -->
+                            <div id="crop-card-corn" onclick="stage1ToggleSelect('corn')"
+                                class="cursor-pointer group p-4 rounded-2xl bg-slate-900/80 border border-white/10 hover:border-amber-400 transition-all flex flex-col justify-between shadow-lg">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-3xl md:text-4xl">🌽</span>
+                                    <span id="badge-corn"
+                                        class="w-7 h-7 rounded-full bg-slate-800 text-xs font-black flex items-center justify-center text-slate-400 border border-white/10">空</span>
+                                </div>
+                                <div class="mt-3">
+                                    <div class="text-sm md:text-base font-bold text-slate-200">玉米产量</div>
+                                    <div class="font-mono text-lg md:text-xl font-black text-amber-400 mt-0.5">294916900
+                                        <span class="text-xs text-slate-400 font-normal">吨</span>
+                                    </div>
+                                    <div class="text-xs text-slate-400 mt-1">9位数 (含亿级)</div>
+                                </div>
+                            </div>
+                            <!-- 大豆 -->
+                            <div id="crop-card-soybean" onclick="stage1ToggleSelect('soybean')"
+                                class="cursor-pointer group p-4 rounded-2xl bg-slate-900/80 border border-white/10 hover:border-sky-400 transition-all flex flex-col justify-between shadow-lg">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-3xl md:text-4xl">🌱</span>
+                                    <span id="badge-soybean"
+                                        class="w-7 h-7 rounded-full bg-slate-800 text-xs font-black flex items-center justify-center text-slate-400 border border-white/10">空</span>
+                                </div>
+                                <div class="mt-3">
+                                    <div class="text-sm md:text-base font-bold text-slate-200">大豆产量</div>
+                                    <div class="font-mono text-lg md:text-xl font-black text-sky-400 mt-0.5">20647800
+                                        <span class="text-xs text-slate-400 font-normal">吨</span>
+                                    </div>
+                                    <div class="text-xs text-slate-400 mt-1">8位数 (千万级)</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 快捷教学探究按钮 -->
+                        <div class="flex items-center gap-3 pt-2 flex-wrap">
+                            <span class="text-sm text-slate-400 font-bold">快捷探究：</span>
+                            <button onclick="stage1QuickSelect('rice', 'soybean')"
+                                class="btn-interactive px-4 py-2 text-sm font-bold rounded-xl bg-sky-950/80 hover:bg-sky-900 border border-sky-600/40 text-sky-300">
+                                🌾 探究一：稻谷 vs 大豆 (位数不同)
+                            </button>
+                            <button onclick="stage1QuickSelect('rice', 'corn')"
+                                class="btn-interactive px-4 py-2 text-sm font-bold rounded-xl bg-amber-950/80 hover:bg-amber-900 border border-amber-600/40 text-amber-300">
+                                🌽 探究二：稻谷 vs 玉米 (位数相同)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PK 擂台区域 (严禁直接出结果) -->
+                <div class="glass-card flex-1 p-6 flex flex-col justify-between relative overflow-hidden">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-3.5">
+                        <div class="flex items-center gap-2.5">
+                            <span
+                                class="px-3.5 py-1 rounded-full bg-amber-500/20 text-amber-300 text-sm font-bold border border-amber-500/30">
+                                ⚡ 对比擂台
+                            </span>
+                            <span class="text-base font-bold text-white">从自主猜想到理性透视</span>
+                        </div>
+                        <span class="text-sm text-slate-400 font-medium">请点选 2 个农产品放入擂台</span>
+                    </div>
+
+                    <!-- 对决台左右与中间符号 -->
+                    <div
+                        class="flex-1 flex flex-col md:flex-row items-center justify-center gap-8 py-8 max-w-3xl mx-auto w-full">
+                        <div id="stage1-slot-left"
+                            class="w-full md:w-5/12 glass-panel rounded-2xl p-6 border-2 border-dashed border-slate-700 flex flex-col items-center justify-center min-h-[190px] text-center transition-all shadow-xl">
+                            <span class="text-5xl mb-2">❓</span>
+                            <span class="text-sm text-slate-400 font-bold">请从上方点选第一个农产品</span>
+                        </div>
+
+                        <div class="flex flex-col items-center justify-center shrink-0">
+                            <div id="stage1-symbol-circle"
+                                class="w-20 h-20 md:w-24 md:h-24 rounded-full bg-slate-900 border-2 border-slate-700 shadow-2xl flex items-center justify-center text-3xl md:text-4xl font-black font-mono text-slate-400 transition-all">
+                                ?
+                            </div>
+                            <span id="stage1-guess-tag"
+                                class="mt-2.5 text-xs text-slate-400 bg-slate-800/80 px-3 py-1 rounded-full border border-slate-700/60 hidden">
+                                我的猜想: <span id="stage1-guess-val" class="font-extrabold text-amber-400 text-sm"></span>
+                            </span>
+                        </div>
+
+                        <div id="stage1-slot-right"
+                            class="w-full md:w-5/12 glass-panel rounded-2xl p-6 border-2 border-dashed border-slate-700 flex flex-col items-center justify-center min-h-[190px] text-center transition-all shadow-xl">
+                            <span class="text-5xl mb-2">❓</span>
+                            <span class="text-sm text-slate-400 font-bold">请从上方点选第二个农产品</span>
+                        </div>
+                    </div>
+
+                    <!-- 操作控制条 (严禁自动亮结果) -->
+                    <div class="border-t border-white/10 pt-5 flex flex-wrap items-center justify-center gap-4">
+                        <button id="stage1-btn-guess" onclick="stage1OpenGuessModal()" disabled
+                            class="btn-interactive opacity-50 cursor-not-allowed px-6 py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-base font-bold border border-slate-700 flex items-center gap-2 shadow-lg">
+                            <span>🤔 我来猜一猜大小</span>
+                        </button>
+                        <button id="stage1-btn-goto-lens" onclick="stage1GoToLens()" disabled
+                            class="btn-interactive opacity-50 cursor-not-allowed px-7 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 text-base font-black shadow-lg shadow-amber-500/25 flex items-center gap-2">
+                            <span>🔍 点击进入数位透视镜验证</span>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- 猜一猜浮动选择框 -->
+                    <div id="stage1-guess-modal"
+                        class="hidden absolute inset-0 bg-slate-950/90 backdrop-blur-md rounded-2xl flex flex-col items-center justify-center z-20 p-6 anim-card-reveal">
+                        <h3 class="text-xl font-extrabold text-white mb-2">请大胆猜一猜它们的大小关系！</h3>
+                        <p class="text-sm text-slate-400 mb-8">先凭直觉猜测，选好后我们将进入“数位透视镜”一步步推导证明</p>
+                        <div class="flex items-center gap-6">
+                            <button onclick="stage1SubmitGuess('>')"
+                                class="btn-interactive w-20 h-20 rounded-2xl bg-slate-900 border-2 border-amber-500/50 hover:border-amber-400 text-3xl font-black font-mono text-amber-400 flex items-center justify-center shadow-xl hover:bg-amber-500/10">
+                                &gt;
+                            </button>
+                            <button onclick="stage1SubmitGuess('<')"
+                                class="btn-interactive w-20 h-20 rounded-2xl bg-slate-900 border-2 border-sky-500/50 hover:border-sky-400 text-3xl font-black font-mono text-sky-400 flex items-center justify-center shadow-xl hover:bg-sky-500/10">
+                                &lt;
+                            </button>
+                            <button onclick="stage1SubmitGuess('=')"
+                                class="btn-interactive w-20 h-20 rounded-2xl bg-slate-900 border-2 border-slate-700 hover:border-slate-500 text-3xl font-black font-mono text-slate-300 flex items-center justify-center shadow-xl hover:bg-slate-800">
+                                =
+                            </button>
+                        </div>
+                        <button onclick="stage1CloseGuessModal()"
+                            class="mt-8 text-sm text-slate-400 hover:text-slate-200 underline">暂不猜，直接去验证</button>
+                    </div>
+
+                    <!-- 底部启示条 -->
+                    <div
+                        class="mt-4 pt-3.5 border-t border-white/10 flex items-center justify-between text-sm text-slate-400">
+                        <span>📝 核心原则：严禁仅看最高位数字判断大小，必须先数清总位数！</span>
+                        <span class="text-amber-400 font-bold">例 6 教学设计</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- --------------------------------------------------------- -->
+            <!-- 模块 2：数位透视镜与激光扫描 (透析算理)                   -->
+            <!-- --------------------------------------------------------- -->
+            <div id="stage-panel-stage_2_scaling" class="stage-panel hidden flex-col gap-4 h-full">
+                <!-- 顶部情境控制条 -->
+                <div
+                    class="glass-card p-5 flex flex-wrap items-center justify-between gap-4 border-slate-700/60 bg-slate-900/80 shadow-xl">
+                    <div class="flex items-center gap-3">
+                        <span
+                            class="px-4 py-2 rounded-xl bg-sky-500/20 text-sky-300 text-sm md:text-base font-black border border-sky-500/30">
+                            例 6 · 算理透视
+                        </span>
+                        <h2 class="text-lg md:text-xl font-black text-white">
+                            数位透视镜与激光逐位扫描演练台
+                        </h2>
+                    </div>
+
+                    <div class="flex items-center gap-2 bg-slate-950 p-1.5 rounded-xl border border-white/15 text-sm">
+                        <button id="btn-scenario-diff" onclick="stage2LoadScenario('diff')"
+                            class="px-4 py-2 rounded-lg font-bold transition-all text-amber-300 bg-amber-500/15 border border-amber-500/30">
+                            情境 A：位数不同 (稻谷 vs 大豆)
+                        </button>
+                        <button id="btn-scenario-same" onclick="stage2LoadScenario('same')"
+                            class="px-4 py-2 rounded-lg font-bold transition-all text-slate-400 hover:text-slate-200">
+                            情境 B：位数相同 (稻谷 vs 玉米)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 数位顺序表核心展台 -->
+                <div class="glass-card flex-1 p-6 flex flex-col justify-between relative overflow-hidden">
+                    <div class="overflow-x-auto pb-4 my-auto">
+                        <div id="lens-table-container" class="inline-block min-w-full">
+                            <!-- 动态数位顺序表注入 -->
+                        </div>
+                    </div>
+
+                    <!-- 步进驱动交互控制条 -->
+                    <div
+                        class="mt-4 pt-4 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
+                        <div class="flex items-center gap-3">
+                            <span class="text-sm font-bold text-slate-400">推导步进器：</span>
+                            <span id="lens-step-badge"
+                                class="px-4 py-1.5 text-sm md:text-base rounded-full bg-slate-800 text-slate-200 border border-slate-700 font-mono font-bold">
+                                步骤 0 / 4
+                            </span>
+                        </div>
+
+                        <!-- 动态步进按钮组 -->
+                        <div id="lens-control-buttons" class="flex flex-wrap items-center gap-3">
+                        </div>
+                    </div>
+
+                    <!-- 动态步进反馈信息与算理卡片 -->
+                    <div id="lens-feedback-card"
+                        class="mt-4 p-5 md:p-6 rounded-2xl border-2 border-amber-500/40 bg-slate-950/90 hidden anim-card-reveal shadow-2xl">
+                        <div class="flex items-start gap-4">
+                            <span id="lens-feedback-icon" class="text-3xl md:text-4xl">💡</span>
+                            <div class="flex-1">
+                                <div id="lens-feedback-title"
+                                    class="text-sm md:text-base font-black uppercase tracking-wider text-amber-400">算理观察
+                                </div>
+                                <div id="lens-feedback-body"
+                                    class="text-base md:text-xl text-slate-100 mt-1.5 leading-relaxed">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 底部总结 -->
+                    <div
+                        class="mt-3 pt-3 border-t border-white/10 flex items-center justify-between text-sm text-slate-400">
+                        <span>💡 个位垂直对齐后，每一位上的数代表不同的计数单位，具有严格的位值本质！</span>
+                        <span class="text-sky-400 font-bold">计数单位不可逆转</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- --------------------------------------------------------- -->
+            <!-- 模块 3：算法决策树 (总结规程 · 交互拼图)                 -->
+            <!-- --------------------------------------------------------- -->
+            <div id="stage-panel-stage_3_flowchart" class="stage-panel hidden flex-col gap-4 h-full">
+                <div
+                    class="glass-card p-5 flex items-center justify-between border-slate-700/60 bg-slate-900/80 shadow-xl">
+                    <div class="flex items-center gap-3">
+                        <span
+                            class="px-4 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 text-sm md:text-base font-black border border-emerald-500/30">
+                            算法逻辑拼图
+                        </span>
+                        <h2 class="text-lg md:text-xl font-black text-white">
+                            大数比较通用算法决策树
+                        </h2>
+                    </div>
+                    <button onclick="stage3ResetTree()"
+                        class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-sm font-bold text-slate-300 border border-slate-700 transition-colors">
+                        重置拼图
+                    </button>
+                </div>
+
+                <div class="glass-card flex-1 p-6 flex flex-col justify-between relative overflow-hidden">
+                    <!-- 决策树结构 -->
+                    <div class="flex flex-col items-center max-w-3xl mx-auto w-full py-4 my-auto">
+                        <div
+                            class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-sky-600 to-indigo-600 text-white font-black text-base md:text-lg shadow-xl border border-sky-400/40 text-center">
+                            比较两个大数的大小
+                        </div>
+                        <div class="w-1 h-5 bg-slate-600"></div>
+                        <div
+                            class="px-5 py-2 rounded-xl bg-slate-800 text-sm md:text-base font-bold text-slate-200 border border-slate-700">
+                            步骤一：数出两个数的位数
+                        </div>
+                        <div class="w-full max-w-lg flex justify-between items-center relative py-3">
+                            <div class="absolute top-0 left-1/4 right-1/4 h-1 bg-slate-600"></div>
+                            <div class="w-1 h-4 bg-slate-600 absolute top-0 left-1/4"></div>
+                            <div class="w-1 h-4 bg-slate-600 absolute top-0 right-1/4"></div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full mt-1">
+                            <!-- 分支 A: 位数不同 -->
+                            <div
+                                class="flex flex-col items-center bg-slate-950/70 p-5 md:p-6 rounded-2xl border border-white/10 shadow-lg">
+                                <span class="text-base font-bold text-amber-400 mb-2">情况一：位数不同</span>
+                                <div class="text-sm text-slate-400 mb-3">结论决策：</div>
+                                <div id="slot-1" onclick="stage3ClickSlot(1)"
+                                    class="flow-slot w-full h-14 md:h-16 rounded-2xl border-2 border-dashed border-slate-700 hover:border-amber-400 flex items-center justify-center text-sm md:text-base text-slate-400 bg-slate-900/60 transition-all cursor-pointer shadow-inner font-bold">
+                                    <span>[ 点击下方词块填入 ]</span>
+                                </div>
+                            </div>
+
+                            <!-- 分支 B: 位数相同 -->
+                            <div
+                                class="flex flex-col items-center bg-slate-950/70 p-5 md:p-6 rounded-2xl border border-white/10 shadow-lg">
+                                <span class="text-base font-bold text-sky-400 mb-2">情况二：位数相同</span>
+                                <div class="text-sm text-slate-400 mb-3">初始步骤：</div>
+                                <div id="slot-2" onclick="stage3ClickSlot(2)"
+                                    class="flow-slot w-full h-14 md:h-16 rounded-2xl border-2 border-dashed border-slate-700 hover:border-sky-400 flex items-center justify-center text-sm md:text-base text-slate-400 bg-slate-900/60 transition-all cursor-pointer shadow-inner font-bold">
+                                    <span>[ 点击下方词块填入 ]</span>
+                                </div>
+
+                                <div class="w-1 h-4 bg-slate-600 my-2"></div>
+                                <div class="w-full grid grid-cols-2 gap-3 mt-1">
+                                    <div class="flex flex-col items-center">
+                                        <span class="text-xs md:text-sm font-bold text-slate-300 mb-1.5">最高位不同：</span>
+                                        <div id="slot-3" onclick="stage3ClickSlot(3)"
+                                            class="flow-slot w-full h-12 md:h-14 rounded-xl border-2 border-dashed border-slate-700 hover:border-emerald-400 flex items-center justify-center text-xs md:text-sm text-slate-400 bg-slate-900/60 transition-all cursor-pointer shadow-inner font-bold">
+                                            <span>[ 槽位 3 ]</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col items-center">
+                                        <span class="text-xs md:text-sm font-bold text-slate-300 mb-1.5">最高位相同：</span>
+                                        <div id="slot-4" onclick="stage3ClickSlot(4)"
+                                            class="flow-slot w-full h-12 md:h-14 rounded-xl border-2 border-dashed border-slate-700 hover:border-indigo-400 flex items-center justify-center text-xs md:text-sm text-slate-400 bg-slate-900/60 transition-all cursor-pointer shadow-inner font-bold">
+                                            <span>[ 槽位 4 ]</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 备选词块库 -->
+                    <div class="mt-4 pt-4 border-t border-white/10">
+                        <div class="text-sm font-bold text-slate-300 mb-3 flex items-center justify-between">
+                            <span>备选决策词块：(先点击词块，再点击上方空槽填入)</span>
+                            <span id="stage3-status-text" class="text-sm md:text-base text-amber-400 font-extrabold">已填
+                                0 / 4</span>
+                        </div>
+                        <div id="stage3-bank" class="flex flex-wrap gap-3">
+                            <div id="chip-c1" onclick="stage3SelectChip('c1')"
+                                class="flow-chip px-5 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-sm md:text-base font-extrabold text-slate-100 border border-slate-600 shadow-md cursor-pointer transition-all">
+                                位数多的数大
+                            </div>
+                            <div id="chip-c2" onclick="stage3SelectChip('c2')"
+                                class="flow-chip px-5 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-sm md:text-base font-extrabold text-slate-100 border border-slate-600 shadow-md cursor-pointer transition-all">
+                                从最高位比起
+                            </div>
+                            <div id="chip-c3" onclick="stage3SelectChip('c3')"
+                                class="flow-chip px-5 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-sm md:text-base font-extrabold text-slate-100 border border-slate-600 shadow-md cursor-pointer transition-all">
+                                最高位大的数就大
+                            </div>
+                            <div id="chip-c4" onclick="stage3SelectChip('c4')"
+                                class="flow-chip px-5 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-sm md:text-base font-extrabold text-slate-100 border border-slate-600 shadow-md cursor-pointer transition-all">
+                                比较下一个数位上的数
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4 个槽全对后奖励 -->
+                    <div id="stage3-reward-banner"
+                        class="hidden mt-4 p-5 rounded-2xl bg-gradient-to-r from-amber-500/20 via-sky-500/20 to-emerald-500/20 border-2 border-amber-500/50 anim-card-reveal shadow-2xl">
+                        <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                            <div class="flex items-center gap-3">
+                                <span class="text-3xl">🎉</span>
+                                <div>
+                                    <div class="text-base md:text-lg font-black text-amber-300">算法流程树拼装完全正确！</div>
+                                    <div class="text-sm text-slate-200">恭喜掌握大数比较的完整算法规程。</div>
+                                </div>
+                            </div>
+                            <button id="stage3-btn-chant" onclick="stage3RevealChant()"
+                                class="btn-interactive px-5 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 text-sm md:text-base font-black shadow-lg shadow-amber-500/30 flex items-center gap-2">
+                                <span>🏆 点击点亮《大数比较三字速记口诀》</span>
+                            </button>
+                        </div>
+
+                        <!-- 阶梯展示口诀 -->
+                        <div id="stage3-chant-box"
+                            class="hidden mt-4 pt-4 border-t border-amber-500/30 grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="p-4 rounded-xl bg-slate-950/80 border border-amber-400/40 text-center">
+                                <div class="text-amber-400 font-extrabold text-base md:text-lg mb-1">① 一数位</div>
+                                <div class="text-sm md:text-base text-slate-200">位数不同比位数<br><span
+                                        class="text-amber-300 font-black">位数多的数就大</span></div>
+                            </div>
+                            <div class="p-4 rounded-xl bg-slate-950/80 border border-sky-400/40 text-center">
+                                <div class="text-sky-400 font-extrabold text-base md:text-lg mb-1">② 二看高</div>
+                                <div class="text-sm md:text-base text-slate-200">位数相同看最高<br><span
+                                        class="text-sky-300 font-black">最高位大数就大</span></div>
+                            </div>
+                            <div class="p-4 rounded-xl bg-slate-950/80 border border-emerald-400/40 text-center">
+                                <div class="text-emerald-400 font-extrabold text-base md:text-lg mb-1">③ 三顺比</div>
+                                <div class="text-sm md:text-base text-slate-200">高位相同往下找<br><span
+                                        class="text-emerald-300 font-black">哪位数字大数大</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- --------------------------------------------------------- -->
+            <!-- 模块 4：做一做自主通关 (预设题测验)                       -->
+            <!-- --------------------------------------------------------- -->
+            <div id="stage-panel-stage_4_quiz" class="stage-panel hidden flex-col gap-4 h-full">
+                <div
+                    class="glass-card p-5 flex items-center justify-between border-slate-700/60 bg-slate-900/80 shadow-xl">
+                    <div class="flex items-center gap-3">
+                        <span
+                            class="px-4 py-2 rounded-xl bg-purple-500/20 text-purple-300 text-sm md:text-base font-black border border-purple-500/30">
+                            做一做诊断 · 人教版 P15
+                        </span>
+                        <h2 class="text-lg md:text-xl font-black text-white">
+                            随堂闯关挑战与算理探秘
+                        </h2>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span id="quiz-progress-text"
+                            class="text-sm md:text-base font-mono font-black text-sky-400 bg-sky-950/70 px-4 py-2 rounded-xl border border-sky-800">
+                            已完成 0 / 4
+                        </span>
+                        <button onclick="stage4ResetQuiz()"
+                            class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-sm font-bold text-slate-300 border border-slate-700 transition-colors">
+                            重置
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex-1 grid grid-cols-1 gap-4 overflow-y-auto no-scrollbar py-1">
+                    <!-- 题目 1: 92504 ○ 103600 -->
+                    <div id="quiz-card-0" class="glass-card p-5 flex flex-col gap-4 shadow-xl">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div class="flex items-center gap-3">
+                                <span
+                                    class="w-8 h-8 rounded-full bg-slate-800 text-slate-300 text-sm font-black flex items-center justify-center font-mono">1</span>
+                                <span class="text-sm font-bold text-slate-400">基础通关题</span>
+                            </div>
+                            <div class="flex items-center justify-center gap-6 py-2">
+                                <span class="font-mono text-2xl md:text-3xl font-black text-slate-100">92504</span>
+                                <button onclick="stage4OpenSelector(0)" id="quiz-circle-0"
+                                    class="w-14 h-14 md:w-16 md:h-16 rounded-full bg-slate-900 border-2 border-slate-600 hover:border-amber-400 flex items-center justify-center text-2xl md:text-3xl font-black font-mono text-amber-400 transition-all shadow-xl">
+                                    ○
+                                </button>
+                                <span class="font-mono text-2xl md:text-3xl font-black text-slate-100">103600</span>
+                            </div>
+                            <button id="quiz-reason-btn-0" onclick="stage4ToggleReason(0)" disabled
+                                class="opacity-40 cursor-not-allowed px-4 py-2 rounded-xl bg-slate-800 text-sm font-bold text-slate-300 border border-slate-700 flex items-center gap-1.5">
+                                <span>💡 为什么？点击看算理</span>
+                            </button>
+                        </div>
+                        <div id="quiz-reason-box-0"
+                            class="hidden p-4 rounded-xl bg-slate-950/80 border border-white/10 text-sm md:text-base text-slate-200 leading-relaxed anim-card-reveal">
+                        </div>
+                    </div>
+
+                    <!-- 题目 2: 830207000 ○ 1020010000 -->
+                    <div id="quiz-card-1" class="glass-card p-5 flex flex-col gap-4 shadow-xl">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div class="flex items-center gap-3">
+                                <span
+                                    class="w-8 h-8 rounded-full bg-slate-800 text-slate-300 text-sm font-black flex items-center justify-center font-mono">2</span>
+                                <span class="text-sm font-bold text-slate-400">亿级多位数题</span>
+                            </div>
+                            <div class="flex items-center justify-center gap-6 py-2">
+                                <span class="font-mono text-2xl md:text-3xl font-black text-slate-100">830207000</span>
+                                <button onclick="stage4OpenSelector(1)" id="quiz-circle-1"
+                                    class="w-14 h-14 md:w-16 md:h-16 rounded-full bg-slate-900 border-2 border-slate-600 hover:border-amber-400 flex items-center justify-center text-2xl md:text-3xl font-black font-mono text-amber-400 transition-all shadow-xl">
+                                    ○
+                                </button>
+                                <span class="font-mono text-2xl md:text-3xl font-black text-slate-100">1020010000</span>
+                            </div>
+                            <button id="quiz-reason-btn-1" onclick="stage4ToggleReason(1)" disabled
+                                class="opacity-40 cursor-not-allowed px-4 py-2 rounded-xl bg-slate-800 text-sm font-bold text-slate-300 border border-slate-700 flex items-center gap-1.5">
+                                <span>💡 为什么？点击看算理</span>
+                            </button>
+                        </div>
+                        <div id="quiz-reason-box-1"
+                            class="hidden p-4 rounded-xl bg-slate-950/80 border border-white/10 text-sm md:text-base text-slate-200 leading-relaxed anim-card-reveal">
+                        </div>
+                    </div>
+
+                    <!-- 题目 3: 28906 ○ 28890 -->
+                    <div id="quiz-card-2" class="glass-card p-5 flex flex-col gap-4 shadow-xl">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div class="flex items-center gap-3">
+                                <span
+                                    class="w-8 h-8 rounded-full bg-slate-800 text-slate-300 text-sm font-black flex items-center justify-center font-mono">3</span>
+                                <span class="text-sm font-bold text-slate-400">高位相同顺比题</span>
+                            </div>
+                            <div class="flex items-center justify-center gap-6 py-2">
+                                <span class="font-mono text-2xl md:text-3xl font-black text-slate-100">28906</span>
+                                <button onclick="stage4OpenSelector(2)" id="quiz-circle-2"
+                                    class="w-14 h-14 md:w-16 md:h-16 rounded-full bg-slate-900 border-2 border-slate-600 hover:border-amber-400 flex items-center justify-center text-2xl md:text-3xl font-black font-mono text-amber-400 transition-all shadow-xl">
+                                    ○
+                                </button>
+                                <span class="font-mono text-2xl md:text-3xl font-black text-slate-100">28890</span>
+                            </div>
+                            <button id="quiz-reason-btn-2" onclick="stage4ToggleReason(2)" disabled
+                                class="opacity-40 cursor-not-allowed px-4 py-2 rounded-xl bg-slate-800 text-sm font-bold text-slate-300 border border-slate-700 flex items-center gap-1.5">
+                                <span>💡 为什么？点击看算理</span>
+                            </button>
+                        </div>
+                        <div id="quiz-reason-box-2"
+                            class="hidden p-4 rounded-xl bg-slate-950/80 border border-white/10 text-sm md:text-base text-slate-200 leading-relaxed anim-card-reveal">
+                        </div>
+                    </div>
+
+                    <!-- 题目 4: 100388770000 ○ 99385270000 -->
+                    <div id="quiz-card-3" class="glass-card p-5 flex flex-col gap-4 shadow-xl">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div class="flex items-center gap-3">
+                                <span
+                                    class="w-8 h-8 rounded-full bg-amber-500/20 text-amber-400 text-sm font-black flex items-center justify-center font-mono border border-amber-500/30">4</span>
+                                <span class="text-sm font-extrabold text-amber-300">⚠️ 极高频视觉陷阱题</span>
+                            </div>
+                            <div class="flex items-center justify-center gap-6 py-2">
+                                <span
+                                    class="font-mono text-xl md:text-2xl font-black text-slate-100">100388770000</span>
+                                <button onclick="stage4OpenSelector(3)" id="quiz-circle-3"
+                                    class="w-14 h-14 md:w-16 md:h-16 rounded-full bg-slate-900 border-2 border-slate-600 hover:border-amber-400 flex items-center justify-center text-2xl md:text-3xl font-black font-mono text-amber-400 transition-all shadow-xl">
+                                    ○
+                                </button>
+                                <span class="font-mono text-xl md:text-2xl font-black text-slate-100">99385270000</span>
+                            </div>
+                            <button id="quiz-reason-btn-3" onclick="stage4ToggleReason(3)" disabled
+                                class="opacity-40 cursor-not-allowed px-4 py-2 rounded-xl bg-slate-800 text-sm font-bold text-slate-300 border border-slate-700 flex items-center gap-1.5">
+                                <span>💡 为什么？点击看算理</span>
+                            </button>
+                        </div>
+                        <div id="quiz-reason-box-3"
+                            class="hidden p-4 rounded-xl bg-slate-950/80 border border-white/10 text-sm md:text-base text-slate-200 leading-relaxed anim-card-reveal">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 随堂选择弹窗 -->
+                <div id="quiz-modal"
+                    class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div
+                        class="glass-panel rounded-2xl p-7 border border-slate-700 max-w-md w-full text-center anim-card-reveal shadow-2xl">
+                        <h3 class="text-xl font-extrabold text-white mb-2">请选择比较符号填入圆圈</h3>
+                        <p class="text-sm text-slate-400 mb-6">先在心中默念三字口诀：一数位、二看高、三顺比</p>
+                        <div class="flex items-center justify-center gap-6">
+                            <button onclick="stage4SelectSymbol('>')"
+                                class="btn-interactive w-20 h-20 rounded-2xl bg-slate-900 border-2 border-amber-500/50 hover:border-amber-400 text-3xl font-black font-mono text-amber-400 flex items-center justify-center shadow-xl">
+                                &gt;
+                            </button>
+                            <button onclick="stage4SelectSymbol('<')"
+                                class="btn-interactive w-20 h-20 rounded-2xl bg-slate-900 border-2 border-sky-500/50 hover:border-sky-400 text-3xl font-black font-mono text-sky-400 flex items-center justify-center shadow-xl">
+                                &lt;
+                            </button>
+                            <button onclick="stage4SelectSymbol('=')"
+                                class="btn-interactive w-20 h-20 rounded-2xl bg-slate-900 border-2 border-slate-700 hover:border-slate-500 text-3xl font-black font-mono text-slate-300 flex items-center justify-center shadow-xl">
+                                =
+                            </button>
+                        </div>
+                        <button onclick="stage4CloseSelector()"
+                            class="mt-6 text-sm text-slate-400 hover:text-slate-200">取消</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- --------------------------------------------------------- -->
+            <!-- 模块 5：自主出题实验室 (自由 PK · 开放式算理引擎)         -->
+            <!-- --------------------------------------------------------- -->
+            <div id="stage-panel-stage_5_custom_lab" class="stage-panel hidden flex-col gap-4 h-full">
+                <!-- 顶部出题台 -->
+                <div
+                    class="glass-card p-6 bg-gradient-to-r from-amber-950/40 via-slate-800/70 to-purple-950/40 border-amber-500/30 relative overflow-hidden">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <div class="flex items-center gap-2.5">
+                                <span
+                                    class="px-3 py-1 rounded text-xs font-black bg-amber-500 text-slate-950">自主出题实验室</span>
+                                <span class="text-sm text-amber-300">支持 1~16 位任意大数自由输入</span>
+                            </div>
+                            <h2 class="text-xl md:text-2xl font-black text-white mt-1.5">自由出题 PK · 检验全流程算法</h2>
+                        </div>
+                        <div class="flex items-center gap-2.5 flex-wrap">
+                            <button onclick="stage5GeneratePreset('diff')"
+                                class="btn-interactive px-4 py-2 text-sm font-bold rounded-xl bg-slate-900 hover:bg-slate-800 border border-amber-500/40 text-amber-300 flex items-center gap-1.5">
+                                <span>🎲 位数不同</span>
+                            </button>
+                            <button onclick="stage5GeneratePreset('same')"
+                                class="btn-interactive px-4 py-2 text-sm font-bold rounded-xl bg-slate-900 hover:bg-slate-800 border border-sky-500/40 text-sky-300 flex items-center gap-1.5">
+                                <span>🎲 高位相同</span>
+                            </button>
+                            <button onclick="stage5GeneratePreset('trap')"
+                                class="btn-interactive px-4 py-2 text-sm font-bold rounded-xl bg-slate-900 hover:bg-slate-800 border border-rose-500/40 text-rose-300 flex items-center gap-1.5">
+                                <span>🎲 高位带9陷阱题</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 输入框与符号 -->
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center mt-5">
+                        <div
+                            class="md:col-span-5 bg-slate-950/70 p-4 rounded-2xl border border-white/10 focus-within:border-amber-400 shadow-xl">
+                            <div class="flex items-center justify-between text-sm text-slate-400 mb-1.5">
+                                <span class="font-bold text-amber-300">数 A：</span>
+                                <span id="lab-len-a" class="font-mono text-slate-300 font-bold">0 位数</span>
+                            </div>
+                            <input id="lab-input-a" type="text" maxlength="16" placeholder="例如: 98765432"
+                                oninput="stage5OnInputChanged()"
+                                class="w-full bg-transparent font-mono text-2xl md:text-3xl font-black text-white outline-none tracking-wider">
+                        </div>
+
+                        <div class="md:col-span-2 flex flex-col items-center justify-center">
+                            <button id="lab-symbol-btn" onclick="stage5OpenSymbolPicker()"
+                                class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-slate-900 border-2 border-amber-500/60 hover:border-amber-400 flex items-center justify-center text-3xl font-mono font-black text-amber-400 shadow-xl">
+                                ?
+                            </button>
+                            <span class="text-xs text-slate-400 mt-1 font-bold">点选符号</span>
+                        </div>
+
+                        <div
+                            class="md:col-span-5 bg-slate-950/70 p-4 rounded-2xl border border-white/10 focus-within:border-sky-400 shadow-xl">
+                            <div class="flex items-center justify-between text-sm text-slate-400 mb-1.5">
+                                <span class="font-bold text-sky-300">数 B：</span>
+                                <span id="lab-len-b" class="font-mono text-slate-300 font-bold">0 位数</span>
+                            </div>
+                            <input id="lab-input-b" type="text" maxlength="16" placeholder="例如: 102345678"
+                                oninput="stage5OnInputChanged()"
+                                class="w-full bg-transparent font-mono text-2xl md:text-3xl font-black text-white outline-none tracking-wider">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 工具箱与工作区 -->
+                <div class="glass-card flex-1 p-6 flex flex-col justify-between relative overflow-hidden">
+                    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
+                        <span class="text-sm font-black text-slate-200">🛠️ 算理推导工具箱：</span>
+                        <div class="flex flex-wrap items-center gap-2.5">
+                            <button id="lab-btn-table" onclick="stage5MountTable()"
+                                class="btn-interactive px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-sm font-bold text-sky-300 border border-sky-600/40">
+                                📊 1. 装入数位顺序表
+                            </button>
+                            <button id="lab-btn-count" onclick="stage5CountDigits()" disabled
+                                class="btn-interactive opacity-50 cursor-not-allowed px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-sm font-bold text-amber-300 border border-amber-600/40">
+                                🔢 2. 数一数两数位数
+                            </button>
+                            <button id="lab-btn-scan" onclick="stage5StepScan()" disabled
+                                class="btn-interactive opacity-50 cursor-not-allowed px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-sm font-bold text-emerald-300 border border-emerald-600/40">
+                                🎯 3. 逐步扫描比对
+                            </button>
+                            <button id="lab-btn-verdict" onclick="stage5RevealVerdict()" disabled
+                                class="btn-interactive opacity-50 cursor-not-allowed px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 text-sm font-black shadow-md">
+                                ✨ 4. 揭晓官方判定
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="lab-workspace" class="flex-1 flex flex-col justify-center items-center py-6 my-auto">
+                        <div id="lab-placeholder" class="text-center text-slate-400 text-sm md:text-base">
+                            <span class="text-5xl block mb-3">🧪</span>
+                            输入两个大数或点击上方“🎲 随机生成”，开启你的大数探秘！
+                        </div>
+                        <div id="lab-table-container" class="w-full overflow-x-auto pb-4 hidden"></div>
+                        <div id="lab-verdict-card"
+                            class="w-full mt-4 p-5 md:p-6 rounded-2xl border border-white/15 bg-slate-950/90 hidden anim-card-reveal shadow-2xl">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 符号弹窗 -->
+                <div id="lab-modal"
+                    class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div
+                        class="glass-panel rounded-2xl p-7 border border-slate-700 max-w-md w-full text-center anim-card-reveal shadow-2xl">
+                        <h3 class="text-xl font-extrabold text-white mb-2">请选择你认为正确的关系</h3>
+                        <p class="text-sm text-slate-400 mb-6">选好后将由算理引擎步进检验</p>
+                        <div class="flex items-center justify-center gap-6">
+                            <button onclick="stage5PickSymbol('>')"
+                                class="btn-interactive w-20 h-20 rounded-2xl bg-slate-900 border-2 border-amber-500/50 hover:border-amber-400 text-3xl font-black font-mono text-amber-400 flex items-center justify-center shadow-xl">
+                                &gt;
+                            </button>
+                            <button onclick="stage5PickSymbol('<')"
+                                class="btn-interactive w-20 h-20 rounded-2xl bg-slate-900 border-2 border-sky-500/50 hover:border-sky-400 text-3xl font-black font-mono text-sky-400 flex items-center justify-center shadow-xl">
+                                &lt;
+                            </button>
+                            <button onclick="stage5PickSymbol('=')"
+                                class="btn-interactive w-20 h-20 rounded-2xl bg-slate-900 border-2 border-slate-700 hover:border-slate-500 text-3xl font-black font-mono text-slate-300 flex items-center justify-center shadow-xl">
+                                =
+                            </button>
+                        </div>
+                        <button onclick="stage5CloseSymbolPicker()"
+                            class="mt-6 text-sm text-slate-400 hover:text-slate-200">取消</button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- ============================================================= -->
+        <!-- 3. 右侧：核心算理提炼与心得 (w-72 lg:w-80)                     -->
+        <!-- 核心要求：用户主动点击按钮才展开心得，严禁提前显示             -->
+        <!-- ============================================================= -->
+        <aside
+            class="w-72 lg:w-80 glass-panel rounded-2xl p-4 flex flex-col justify-between shrink-0 border border-white/10 shadow-2xl">
+            <div class="space-y-4">
+                <!-- 顶部标题栏 -->
+                <div class="pb-3.5 border-b border-white/10 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-11 h-11 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center font-black text-2xl border border-amber-500/30 shrink-0">
+                            💡
+                        </div>
+                        <div>
+                            <h3 class="text-base md:text-lg font-black text-amber-300 tracking-wide">核心算理提炼</h3>
+                            <span class="text-xs text-slate-300 font-semibold">数学思想与精要</span>
+                        </div>
+                    </div>
+
+                    <!-- 隐藏收起按钮 (仅在揭晓后显示) -->
+                    <button id="btn-hide-summary" onclick="toggleSummary()"
+                        class="hidden px-3 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold transition-all cursor-pointer border border-white/10"
+                        title="收起提炼心得">
+                        🔒 隐藏
+                    </button>
+                </div>
+
+                <!-- 状态 A：未揭晓状态卡片 (必须用户主动点击) -->
+                <div id="summary-unrevealed-card"
+                    class="p-6 rounded-2xl bg-gradient-to-b from-slate-900/90 to-slate-950 border border-dashed border-amber-500/30 text-center space-y-4 shadow-xl">
+                    <div
+                        class="w-20 h-20 mx-auto rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-4xl shadow-lg shadow-amber-500/20 animate-pulse">
+                        🧠
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-black text-white mb-1.5">数学思想待提炼</h4>
+                        <p class="text-xs md:text-sm text-slate-400 leading-relaxed">点击下方按钮，提炼本环节的数学本质与核心算理</p>
+                    </div>
+
+                    <button onclick="toggleSummary()"
+                        class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-sm md:text-base shadow-lg shadow-amber-500/30 transition-all transform hover:scale-[1.02] cursor-pointer flex items-center justify-center gap-2">
+                        <span>✨ 揭晓算理提炼</span>
+                    </button>
+                </div>
+
+                <!-- 状态 B：已揭晓状态卡片 (展示当前阶段专属深度心得) -->
+                <div id="summary-revealed-card" class="hidden space-y-3.5 anim-card-reveal">
+                    <div id="summary-content-body" class="space-y-3.5">
+                        <!-- 由 JS 动态注入对应阶段的心得 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部导航跳转按钮 (一键进入下一阶段 / 全课庆祝) -->
+            <div id="summary-footer-btn-container" class="pt-4 border-t border-white/10">
+                <!-- 由 JS 动态渲染 -->
+            </div>
+        </aside>
+
+    </div>
+
+    <!-- ============================================================= -->
+    <!-- JavaScript 脚本系统                                           -->
+    <!-- ============================================================= -->
+    <script>
+        /**
+         * =============================================================
+         * 1. 纯代码合成音效与礼花引擎
+         * =============================================================
+         */
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (AudioCtx) {
+                        this.ctx = new AudioCtx();
+                    }
+                }
+                if (this.ctx && this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            playClick() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(580, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(120, this.ctx.currentTime + 0.06);
+                gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.06);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.06);
+            }
+
+            playLaser() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(240, this.ctx.currentTime + 0.18);
+                gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.18);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.18);
+            }
+
+            playSuccess() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(0.1, now + i * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.35);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + i * 0.08);
+                    osc.stop(now + i * 0.08 + 0.35);
+                });
+            }
+
+            playWarning() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                [280, 240].forEach((freq, i) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(0.15, now + i * 0.12);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.12 + 0.15);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + i * 0.12);
+                    osc.stop(now + i * 0.12 + 0.15);
+                });
+            }
+        }
+
+        const sound = new SoundEngine();
+
+        function toggleSound() {
+            sound.enabled = !sound.enabled;
+            const onIcon = document.getElementById('icon-sound-on');
+            const offIcon = document.getElementById('icon-sound-off');
+            const label = document.getElementById('sound-label');
+            if (sound.enabled) {
+                onIcon.classList.remove('hidden');
+                offIcon.classList.add('hidden');
+                label.innerText = '音效开';
+                sound.playClick();
+            } else {
+                onIcon.classList.add('hidden');
+                offIcon.classList.remove('hidden');
+                label.innerText = '静音';
+            }
+        }
+
+        function toggleFullscreen() {
+            sound.playClick();
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => { });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen().catch(() => { });
+                }
+            }
+        }
+
+        function fireConfetti() {
+            sound.playSuccess();
+            const canvas = document.getElementById('confettiCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const particles = [];
+            const colors = ['#f59e0b', '#0ea5e9', '#10b981', '#f43f5e', '#a855f7', '#fbbf24'];
+            for (let i = 0; i < 140; i++) {
+                particles.push({
+                    x: canvas.width / 2,
+                    y: canvas.height / 2,
+                    vx: (Math.random() - 0.5) * 18,
+                    vy: (Math.random() - 0.8) * 18,
+                    size: Math.random() * 9 + 4,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    alpha: 1,
+                    decay: Math.random() * 0.015 + 0.01
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                let alive = false;
+                particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.35;
+                    p.alpha -= p.decay;
+                    if (p.alpha > 0) {
+                        alive = true;
+                        ctx.save();
+                        ctx.globalAlpha = p.alpha;
+                        ctx.fillStyle = p.color;
+                        ctx.fillRect(p.x, p.y, p.size, p.size);
+                        ctx.restore();
+                    }
+                });
+                if (alive) {
+                    requestAnimationFrame(animate);
+                } else {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+            }
+            animate();
+        }
+
+        /**
+         * =============================================================
+         * 2. 全局状态模型
+         * =============================================================
+         */
+        const AppState = {
+            currentStage: 'stage_1_pk',
+            isSummaryRevealed: {
+                stage_1_pk: false,
+                stage_2_scaling: false,
+                stage_3_flowchart: false,
+                stage_4_quiz: false,
+                stage_5_custom_lab: false
+            },
+
+            stage1: {
+                selectedCrops: [],
+                userGuess: null
+            },
+
+            stage2: {
+                scenario: 'diff',
+                numA: '207534900',
+                numB: '20647800',
+                nameA: '稻谷',
+                nameB: '大豆',
+                step: 0,
+                scanIndex: -1
+            },
+
+            stage3: {
+                slots: { 1: null, 2: null, 3: null, 4: null },
+                selectedChip: null
+            },
+
+            stage4: {
+                activeQuizIndex: null,
+                items: [
+                    {
+                        numA: '92504',
+                        numB: '103600',
+                        correct: '<',
+                        userAns: null,
+                        analysis: '【算理】92504 是 5 位数，103600 是 6 位数。根据规程第一条：“位数不同比位数，位数多的数就大”。6 位数直接胜出，所以 92504 < 103600。'
+                    },
+                    {
+                        numA: '830207000',
+                        numB: '1020010000',
+                        correct: '<',
+                        userAns: null,
+                        analysis: '【算理】830207000 是 9 位数（最高位在亿位），1020010000 是 10 位数（最高位在十亿位）。位数不同，10 位数多一位，计数单位更高，所以 830207000 < 1020010000。'
+                    },
+                    {
+                        numA: '28906',
+                        numB: '28890',
+                        correct: '>',
+                        userAns: null,
+                        analysis: '【算理】两数都是 5 位数，位数相同，从最高位比起：万位都是 2，千位都是 8，相同往下顺比；百位上左边是 9（900），右边是 8（800），9 > 8，百位已决出胜负，所以 28906 > 28890。'
+                    },
+                    {
+                        numA: '100388770000',
+                        numB: '99385270000',
+                        correct: '>',
+                        userAns: null,
+                        analysis: '【⚠️防坑警示】千万不要被右边开头的“99”迷惑！数一数位数：左边是 12 位数（千亿级），右边是 11 位数（百亿级）。位数不同，位数多的数就大，12 位数 > 11 位数！'
+                    }
+                ]
+            },
+
+            stage5: {
+                inputA: '207534900',
+                inputB: '294916900',
+                userSymbol: null,
+                stepMounted: false,
+                stepCounted: false,
+                stepScanned: false,
+                stepVerdict: false,
+                scanStepIdx: -1
+            }
+        };
+
+        const CROP_DATA = {
+            rice: { name: '稻谷', value: '207534900', icon: '🌾', digits: 9 },
+            wheat: { name: '小麦', value: '140099400', icon: '🌿', digits: 9 },
+            corn: { name: '玉米', value: '294916900', icon: '🌽', digits: 9 },
+            soybean: { name: '大豆', value: '20647800', icon: '🌱', digits: 8 }
+        };
+
+        const ALL_PLACES = [
+            { key: 'qianwanzhao', name: '千万兆', class: 'zhao', classZh: '兆级' },
+            { key: 'baiwanzhao', name: '百万兆', class: 'zhao', classZh: '兆级' },
+            { key: 'shiwanzhao', name: '十万兆', class: 'zhao', classZh: '兆级' },
+            { key: 'wanzhao', name: '万兆', class: 'zhao', classZh: '兆级' },
+            { key: 'qianyi', name: '千亿', class: 'yi', classZh: '亿级' },
+            { key: 'baiyi', name: '百亿', class: 'yi', classZh: '亿级' },
+            { key: 'shiyi', name: '十亿', class: 'yi', classZh: '亿级' },
+            { key: 'yi', name: '亿', class: 'yi', classZh: '亿级' },
+            { key: 'qianwan', name: '千万', class: 'wan', classZh: '万级' },
+            { key: 'baiwan', name: '百万', class: 'wan', classZh: '万级' },
+            { key: 'shiwan', name: '十万', class: 'wan', classZh: '万级' },
+            { key: 'wan', name: '万', class: 'wan', classZh: '万级' },
+            { key: 'qian', name: '千', class: 'ge', classZh: '个级' },
+            { key: 'bai', name: '百', class: 'ge', classZh: '个级' },
+            { key: 'shi', name: '十', class: 'ge', classZh: '个级' },
+            { key: 'ge', name: '个', class: 'ge', classZh: '个级' }
+        ];
+
+        const STAGE_SUMMARIES = {
+            stage_1_pk: `
+                <div class="p-4 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-200 space-y-2 shadow-lg">
+                    <div class="text-base font-black text-amber-300 flex items-center gap-1.5">
+                        <span>★</span>
+                        <span>大数位值与生活感性认知</span>
+                    </div>
+                    <p class="text-sm leading-relaxed text-slate-100">
+                        生活中的大数往往伴随许多 0，面对庞大的农产品产量，人的直觉容易被开头的数字（如 9 比 2 大）误导。
+                        <strong>科学比较大数的第一法则：必须先数清楚总位数！</strong>
+                    </p>
+                </div>
+                <div class="p-4 rounded-xl bg-slate-900/90 border border-white/10 space-y-2 text-sm">
+                    <div class="font-bold text-sky-300 flex items-center gap-1.5">
+                        <span>🤔 思考启发：</span>
+                    </div>
+                    <p class="text-slate-300 leading-relaxed">
+                        为什么 20647800 即使千位、万位数字再大，也比不上 207534900 呢？进入透视镜一探究竟！
+                    </p>
+                </div>
+            `,
+            stage_2_scaling: `
+                <div class="p-4 rounded-xl bg-sky-500/15 border border-sky-500/40 text-sky-200 space-y-2 shadow-lg">
+                    <div class="text-base font-black text-sky-300 flex items-center gap-1.5">
+                        <span>★</span>
+                        <span>数位对齐与位值不可逆转性</span>
+                    </div>
+                    <p class="text-sm leading-relaxed text-slate-100">
+                        1. <strong>个位对齐</strong>：数位顺序表个位对齐保证了每个数位具有相同的计数单位。<br>
+                        2. <strong>高位决定论</strong>：千万位上的 9 代表 9000 万，一旦在高数位决出胜负，后面各个数位数值再大也无法弥补高位的差额，无需再比！
+                    </p>
+                </div>
+                <div class="p-4 rounded-xl bg-slate-900/90 border border-white/10 space-y-2 text-sm">
+                    <div class="font-bold text-amber-300 flex items-center gap-1.5">
+                        <span>💡 计数单位定理：</span>
+                    </div>
+                    <p class="text-slate-300 leading-relaxed">
+                        高计数单位的 1（如 1 个亿）远大于低计数单位的任何数（如 9999 万）。因此位数多即数位层级高，数就一定大！
+                    </p>
+                </div>
+            `,
+            stage_3_flowchart: `
+                <div class="p-4 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-200 space-y-2 shadow-lg">
+                    <div class="text-base font-black text-emerald-300 flex items-center gap-1.5">
+                        <span>★</span>
+                        <span>大数比较算法三字口诀</span>
+                    </div>
+                    <div class="space-y-2 text-sm text-slate-100 font-bold leading-relaxed">
+                        <div><strong class="text-amber-300">① 一数位：</strong>位数不同比位数，位数多的数就大；</div>
+                        <div><strong class="text-sky-300">② 二看高：</strong>位数相同看最高，最高位大数就大；</div>
+                        <div><strong class="text-emerald-300">③ 三顺比：</strong>高位相同往下找，哪位数字大数大。</div>
+                    </div>
+                </div>
+                <div class="p-4 rounded-xl bg-slate-900/90 border border-white/10 space-y-2 text-sm">
+                    <div class="font-bold text-indigo-300 flex items-center gap-1.5">
+                        <span>🌲 程序化思维：</span>
+                    </div>
+                    <p class="text-slate-300 leading-relaxed">
+                        计算机在比较任意字符串数字时，也是严格按照这套双层决策树执行比较的！
+                    </p>
+                </div>
+            `,
+            stage_4_quiz: `
+                <div class="p-4 rounded-xl bg-purple-500/15 border border-purple-500/40 text-purple-200 space-y-2 shadow-lg">
+                    <div class="text-base font-black text-purple-300 flex items-center gap-1.5">
+                        <span>★</span>
+                        <span>随堂避坑四大法则</span>
+                    </div>
+                    <p class="text-sm leading-relaxed text-slate-100">
+                        1. <strong>警惕首位 9 陷阱</strong>：99385270000 看似很大，但它只有 11 位；而 100388770000 是 12 位！<br>
+                        2. <strong>四位分级法</strong>：从个位起每四位画一虚线，能快速看清亿级与万级。
+                    </p>
+                </div>
+                <div class="p-4 rounded-xl bg-slate-900/90 border border-white/10 space-y-2 text-sm">
+                    <div class="font-bold text-amber-300 flex items-center gap-1.5">
+                        <span>⚠️ 易错点警示：</span>
+                    </div>
+                    <p class="text-slate-300 leading-relaxed">
+                        末尾连续出现多个 0 时，千万不要逐个肉眼数，借助数位分级符号能 100% 避免数错位数！
+                    </p>
+                </div>
+            `,
+            stage_5_custom_lab: `
+                <div class="p-4 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-200 space-y-2 shadow-lg">
+                    <div class="text-base font-black text-amber-300 flex items-center gap-1.5">
+                        <span>★</span>
+                        <span>由学到用 · 开放算法验证</span>
+                    </div>
+                    <p class="text-sm leading-relaxed text-slate-100">
+                        在出题实验室中，不论你输入的是 6 位数还是 16 位天文数字，算理引擎都严格复用：<br>
+                        <strong>数位数 ➔ 载入数位表 ➔ 逐位激光扫描 ➔ 决胜数位输出</strong>。数学规程具有普适的力量！
+                    </p>
+                </div>
+                <div class="p-4 rounded-xl bg-slate-900/90 border border-white/10 space-y-2 text-sm">
+                    <div class="font-bold text-emerald-300 flex items-center gap-1.5">
+                        <span>🎓 课堂小结：</span>
+                    </div>
+                    <p class="text-slate-300 leading-relaxed">
+                        恭喜你完成了整堂《数的大小比较》课件探究！你不仅记住了口诀，更透彻理解了数字背后的位值本质。
+                    </p>
+                </div>
+            `
+        };
+
+        /**
+         * =============================================================
+         * 3. 页面阶段切换与右侧心得控制
+         * =============================================================
+         */
+        function setStage(stageId) {
+            sound.playClick();
+            AppState.currentStage = stageId;
+
+            document.querySelectorAll('.stage-panel').forEach(p => p.classList.add('hidden'));
+            const activePanel = document.getElementById(`stage-panel-${stageId}`);
+            if (activePanel) activePanel.classList.remove('hidden');
+
+            document.querySelectorAll('.nav-stage-btn').forEach(btn => {
+                btn.className = 'nav-stage-btn w-full px-4 py-3.5 rounded-xl text-base font-extrabold transition-all duration-200 flex items-center justify-between text-left group cursor-pointer text-slate-300 hover:text-white hover:bg-white/10';
+            });
+            const curNav = document.getElementById(`nav-btn-${stageId}`);
+            if (curNav) {
+                curNav.className = 'nav-stage-btn w-full px-4 py-3.5 rounded-xl text-base font-extrabold transition-all duration-200 flex items-center justify-between text-left group cursor-pointer bg-gradient-to-r from-sky-600 to-indigo-600 text-white shadow-lg shadow-sky-600/30 ring-2 ring-sky-400/50';
+            }
+
+            updateSummaryUI();
+            updateSummaryFooterButton();
+
+            if (stageId === 'stage_2_scaling') {
+                renderStage2Table();
+            } else if (stageId === 'stage_5_custom_lab') {
+                stage5SyncInputs();
+            }
+        }
+
+        function toggleSummary() {
+            sound.playClick();
+            const cur = AppState.currentStage;
+            AppState.isSummaryRevealed[cur] = !AppState.isSummaryRevealed[cur];
+            updateSummaryUI();
+        }
+
+        function updateSummaryUI() {
+            const cur = AppState.currentStage;
+            const isRevealed = AppState.isSummaryRevealed[cur];
+            const unrevealedCard = document.getElementById('summary-unrevealed-card');
+            const revealedCard = document.getElementById('summary-revealed-card');
+            const btnHide = document.getElementById('btn-hide-summary');
+            const contentBody = document.getElementById('summary-content-body');
+
+            if (isRevealed) {
+                unrevealedCard.classList.add('hidden');
+                revealedCard.classList.remove('hidden');
+                btnHide.classList.remove('hidden');
+                contentBody.innerHTML = STAGE_SUMMARIES[cur] || '';
+            } else {
+                unrevealedCard.classList.remove('hidden');
+                revealedCard.classList.add('hidden');
+                btnHide.classList.add('hidden');
+            }
+        }
+
+        function updateSummaryFooterButton() {
+            const container = document.getElementById('summary-footer-btn-container');
+            const cur = AppState.currentStage;
+
+            if (cur === 'stage_1_pk') {
+                container.innerHTML = `
+                    <button onclick="setStage('stage_2_scaling')" class="w-full py-4 px-4 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-black text-base shadow-xl shadow-sky-500/30 flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] cursor-pointer">
+                        <span>进入例 6：数位透视镜</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                    </button>
+                `;
+            } else if (cur === 'stage_2_scaling') {
+                container.innerHTML = `
+                    <button onclick="setStage('stage_3_flowchart')" class="w-full py-4 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-black text-base shadow-xl shadow-emerald-500/30 flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] cursor-pointer">
+                        <span>进入阶段 3：算法决策树</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                    </button>
+                `;
+            } else if (cur === 'stage_3_flowchart') {
+                container.innerHTML = `
+                    <button onclick="setStage('stage_4_quiz')" class="w-full py-4 px-4 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-400 hover:to-indigo-500 text-white font-black text-base shadow-xl shadow-purple-500/30 flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] cursor-pointer">
+                        <span>进入阶段 4：随堂诊断闯关</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                    </button>
+                `;
+            } else if (cur === 'stage_4_quiz') {
+                container.innerHTML = `
+                    <button onclick="setStage('stage_5_custom_lab')" class="w-full py-4 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-black text-base shadow-xl shadow-amber-500/30 flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] cursor-pointer">
+                        <span>进入阶段 5：自主出题实验室 ⚡</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                    </button>
+                `;
+            } else {
+                container.innerHTML = `
+                    <button onclick="fireConfetti()" class="w-full py-4 px-4 rounded-xl bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-400 hover:to-pink-500 text-white font-black text-base shadow-xl shadow-purple-500/30 flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] cursor-pointer">
+                        <span>🎊 庆祝全课探究通关</span>
+                    </button>
+                `;
+            }
+        }
+
+        function resetCurrentStage() {
+            sound.playWarning();
+            const cur = AppState.currentStage;
+            AppState.isSummaryRevealed[cur] = false;
+            updateSummaryUI();
+
+            if (cur === 'stage_1_pk') {
+                AppState.stage1.selectedCrops = [];
+                AppState.stage1.userGuess = null;
+                renderStage1();
+            } else if (cur === 'stage_2_scaling') {
+                AppState.stage2.step = 0;
+                AppState.stage2.scanIndex = -1;
+                renderStage2Table();
+            } else if (cur === 'stage_3_flowchart') {
+                stage3ResetTree();
+            } else if (cur === 'stage_4_quiz') {
+                stage4ResetQuiz();
+            } else if (cur === 'stage_5_custom_lab') {
+                AppState.stage5.stepMounted = false;
+                AppState.stage5.stepCounted = false;
+                AppState.stage5.stepScanned = false;
+                AppState.stage5.stepVerdict = false;
+                AppState.stage5.scanStepIdx = -1;
+                AppState.stage5.userSymbol = null;
+                stage5SyncInputs();
+            }
+        }
+
+        /**
+         * =============================================================
+         * 4. 阶段 1：农产品情境探索逻辑
+         * =============================================================
+         */
+        function stage1ToggleSelect(cropKey) {
+            sound.playClick();
+            const idx = AppState.stage1.selectedCrops.indexOf(cropKey);
+            if (idx >= 0) {
+                AppState.stage1.selectedCrops.splice(idx, 1);
+            } else {
+                if (AppState.stage1.selectedCrops.length >= 2) {
+                    AppState.stage1.selectedCrops.shift();
+                }
+                AppState.stage1.selectedCrops.push(cropKey);
+            }
+            AppState.stage1.userGuess = null;
+            renderStage1();
+        }
+
+        function stage1QuickSelect(cropA, cropB) {
+            sound.playClick();
+            AppState.stage1.selectedCrops = [cropA, cropB];
+            AppState.stage1.userGuess = null;
+            renderStage1();
+        }
+
+        function renderStage1() {
+            const crops = AppState.stage1.selectedCrops;
+
+            ['rice', 'wheat', 'corn', 'soybean'].forEach(k => {
+                const card = document.getElementById(`crop-card-${k}`);
+                const badge = document.getElementById(`badge-${k}`);
+                const pos = crops.indexOf(k);
+                if (pos >= 0) {
+                    card.classList.add('border-amber-400', 'bg-amber-500/15', 'ring-2', 'ring-amber-400/40');
+                    badge.innerText = pos === 0 ? 'A' : 'B';
+                    badge.className = 'w-7 h-7 rounded-full border border-amber-400 bg-amber-500 text-xs font-black flex items-center justify-center text-slate-950 shadow';
+                } else {
+                    card.classList.remove('border-amber-400', 'bg-amber-500/15', 'ring-2', 'ring-amber-400/40');
+                    badge.innerText = '空';
+                    badge.className = 'w-7 h-7 rounded-full bg-slate-800 text-xs font-bold flex items-center justify-center text-slate-400 border border-white/10';
+                }
+            });
+
+            const slotL = document.getElementById('stage1-slot-left');
+            if (crops[0]) {
+                const d = CROP_DATA[crops[0]];
+                slotL.innerHTML = `
+                    <span class="text-5xl mb-2">${d.icon}</span>
+                    <span class="text-xl font-black text-white">${d.name}产量</span>
+                    <span class="font-mono text-2xl font-black text-amber-400 mt-1">${d.value} 吨</span>
+                    <span class="text-xs md:text-sm text-slate-300 mt-1.5">${d.digits} 位数（最高在${d.digits === 9 ? '亿位' : '千万位'}）</span>
+                `;
+                slotL.className = 'w-full md:w-5/12 glass-panel rounded-2xl p-6 border-2 border-amber-400/60 bg-amber-500/10 flex flex-col items-center justify-center min-h-[190px] text-center transition-all anim-card-reveal shadow-2xl';
+            } else {
+                slotL.innerHTML = `
+                    <span class="text-5xl mb-2">❓</span>
+                    <span class="text-sm text-slate-400 font-bold">请从上方点选第一个农产品</span>
+                `;
+                slotL.className = 'w-full md:w-5/12 glass-panel rounded-2xl p-6 border-2 border-dashed border-slate-700 flex flex-col items-center justify-center min-h-[190px] text-center transition-all shadow-xl';
+            }
+
+            const slotR = document.getElementById('stage1-slot-right');
+            if (crops[1]) {
+                const d = CROP_DATA[crops[1]];
+                slotR.innerHTML = `
+                    <span class="text-5xl mb-2">${d.icon}</span>
+                    <span class="text-xl font-black text-white">${d.name}产量</span>
+                    <span class="font-mono text-2xl font-black text-sky-400 mt-1">${d.value} 吨</span>
+                    <span class="text-xs md:text-sm text-slate-300 mt-1.5">${d.digits} 位数（最高在${d.digits === 9 ? '亿位' : '千万位'}）</span>
+                `;
+                slotR.className = 'w-full md:w-5/12 glass-panel rounded-2xl p-6 border-2 border-sky-400/60 bg-sky-500/10 flex flex-col items-center justify-center min-h-[190px] text-center transition-all anim-card-reveal shadow-2xl';
+            } else {
+                slotR.innerHTML = `
+                    <span class="text-5xl mb-2">❓</span>
+                    <span class="text-sm text-slate-400 font-bold">请从上方点选第二个农产品</span>
+                `;
+                slotR.className = 'w-full md:w-5/12 glass-panel rounded-2xl p-6 border-2 border-dashed border-slate-700 flex flex-col items-center justify-center min-h-[190px] text-center transition-all shadow-xl';
+            }
+
+            const circle = document.getElementById('stage1-symbol-circle');
+            const guessTag = document.getElementById('stage1-guess-tag');
+            const guessVal = document.getElementById('stage1-guess-val');
+            if (AppState.stage1.userGuess) {
+                circle.innerText = AppState.stage1.userGuess;
+                circle.className = 'w-20 h-20 md:w-24 md:h-24 rounded-full bg-slate-900 border-2 border-amber-400 text-3xl md:text-4xl font-black font-mono text-amber-300 shadow-2xl flex items-center justify-center';
+                guessTag.classList.remove('hidden');
+                guessVal.innerText = AppState.stage1.userGuess;
+            } else {
+                circle.innerText = '?';
+                circle.className = 'w-20 h-20 md:w-24 md:h-24 rounded-full bg-slate-900 border-2 border-slate-700 text-3xl md:text-4xl font-black font-mono text-slate-400 shadow-2xl flex items-center justify-center';
+                guessTag.classList.add('hidden');
+            }
+
+            const isFull = crops.length === 2;
+            const btnGuess = document.getElementById('stage1-btn-guess');
+            const btnGo = document.getElementById('stage1-btn-goto-lens');
+            if (isFull) {
+                btnGuess.disabled = false;
+                btnGuess.classList.remove('opacity-50', 'cursor-not-allowed');
+                btnGo.disabled = false;
+                btnGo.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                btnGuess.disabled = true;
+                btnGuess.classList.add('opacity-50', 'cursor-not-allowed');
+                btnGo.disabled = true;
+                btnGo.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        function stage1OpenGuessModal() {
+            sound.playClick();
+            document.getElementById('stage1-guess-modal').classList.remove('hidden');
+        }
+
+        function stage1CloseGuessModal() {
+            sound.playClick();
+            document.getElementById('stage1-guess-modal').classList.add('hidden');
+        }
+
+        function stage1SubmitGuess(symbol) {
+            sound.playClick();
+            AppState.stage1.userGuess = symbol;
+            stage1CloseGuessModal();
+            renderStage1();
+        }
+
+        function stage1GoToLens() {
+            sound.playClick();
+            const crops = AppState.stage1.selectedCrops;
+            if (crops.length < 2) return;
+            const a = CROP_DATA[crops[0]];
+            const b = CROP_DATA[crops[1]];
+
+            AppState.stage2.numA = a.value;
+            AppState.stage2.numB = b.value;
+            AppState.stage2.nameA = a.name;
+            AppState.stage2.nameB = b.name;
+            AppState.stage2.scenario = (a.digits === b.digits) ? 'same' : 'diff';
+            AppState.stage2.step = 0;
+            AppState.stage2.scanIndex = -1;
+
+            setStage('stage_2_scaling');
+        }
+
+        /**
+         * =============================================================
+         * 5. 阶段 2：数位透视镜逻辑
+         * =============================================================
+         */
+        function stage2LoadScenario(scenarioType) {
+            sound.playClick();
+            AppState.stage2.scenario = scenarioType;
+            AppState.stage2.step = 0;
+            AppState.stage2.scanIndex = -1;
+
+            if (scenarioType === 'diff') {
+                AppState.stage2.numA = '207534900';
+                AppState.stage2.numB = '20647800';
+                AppState.stage2.nameA = '稻谷';
+                AppState.stage2.nameB = '大豆';
+            } else {
+                AppState.stage2.numA = '207534900';
+                AppState.stage2.numB = '294916900';
+                AppState.stage2.nameA = '稻谷';
+                AppState.stage2.nameB = '玉米';
+            }
+
+            renderStage2Table();
+        }
+
+        function getClassHeaderColor(cls) {
+            if (cls === 'yi') return 'bg-amber-500/25 text-amber-300 border-amber-500/50';
+            if (cls === 'wan') return 'bg-sky-500/25 text-sky-300 border-sky-500/50';
+            return 'bg-slate-700/40 text-slate-200 border-slate-700';
+        }
+        function getClassColBg(cls) {
+            if (cls === 'yi') return 'bg-amber-500/[0.06] border-amber-500/25';
+            if (cls === 'wan') return 'bg-sky-500/[0.06] border-sky-500/25';
+            return 'bg-slate-800/[0.25] border-slate-800';
+        }
+
+        function renderStage2Table() {
+            const btnDiff = document.getElementById('btn-scenario-diff');
+            const btnSame = document.getElementById('btn-scenario-same');
+            if (AppState.stage2.scenario === 'diff') {
+                btnDiff.className = 'px-4 py-2 rounded-lg font-bold transition-all text-amber-300 bg-amber-500/15 border border-amber-500/30';
+                btnSame.className = 'px-4 py-2 rounded-lg font-bold transition-all text-slate-400 hover:text-slate-200';
+            } else {
+                btnDiff.className = 'px-4 py-2 rounded-lg font-bold transition-all text-slate-400 hover:text-slate-200';
+                btnSame.className = 'px-4 py-2 rounded-lg font-bold transition-all text-amber-300 bg-amber-500/15 border border-amber-500/30';
+            }
+
+            const numA = AppState.stage2.numA;
+            const numB = AppState.stage2.numB;
+            const maxLen = Math.max(numA.length, numB.length, 9);
+            const activePlaces = ALL_PLACES.slice(ALL_PLACES.length - maxLen);
+
+            const classGroups = [];
+            let currentClass = null;
+            let currentSpan = 0;
+            activePlaces.forEach((p, idx) => {
+                if (p.class !== currentClass) {
+                    if (currentClass) {
+                        classGroups.push({ class: currentClass, span: currentSpan, name: activePlaces[idx - 1].classZh });
+                    }
+                    currentClass = p.class;
+                    currentSpan = 1;
+                } else {
+                    currentSpan++;
+                }
+            });
+            if (currentClass) {
+                classGroups.push({ class: currentClass, span: currentSpan, name: activePlaces[activePlaces.length - 1].classZh });
+            }
+
+            const padA = numA.padStart(maxLen, ' ');
+            const padB = numB.padStart(maxLen, ' ');
+
+            let html = `
+                <table class="border-collapse mx-auto font-mono text-center shadow-2xl">
+                    <thead>
+                        <tr>
+                            <th class="p-3 border border-slate-800 text-sm md:text-base font-black text-slate-300 bg-slate-900/90 w-36 md:w-44 text-right pr-4 font-sans">数级</th>
+                            ${classGroups.map(g => `
+                                <th colspan="${g.span}" class="p-3 border border-slate-800 text-base md:text-lg font-black font-sans tracking-wider ${getClassHeaderColor(g.class)}">
+                                    ${g.name}
+                                </th>
+                            `).join('')}
+                        </tr>
+                        <tr>
+                            <th class="p-2.5 border border-slate-800 text-xs md:text-sm font-bold text-slate-300 bg-slate-900/90 text-right pr-4 font-sans">数位</th>
+                            ${activePlaces.map((p, idx) => {
+                const isScanning = (AppState.stage2.scanIndex === idx);
+                return `
+                                    <th class="p-2.5 border text-sm md:text-base font-black font-sans digit-cell transition-all ${getClassColBg(p.class)} ${isScanning ? 'border-amber-400 bg-amber-500/25 text-amber-300 font-black' : 'text-slate-200'}">
+                                        ${p.name}
+                                    </th>
+                                `;
+            }).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="p-3 border border-slate-800 font-sans text-sm md:text-base font-bold text-slate-200 bg-slate-900/70 text-right pr-4">
+                                ${AppState.stage2.nameA} <span class="text-xs text-slate-400 block font-normal">（数 A）</span>
+                            </td>
+                            ${padA.split('').map((char, idx) => {
+                const p = activePlaces[idx];
+                const isScanning = (AppState.stage2.scanIndex === idx);
+                const isConflictSpot = (AppState.stage2.scenario === 'diff' && AppState.stage2.step >= 2 && p.key === 'yi');
+                const isWinningSpot = (AppState.stage2.scenario === 'same' && AppState.stage2.scanIndex === idx && idx === 1);
+                let cellClasses = 'digit-cell font-black border border-slate-800 transition-all ';
+                if (char === ' ') {
+                    cellClasses += 'bg-slate-950/40 text-slate-700';
+                } else {
+                    cellClasses += 'text-white bg-slate-900/60 ';
+                }
+                if (isConflictSpot || isWinningSpot) cellClasses += 'laser-spotlight text-amber-300 scale-105 z-10 ';
+                if (isScanning && !isWinningSpot) cellClasses += 'bg-amber-500/20 border-amber-400 text-amber-300 ';
+                return `
+                                    <td class="${cellClasses}">
+                                        ${char === ' ' ? '<span class="text-slate-700 text-sm font-normal">空</span>' : char}
+                                    </td>
+                                `;
+            }).join('')}
+                        </tr>
+                        <tr>
+                            <td class="p-3 border border-slate-800 font-sans text-sm md:text-base font-bold text-slate-200 bg-slate-900/70 text-right pr-4">
+                                ${AppState.stage2.nameB} <span class="text-xs text-slate-400 block font-normal">（数 B）</span>
+                            </td>
+                            ${padB.split('').map((char, idx) => {
+                const p = activePlaces[idx];
+                const isScanning = (AppState.stage2.scanIndex === idx);
+                const isConflictSpot = (AppState.stage2.scenario === 'diff' && AppState.stage2.step >= 2 && p.key === 'yi');
+                const isWinningSpot = (AppState.stage2.scenario === 'same' && AppState.stage2.scanIndex === idx && idx === 1);
+                let cellClasses = 'digit-cell font-black border border-slate-800 transition-all ';
+                if (char === ' ') {
+                    cellClasses += 'bg-slate-950/40 text-slate-700';
+                } else {
+                    cellClasses += 'text-white bg-slate-900/60 ';
+                }
+                if (isConflictSpot || isWinningSpot) cellClasses += 'laser-spotlight text-amber-300 scale-105 z-10 ';
+                if (isScanning && !isWinningSpot) cellClasses += 'bg-amber-500/20 border-amber-400 text-amber-300 ';
+                return `
+                                    <td class="${cellClasses}">
+                                        ${char === ' ' ? '<span class="text-slate-700 text-sm font-normal">空(0)</span>' : char}
+                                    </td>
+                                `;
+            }).join('')}
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+
+            document.getElementById('lens-table-container').innerHTML = html;
+            renderStage2Controls();
+        }
+
+        function renderStage2Controls() {
+            const step = AppState.stage2.step;
+            const scenario = AppState.stage2.scenario;
+            const badge = document.getElementById('lens-step-badge');
+            const btns = document.getElementById('lens-control-buttons');
+            const feedbackCard = document.getElementById('lens-feedback-card');
+            const feedbackBody = document.getElementById('lens-feedback-body');
+            const feedbackTitle = document.getElementById('lens-feedback-title');
+
+            badge.innerText = `步骤 ${step} / 4`;
+
+            if (scenario === 'diff') {
+                if (step === 0) {
+                    btns.innerHTML = `
+                        <button onclick="stage2DiffStep(1)" class="btn-interactive px-6 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-base md:text-lg shadow-xl shadow-amber-500/25 flex items-center gap-2">
+                            <span>🔍 步骤 1：点击数一数位数</span>
+                        </button>
+                    `;
+                    feedbackCard.classList.add('hidden');
+                } else if (step === 1) {
+                    btns.innerHTML = `
+                        <button onclick="stage2DiffStep(2)" class="btn-interactive px-6 py-3.5 rounded-2xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-base md:text-lg shadow-xl shadow-sky-500/25 flex items-center gap-2">
+                            <span>💡 步骤 2：点击看算理冲突</span>
+                        </button>
+                    `;
+                    feedbackCard.classList.remove('hidden');
+                    feedbackTitle.innerText = '步骤 1 揭晓：数位数';
+                    feedbackBody.innerHTML = `
+                        两数位数不同！左边稻谷是 <strong class="text-amber-400 font-black text-xl md:text-2xl">9 位数</strong>（最高位在亿位），右边大豆是 <strong class="text-sky-400 font-black text-xl md:text-2xl">8 位数</strong>（最高位在千万位）。
+                    `;
+                } else if (step === 2) {
+                    btns.innerHTML = `
+                        <button onclick="stage2DiffStep(3)" class="btn-interactive px-6 py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-base md:text-lg shadow-xl shadow-emerald-500/25 flex items-center gap-2">
+                            <span>✨ 步骤 3：点击揭晓比较结果</span>
+                        </button>
+                    `;
+                    feedbackCard.classList.remove('hidden');
+                    feedbackTitle.innerText = '步骤 2 揭晓：亿级位值本质';
+                    feedbackBody.innerHTML = `
+                        【高位冲突】在<strong>亿位</strong>上：左边稻谷拥有 <strong class="text-amber-400 font-black text-xl md:text-2xl">2 个亿</strong>（200,000,000），而右边大豆在亿位上是<strong>空缺（相当于 0 个亿）</strong>！
+                    `;
+                } else if (step === 3) {
+                    btns.innerHTML = `
+                        <button onclick="stage2DiffStep(4)" class="btn-interactive px-6 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-base md:text-lg shadow-xl shadow-amber-500/25 flex items-center gap-2">
+                            <span>📖 步骤 4：查看算理小结</span>
+                        </button>
+                    `;
+                    feedbackCard.classList.remove('hidden');
+                    feedbackTitle.innerText = '步骤 3 揭晓：最终符号落地';
+                    feedbackBody.innerHTML = `
+                        结论确凿：<strong class="text-amber-400 text-xl md:text-2xl font-mono font-black">207534900 &gt; 20647800</strong> （稻谷产量大于大豆产量）！
+                    `;
+                } else if (step === 4) {
+                    btns.innerHTML = `
+                        <span class="text-base text-emerald-400 font-black flex items-center gap-1.5">✅ 算理已全部探透</span>
+                        <button onclick="stage2LoadScenario('same')" class="btn-interactive px-4 py-2.5 rounded-xl bg-sky-900/80 hover:bg-sky-800 text-sky-300 text-sm md:text-base font-bold border border-sky-600/40">
+                            切换情境 B：探究位数相同 &gt;
+                        </button>
+                    `;
+                    feedbackCard.classList.remove('hidden');
+                    feedbackTitle.innerText = '步骤 4 算理小结：四上核心定理';
+                    feedbackBody.innerHTML = `
+                        9 位数最高位到亿级，8 位数最高位只有千万级。<strong class="text-amber-300">高计数单位的 1 远大于低计数单位的任何数</strong>，因此：<span class="underline decoration-amber-400 font-black text-amber-300">位数不同的两个数，位数多的数就大！</span>
+                    `;
+                }
+            } else {
+                if (step === 0) {
+                    btns.innerHTML = `
+                        <button onclick="stage2SameStep(1)" class="btn-interactive px-6 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-base md:text-lg shadow-xl shadow-amber-500/25 flex items-center gap-2">
+                            <span>🔍 步骤 1：点击数一数位数</span>
+                        </button>
+                    `;
+                    feedbackCard.classList.add('hidden');
+                } else if (step === 1) {
+                    btns.innerHTML = `
+                        <button onclick="stage2SameStep(2)" class="btn-interactive px-6 py-3.5 rounded-2xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-base md:text-lg shadow-xl shadow-sky-500/25 flex items-center gap-2">
+                            <span>▶ 步骤 2：开启激光扫描 (扫描亿位)</span>
+                        </button>
+                    `;
+                    feedbackCard.classList.remove('hidden');
+                    feedbackTitle.innerText = '步骤 1 揭晓：位数相同';
+                    feedbackBody.innerHTML = `
+                        两数都是 <strong class="text-amber-400 font-black text-xl md:text-2xl">9 位数</strong>！位数相同，无法直接比位数，必须<strong>从最高位比起</strong>！
+                    `;
+                } else if (step === 2) {
+                    btns.innerHTML = `
+                        <button onclick="stage2SameStep(3)" class="btn-interactive px-6 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-base md:text-lg shadow-xl shadow-amber-500/25 flex items-center gap-2">
+                            <span>▶ 继续扫描：激光移至千万位</span>
+                        </button>
+                    `;
+                    feedbackCard.classList.remove('hidden');
+                    feedbackTitle.innerText = '激光扫描：亿位 (最高位)';
+                    feedbackBody.innerHTML = `
+                        亿位上左边是 <strong class="text-amber-400 font-black text-xl">2</strong>，右边也是 <strong class="text-amber-400 font-black text-xl">2</strong>！最高位相同，无法分出胜负，请继续扫描下一位！
+                    `;
+                } else if (step === 3) {
+                    btns.innerHTML = `
+                        <button onclick="stage2SameStep(4)" class="btn-interactive px-6 py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-base md:text-lg shadow-xl shadow-emerald-500/25 flex items-center gap-2">
+                            <span>✨ 步骤 3：点击确认胜负并填入符号</span>
+                        </button>
+                    `;
+                    feedbackCard.classList.remove('hidden');
+                    feedbackTitle.innerText = '激光扫描：千万位聚光灯聚焦！';
+                    feedbackBody.innerHTML = `
+                        千万位上：左边稻谷是 <strong class="text-slate-300 font-black text-xl">0</strong>（0 万），右边玉米是 <strong class="text-amber-300 font-black text-xl md:text-2xl">9</strong>（9000 万）！<strong class="text-amber-300 font-black text-xl">0 &lt; 9</strong>，千万位已决出胜负！
+                    `;
+                } else if (step === 4) {
+                    btns.innerHTML = `
+                        <button onclick="stage2SameStep(5)" class="btn-interactive px-6 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-base md:text-lg shadow-xl shadow-amber-500/25 flex items-center gap-2">
+                            <span>📖 步骤 4：为什么后面的数不用比了？</span>
+                        </button>
+                    `;
+                    feedbackCard.classList.remove('hidden');
+                    feedbackTitle.innerText = '胜负确认：符号入格';
+                    feedbackBody.innerHTML = `
+                        结论确认：<strong class="text-sky-400 text-xl md:text-2xl font-mono font-black">207534900 &lt; 294916900</strong> （稻谷产量小于玉米产量）！
+                    `;
+                } else if (step === 5) {
+                    btns.innerHTML = `
+                        <span class="text-base text-emerald-400 font-black flex items-center gap-1.5">✅ 深度算理已解锁</span>
+                        <button onclick="setStage('stage_3_flowchart')" class="btn-interactive px-4 py-2.5 rounded-xl bg-emerald-900/80 hover:bg-emerald-800 text-emerald-300 text-sm md:text-base font-bold border border-emerald-600/40">
+                            前往阶段 3：算法决策树拼图 &gt;
+                        </button>
+                    `;
+                    feedbackCard.classList.remove('hidden');
+                    feedbackTitle.innerText = '深度算理解析：位值不可逆转性';
+                    feedbackBody.innerHTML = `
+                        右边千万位上的 9 已经代表 <strong class="text-amber-300 font-black text-xl">9000 万</strong>，比左边的 0 万整整多了 9000 万。即使后面的百万位、十万位数值再大，合起来也绝对不可能弥补千万位上的差值，<strong>因此后面各个数位无需再比！</strong>
+                    `;
+                }
+            }
+        }
+
+        function stage2DiffStep(nextStep) {
+            sound.playClick();
+            AppState.stage2.step = nextStep;
+            renderStage2Table();
+        }
+
+        function stage2SameStep(nextStep) {
+            if (nextStep === 2) {
+                sound.playLaser();
+                AppState.stage2.scanIndex = 0;
+            } else if (nextStep === 3) {
+                sound.playLaser();
+                AppState.stage2.scanIndex = 1;
+            } else if (nextStep === 4) {
+                sound.playSuccess();
+            } else {
+                sound.playClick();
+            }
+            AppState.stage2.step = nextStep;
+            renderStage2Table();
+        }
+
+        /**
+         * =============================================================
+         * 6. 阶段 3：算法决策树拼图逻辑
+         * =============================================================
+         */
+        const CHIP_DATA = {
+            c1: { text: '位数多的数大', correctSlot: 1 },
+            c2: { text: '从最高位比起', correctSlot: 2 },
+            c3: { text: '最高位大的数就大', correctSlot: 3 },
+            c4: { text: '比较下一个数位上的数', correctSlot: 4 }
+        };
+
+        function stage3SelectChip(chipId) {
+            sound.playClick();
+            AppState.stage3.selectedChip = chipId;
+            document.querySelectorAll('.flow-chip').forEach(c => {
+                c.classList.remove('border-amber-400', 'bg-amber-500/20', 'ring-2', 'ring-amber-400');
+            });
+            const el = document.getElementById(`chip-${chipId}`);
+            if (el) {
+                el.classList.add('border-amber-400', 'bg-amber-500/20', 'ring-2', 'ring-amber-400');
+            }
+        }
+
+        function stage3ClickSlot(slotId) {
+            const chipId = AppState.stage3.selectedChip;
+            if (!chipId) {
+                sound.playWarning();
+                return;
+            }
+            const expectedSlot = CHIP_DATA[chipId].correctSlot;
+            const slotEl = document.getElementById(`slot-${slotId}`);
+
+            if (expectedSlot === slotId) {
+                sound.playClick();
+                AppState.stage3.slots[slotId] = chipId;
+                slotEl.innerHTML = `
+                    <span class="font-black text-white text-base">${CHIP_DATA[chipId].text}</span>
+                    <span class="text-emerald-400 text-sm ml-2 font-black">✓</span>
+                `;
+                slotEl.className = 'flow-slot w-full h-14 md:h-16 rounded-2xl border-2 border-emerald-500 bg-emerald-950/50 flex items-center justify-center text-base shadow transition-all';
+
+                const chipEl = document.getElementById(`chip-${chipId}`);
+                if (chipEl) chipEl.classList.add('hidden');
+                AppState.stage3.selectedChip = null;
+
+                stage3CheckComplete();
+            } else {
+                sound.playWarning();
+                slotEl.classList.add('shake-error', 'border-rose-500');
+                setTimeout(() => {
+                    slotEl.classList.remove('shake-error', 'border-rose-500');
+                }, 400);
+            }
+        }
+
+        function stage3CheckComplete() {
+            const filledCount = Object.values(AppState.stage3.slots).filter(Boolean).length;
+            document.getElementById('stage3-status-text').innerText = `已填 ${filledCount} / 4`;
+
+            if (filledCount === 4) {
+                sound.playSuccess();
+                document.getElementById('stage3-reward-banner').classList.remove('hidden');
+            }
+        }
+
+        function stage3RevealChant() {
+            sound.playSuccess();
+            document.getElementById('stage3-btn-chant').classList.add('hidden');
+            document.getElementById('stage3-chant-box').classList.remove('hidden');
+        }
+
+        function stage3ResetTree() {
+            AppState.stage3.slots = { 1: null, 2: null, 3: null, 4: null };
+            AppState.stage3.selectedChip = null;
+
+            for (let i = 1; i <= 4; i++) {
+                const s = document.getElementById(`slot-${i}`);
+                s.innerHTML = `<span>[ 点击下方词块填入 ]</span>`;
+                s.className = 'flow-slot w-full h-14 md:h-16 rounded-2xl border-2 border-dashed border-slate-700 hover:border-amber-400 flex items-center justify-center text-sm md:text-base text-slate-400 bg-slate-900/60 transition-all cursor-pointer font-bold';
+            }
+
+            ['c1', 'c2', 'c3', 'c4'].forEach(c => {
+                const chip = document.getElementById(`chip-${c}`);
+                if (chip) {
+                    chip.classList.remove('hidden', 'border-amber-400', 'bg-amber-500/20', 'ring-2', 'ring-amber-400');
+                }
+            });
+
+            document.getElementById('stage3-status-text').innerText = '已填 0 / 4';
+            document.getElementById('stage3-reward-banner').classList.add('hidden');
+            document.getElementById('stage3-chant-box').classList.add('hidden');
+            document.getElementById('stage3-btn-chant').classList.remove('hidden');
+        }
+
+        /**
+         * =============================================================
+         * 7. 阶段 4：随堂诊断闯关逻辑
+         * =============================================================
+         */
+        function stage4OpenSelector(quizIndex) {
+            sound.playClick();
+            AppState.stage4.activeQuizIndex = quizIndex;
+            document.getElementById('quiz-modal').classList.remove('hidden');
+        }
+
+        function stage4CloseSelector() {
+            sound.playClick();
+            document.getElementById('quiz-modal').classList.add('hidden');
+        }
+
+        function stage4SelectSymbol(symbol) {
+            stage4CloseSelector();
+            const idx = AppState.stage4.activeQuizIndex;
+            if (idx === null) return;
+
+            const item = AppState.stage4.items[idx];
+            item.userAns = symbol;
+
+            const circle = document.getElementById(`quiz-circle-${idx}`);
+            const btnReason = document.getElementById(`quiz-reason-btn-${idx}`);
+            circle.innerText = symbol;
+
+            if (symbol === item.correct) {
+                sound.playSuccess();
+                circle.className = 'w-14 h-14 md:w-16 md:h-16 rounded-full bg-emerald-950/80 border-2 border-emerald-400 text-2xl md:text-3xl font-black font-mono text-emerald-300 flex items-center justify-center shadow-lg transition-all';
+                btnReason.disabled = false;
+                btnReason.className = 'btn-interactive px-4 py-2 rounded-xl bg-emerald-900/40 text-sm font-bold text-emerald-300 border border-emerald-600/40 flex items-center gap-1.5 shadow-sm';
+            } else {
+                sound.playWarning();
+                circle.className = 'w-14 h-14 md:w-16 md:h-16 rounded-full bg-rose-950/80 border-2 border-rose-500 text-2xl md:text-3xl font-black font-mono text-rose-300 flex items-center justify-center shadow-lg transition-all shake-error';
+                btnReason.disabled = false;
+                btnReason.className = 'btn-interactive px-4 py-2 rounded-xl bg-slate-800 text-sm font-bold text-amber-300 border border-amber-600/40 flex items-center gap-1.5';
+            }
+
+            const doneCount = AppState.stage4.items.filter(it => it.userAns !== null).length;
+            document.getElementById('quiz-progress-text').innerText = `已完成 ${doneCount} / 4`;
+        }
+
+        function stage4ToggleReason(quizIndex) {
+            sound.playClick();
+            const box = document.getElementById(`quiz-reason-box-${quizIndex}`);
+            const item = AppState.stage4.items[quizIndex];
+            if (box.classList.contains('hidden')) {
+                box.innerHTML = `
+                    <div class="p-4 rounded-xl bg-slate-900/90 border border-white/10 text-slate-100 text-sm md:text-base leading-relaxed">
+                        ${item.analysis}
+                    </div>
+                `;
+                box.classList.remove('hidden');
+            } else {
+                box.classList.add('hidden');
+            }
+        }
+
+        function stage4ResetQuiz() {
+            AppState.stage4.items.forEach((it, i) => {
+                it.userAns = null;
+                const circle = document.getElementById(`quiz-circle-${i}`);
+                circle.innerText = '○';
+                circle.className = 'w-14 h-14 md:w-16 md:h-16 rounded-full bg-slate-900 border-2 border-slate-600 hover:border-amber-400 flex items-center justify-center text-2xl md:text-3xl font-black font-mono text-amber-400 transition-all shadow-md';
+
+                const btn = document.getElementById(`quiz-reason-btn-${i}`);
+                btn.disabled = true;
+                btn.className = 'opacity-40 cursor-not-allowed px-4 py-2 rounded-xl bg-slate-800 text-sm font-bold text-slate-300 border border-slate-700 flex items-center gap-1.5';
+
+                const box = document.getElementById(`quiz-reason-box-${i}`);
+                box.classList.add('hidden');
+            });
+            document.getElementById('quiz-progress-text').innerText = '已完成 0 / 4';
+        }
+
+        /**
+         * =============================================================
+         * 8. 阶段 5：自主出题实验室逻辑
+         * =============================================================
+         */
+        function stage5OnInputChanged() {
+            const rawA = document.getElementById('lab-input-a').value.replace(/\D/g, '');
+            const rawB = document.getElementById('lab-input-b').value.replace(/\D/g, '');
+            document.getElementById('lab-input-a').value = rawA;
+            document.getElementById('lab-input-b').value = rawB;
+
+            AppState.stage5.inputA = rawA;
+            AppState.stage5.inputB = rawB;
+
+            document.getElementById('lab-len-a').innerText = `${rawA.length} 位数`;
+            document.getElementById('lab-len-b').innerText = `${rawB.length} 位数`;
+
+            AppState.stage5.stepMounted = false;
+            AppState.stage5.stepCounted = false;
+            AppState.stage5.stepScanned = false;
+            AppState.stage5.stepVerdict = false;
+            AppState.stage5.scanStepIdx = -1;
+
+            updateLabToolButtons();
+        }
+
+        function stage5SyncInputs() {
+            document.getElementById('lab-input-a').value = AppState.stage5.inputA;
+            document.getElementById('lab-input-b').value = AppState.stage5.inputB;
+            document.getElementById('lab-len-a').innerText = `${AppState.stage5.inputA.length} 位数`;
+            document.getElementById('lab-len-b').innerText = `${AppState.stage5.inputB.length} 位数`;
+            updateLabToolButtons();
+        }
+
+        function stage5GeneratePreset(type) {
+            sound.playClick();
+            let a = '', b = '';
+            if (type === 'diff') {
+                a = '98765432';
+                b = '102345678';
+            } else if (type === 'same') {
+                a = '384521000';
+                b = '384912000';
+            } else if (type === 'trap') {
+                a = '99987654';
+                b = '100023456';
+            }
+            AppState.stage5.inputA = a;
+            AppState.stage5.inputB = b;
+            AppState.stage5.userSymbol = null;
+            document.getElementById('lab-symbol-btn').innerText = '?';
+            stage5SyncInputs();
+        }
+
+        function stage5OpenSymbolPicker() {
+            sound.playClick();
+            document.getElementById('lab-modal').classList.remove('hidden');
+        }
+
+        function stage5CloseSymbolPicker() {
+            sound.playClick();
+            document.getElementById('lab-modal').classList.add('hidden');
+        }
+
+        function stage5PickSymbol(sym) {
+            sound.playClick();
+            AppState.stage5.userSymbol = sym;
+            document.getElementById('lab-symbol-btn').innerText = sym;
+            stage5CloseSymbolPicker();
+        }
+
+        function updateLabToolButtons() {
+            const hasNums = AppState.stage5.inputA.length > 0 && AppState.stage5.inputB.length > 0;
+            const btnTable = document.getElementById('lab-btn-table');
+            const btnCount = document.getElementById('lab-btn-count');
+            const btnScan = document.getElementById('lab-btn-scan');
+            const btnVerdict = document.getElementById('lab-btn-verdict');
+
+            if (hasNums) {
+                btnTable.disabled = false;
+                btnTable.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                btnTable.disabled = true;
+                btnTable.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+
+            if (AppState.stage5.stepMounted) {
+                btnCount.disabled = false;
+                btnCount.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                btnCount.disabled = true;
+                btnCount.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+
+            if (AppState.stage5.stepCounted) {
+                btnScan.disabled = false;
+                btnScan.classList.remove('opacity-50', 'cursor-not-allowed');
+                btnVerdict.disabled = false;
+                btnVerdict.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                btnScan.disabled = true;
+                btnScan.classList.add('opacity-50', 'cursor-not-allowed');
+                btnVerdict.disabled = true;
+                btnVerdict.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        function stage5MountTable() {
+            sound.playClick();
+            const a = AppState.stage5.inputA;
+            const b = AppState.stage5.inputB;
+            if (!a || !b) return;
+
+            AppState.stage5.stepMounted = true;
+            document.getElementById('lab-placeholder').classList.add('hidden');
+            const tableContainer = document.getElementById('lab-table-container');
+            tableContainer.classList.remove('hidden');
+
+            renderLabCustomTable();
+            updateLabToolButtons();
+        }
+
+        function renderLabCustomTable() {
+            const a = AppState.stage5.inputA;
+            const b = AppState.stage5.inputB;
+            const maxLen = Math.max(a.length, b.length, 4);
+            const activePlaces = ALL_PLACES.slice(ALL_PLACES.length - maxLen);
+
+            const padA = a.padStart(maxLen, ' ');
+            const padB = b.padStart(maxLen, ' ');
+
+            const classGroups = [];
+            let currentClass = null;
+            let currentSpan = 0;
+            activePlaces.forEach((p, idx) => {
+                if (p.class !== currentClass) {
+                    if (currentClass) {
+                        classGroups.push({ class: currentClass, span: currentSpan, name: activePlaces[idx - 1].classZh });
+                    }
+                    currentClass = p.class;
+                    currentSpan = 1;
+                } else {
+                    currentSpan++;
+                }
+            });
+            if (currentClass) {
+                classGroups.push({ class: currentClass, span: currentSpan, name: activePlaces[activePlaces.length - 1].classZh });
+            }
+
+            const isDense = (maxLen > 11);
+            const tableContainer = document.getElementById('lab-table-container');
+            if (isDense) {
+                tableContainer.classList.add('dense-mode');
+            } else {
+                tableContainer.classList.remove('dense-mode');
+            }
+
+            let html = `
+                <table class="border-collapse mx-auto font-mono text-center shadow-2xl">
+                    <thead>
+                        <tr>
+                            <th class="p-3 border border-slate-800 text-sm md:text-base font-black text-slate-300 bg-slate-900/90 w-32 md:w-36 text-right pr-4 font-sans">数级</th>
+                            ${classGroups.map(g => `
+                                <th colspan="${g.span}" class="p-3 border border-slate-800 text-base md:text-lg font-black font-sans tracking-wide ${getClassHeaderColor(g.class)}">
+                                    ${g.name}
+                                </th>
+                            `).join('')}
+                        </tr>
+                        <tr>
+                            <th class="p-2.5 border border-slate-800 text-xs md:text-sm font-bold text-slate-300 bg-slate-900/90 text-right pr-4 font-sans">数位</th>
+                            ${activePlaces.map((p, idx) => {
+                const isScanning = (AppState.stage5.scanStepIdx === idx);
+                return `
+                                    <th class="p-2.5 border text-sm md:text-base font-black font-sans digit-cell ${getClassColBg(p.class)} ${isScanning ? 'border-amber-400 bg-amber-500/25 text-amber-300 font-black' : 'text-slate-200'}">
+                                        ${p.name}
+                                    </th>
+                                `;
+            }).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="p-3 border border-slate-800 font-sans text-sm md:text-base font-bold text-slate-200 bg-slate-900/70 text-right pr-4">
+                                数 A
+                            </td>
+                            ${padA.split('').map((char, idx) => {
+                const isScanning = (AppState.stage5.scanStepIdx === idx);
+                let cellClasses = 'digit-cell font-black border border-slate-800 transition-all ';
+                cellClasses += (char === ' ') ? 'bg-slate-950/40 text-slate-700 ' : 'text-white bg-slate-900/60 ';
+                if (isScanning) cellClasses += 'laser-spotlight text-amber-300 scale-105 z-10 ';
+                return `<td class="${cellClasses}">${char === ' ' ? '<span class="text-slate-700 text-sm">空</span>' : char}</td>`;
+            }).join('')}
+                        </tr>
+                        <tr>
+                            <td class="p-3 border border-slate-800 font-sans text-sm md:text-base font-bold text-slate-200 bg-slate-900/70 text-right pr-4">
+                                数 B
+                            </td>
+                            ${padB.split('').map((char, idx) => {
+                const isScanning = (AppState.stage5.scanStepIdx === idx);
+                let cellClasses = 'digit-cell font-black border border-slate-800 transition-all ';
+                cellClasses += (char === ' ') ? 'bg-slate-950/40 text-slate-700 ' : 'text-white bg-slate-900/60 ';
+                if (isScanning) cellClasses += 'laser-spotlight text-amber-300 scale-105 z-10 ';
+                return `<td class="${cellClasses}">${char === ' ' ? '<span class="text-slate-700 text-sm">空</span>' : char}</td>`;
+            }).join('')}
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+
+            document.getElementById('lab-table-container').innerHTML = html;
+        }
+
+        function stage5CountDigits() {
+            sound.playClick();
+            AppState.stage5.stepCounted = true;
+            const a = AppState.stage5.inputA;
+            const b = AppState.stage5.inputB;
+
+            const card = document.getElementById('lab-verdict-card');
+            card.classList.remove('hidden');
+            card.innerHTML = `
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="text-amber-400 font-black text-base">🔢 数位数分析</span>
+                </div>
+                <div class="text-base md:text-lg text-slate-100 leading-relaxed">
+                    数 A 是 <strong class="text-amber-400 font-mono text-xl font-black">${a.length}</strong> 位数，数 B 是 <strong class="text-sky-400 font-mono text-xl font-black">${b.length}</strong> 位数。
+                    ${a.length !== b.length
+                    ? `<span class="text-emerald-300 font-black block mt-2">✨ 两数位数不同！直接应用定理：“位数多的数大”！</span>`
+                    : `<span class="text-sky-300 font-black block mt-2">⚡ 两数位数相同！请点击“逐步扫描比对”从最高位往下找决胜位！</span>`}
+                </div>
+            `;
+
+            updateLabToolButtons();
+        }
+
+        function stage5StepScan() {
+            const a = AppState.stage5.inputA;
+            const b = AppState.stage5.inputB;
+            const maxLen = Math.max(a.length, b.length);
+            const padA = a.padStart(maxLen, '0');
+            const padB = b.padStart(maxLen, '0');
+
+            let diffIdx = -1;
+            for (let i = 0; i < maxLen; i++) {
+                if (padA[i] !== padB[i]) {
+                    diffIdx = i;
+                    break;
+                }
+            }
+
+            if (diffIdx === -1) {
+                sound.playClick();
+                AppState.stage5.scanStepIdx = maxLen - 1;
+            } else {
+                sound.playLaser();
+                AppState.stage5.scanStepIdx = diffIdx;
+            }
+
+            renderLabCustomTable();
+
+            const card = document.getElementById('lab-verdict-card');
+            card.classList.remove('hidden');
+            const activePlaces = ALL_PLACES.slice(ALL_PLACES.length - maxLen);
+            const diffPlaceName = activePlaces[diffIdx] ? activePlaces[diffIdx].name : '个位';
+
+            if (diffIdx === -1) {
+                card.innerHTML = `
+                    <div class="text-base text-slate-200">每一位数字都完全相同！两数相等（A = B）。</div>
+                `;
+            } else {
+                card.innerHTML = `
+                    <div class="text-base md:text-lg text-slate-100 leading-relaxed">
+                        🎯 扫描发现第一个不相等的数位在：<strong class="text-amber-400 font-black text-xl">${diffPlaceName}</strong>！<br>
+                        数 A 对应的数字是 <strong class="text-amber-300 font-mono text-2xl font-black">${padA[diffIdx]}</strong>，数 B 对应的数字是 <strong class="text-sky-300 font-mono text-2xl font-black">${padB[diffIdx]}</strong>。<br>
+                        因为 <span class="font-mono font-black text-xl">${padA[diffIdx]} ${padA[diffIdx] > padB[diffIdx] ? '>' : '<'} ${padB[diffIdx]}</span>，因此胜负在此决出！
+                    </div>
+                `;
+            }
+        }
+
+        function stage5RevealVerdict() {
+            sound.playSuccess();
+            const a = AppState.stage5.inputA;
+            const b = AppState.stage5.inputB;
+
+            let realSymbol = '=';
+            if (a.length > b.length) {
+                realSymbol = '>';
+            } else if (a.length < b.length) {
+                realSymbol = '<';
+            } else {
+                if (a > b) realSymbol = '>';
+                else if (a < b) realSymbol = '<';
+                else realSymbol = '=';
+            }
+
+            const userSym = AppState.stage5.userSymbol;
+            const isMatch = (userSym === realSymbol);
+
+            const card = document.getElementById('lab-verdict-card');
+            card.classList.remove('hidden');
+            card.innerHTML = `
+                <div class="p-5 rounded-2xl bg-slate-950 border-2 ${isMatch ? 'border-emerald-500/60' : 'border-amber-500/60'} shadow-2xl">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-3">
+                            <span class="text-3xl">${isMatch ? '🏆' : '💡'}</span>
+                            <span class="text-base md:text-lg font-black ${isMatch ? 'text-emerald-400' : 'text-amber-400'}">
+                                ${userSym ? (isMatch ? '太棒了！你的判断完全正确！' : '你的选项与官方判定不同，再来看看算理解析吧！') : '官方判决已生成：'}
+                            </span>
+                        </div>
+                        <span class="font-mono text-2xl md:text-3xl font-black text-amber-400 bg-slate-900 px-4 py-1.5 rounded-xl border border-slate-700">
+                            A ${realSymbol} B
+                        </span>
+                    </div>
+                    <div class="text-sm md:text-base text-slate-200 leading-relaxed space-y-2">
+                        <div>• <strong>数 A</strong>：<span class="font-mono text-white font-bold text-lg">${a}</span>（${a.length} 位数）</div>
+                        <div>• <strong>数 B</strong>：<span class="font-mono text-white font-bold text-lg">${b}</span>（${b.length} 位数）</div>
+                        <div class="pt-2 border-t border-slate-800 text-slate-100">
+                            ${a.length !== b.length
+                    ? `<strong>算理判定依据</strong>：两数位数不同（${a.length}位 vs ${b.length}位），依据“位数多的数大”定理，<strong class="text-amber-300 font-bold">${a.length > b.length ? '数 A' : '数 B'}</strong>直接胜出！`
+                    : `<strong>算理判定依据</strong>：两数都是 ${a.length} 位数，从最高位起顺次比对，高位数字大的数就大！`}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * =============================================================
+         * 9. 页面启动初始化
+         * =============================================================
+         */
+        window.addEventListener('DOMContentLoaded', () => {
+            setStage('stage_1_pk');
+            renderStage1();
+            stage5SyncInputs();
+        });
+    </script>
+</body>
+
+</html>

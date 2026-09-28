@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>不同角度观察物体 - 3D 互动几何教学</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Three.js and OrbitControls CDNs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --bg-main: #0b0f19;
+            --bg-sidebar: #111827;
+            --bg-card: rgba(31, 41, 55, 0.6);
+            --border-card: rgba(255, 255, 255, 0.08);
+            --color-primary: #38bdf8;
+            --color-primary-hover: #0ea5e9;
+            --color-success: #10b981;
+            --color-warning: #f59e0b;
+            --color-danger: #ef4444;
+            --color-highlight: #fbbf24;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+        }
+
+        /* Layout Structure */
+        #app-container {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* Left Side: 3D Canvas */
+        #canvas-container {
+            flex-grow: 1;
+            height: 100%;
+            position: relative;
+            background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+        }
+
+        #three-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Floating Overlays on Canvas */
+        .overlay-card {
+            position: absolute;
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-card);
+            border-radius: 12px;
+            padding: 12px 16px;
+            z-index: 10;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        #left-overlay-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        #left-overlay-container>* {
+            pointer-events: auto;
+        }
+
+        #instruction-overlay {
+            position: relative;
+            max-width: 100%;
+        }
+
+        #projection-overlay {
+            position: relative;
+            max-width: 100%;
+        }
+
+        #projection-overlay h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: var(--color-primary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        #instruction-overlay h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            margin-bottom: 6px;
+            color: var(--color-primary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        #instruction-overlay p {
+            font-size: 12px;
+            line-height: 1.5;
+            color: var(--text-muted);
+        }
+
+        #status-badge-overlay {
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .badge-success {
+            border-left: 4px solid var(--color-success);
+            color: var(--color-success);
+        }
+
+        .badge-warning {
+            border-left: 4px solid var(--color-warning);
+            color: var(--color-warning);
+        }
+
+        #view-indicator {
+            bottom: 20px;
+            left: 20px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.15);
+            pointer-events: none;
+            border: none;
+            background: transparent;
+            box-shadow: none;
+            backdrop-filter: none;
+        }
+
+        /* Right Side: Sidebar Controls */
+        #sidebar {
+            width: 440px;
+            background-color: var(--bg-sidebar);
+            border-left: 1px solid var(--border-card);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+            height: 100%;
+            z-index: 20;
+            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .sidebar-section {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .sidebar-section h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-main);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 8px;
+        }
+
+        /* Title styling */
+        .app-title-container {
+            margin-bottom: 4px;
+        }
+
+        .app-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 22px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 4px;
+        }
+
+        .app-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* Buttons & Presets */
+        .btn-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .preset-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        button {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            padding: 10px 12px;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.btn-primary {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+            border: none;
+            color: #0f172a;
+            font-weight: 600;
+        }
+
+        button.btn-primary:hover {
+            opacity: 0.95;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+        }
+
+        button.btn-active {
+            background-color: rgba(56, 189, 248, 0.15);
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        /* Large Action Button */
+        #highlight-action-btn {
+            padding: 10px 12px;
+            font-size: 13px;
+            font-weight: 700;
+            width: 100%;
+            border-radius: 10px;
+            margin-top: 8px;
+        }
+
+        #highlight-action-btn.disabled {
+            background-color: rgba(255, 255, 255, 0.02) !important;
+            border: 1px dashed rgba(255, 255, 255, 0.05) !important;
+            color: var(--text-muted) !important;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        /* 2D Projection Grids */
+        .projections-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .projection-card {
+            background-color: rgba(15, 23, 42, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .projection-card.active-projection {
+            border-color: var(--color-highlight);
+            box-shadow: inset 0 0 10px rgba(251, 191, 36, 0.05), 0 4px 20px rgba(251, 191, 36, 0.15);
+            background-color: rgba(251, 191, 36, 0.02);
+        }
+
+        .projection-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+
+        .projection-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .projection-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* 2D Grid Visualizer */
+        .projection-grid-wrapper {
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 8px;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .projection-grid {
+            display: grid;
+            gap: 3px;
+        }
+
+        .grid-cell {
+            width: 22px;
+            height: 22px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background-color: rgba(255, 255, 255, 0.02);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .grid-cell.occupied {
+            background-color: var(--color-success);
+            border-color: #34d399;
+            box-shadow: 0 0 4px rgba(16, 185, 129, 0.3);
+        }
+
+        /* Keyframe for flashing/pulsing highlight */
+        @keyframes pulse-glow {
+            0% {
+                box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.7);
+                background-color: var(--color-highlight);
+                border-color: #fbbf24;
+            }
+
+            70% {
+                box-shadow: 0 0 0 8px rgba(251, 191, 36, 0);
+                background-color: var(--color-highlight);
+                border-color: #fbbf24;
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(251, 191, 36, 0);
+                background-color: var(--color-highlight);
+                border-color: #fbbf24;
+            }
+        }
+
+        .cell-highlight {
+            background-color: var(--color-highlight) !important;
+            border-color: #fbbf24 !important;
+            animation: pulse-glow 1.5s infinite;
+        }
+
+        /* Help Info */
+        .info-card {
+            background-color: rgba(56, 189, 248, 0.03);
+            border: 1px dashed rgba(56, 189, 248, 0.15);
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 12px;
+            line-height: 1.6;
+            color: var(--text-muted);
+        }
+
+        .info-card strong {
+            color: var(--color-primary);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app-container">
+        <!-- Left Side: Interactive 3D Viewer -->
+        <div id="canvas-container">
+            <!-- Left Side Overlay Container -->
+            <div id="left-overlay-container">
+                <!-- Instructions -->
+                <div id="instruction-overlay" class="overlay-card">
+                    <h3><i data-lucide="help-circle" class="w-4 h-4"></i> 操作指南</h3>
+                    <p>1. 鼠标左键点击空白处拖动可旋转视角观察。<br>2. 滚轮缩放，右键拖动平移。</p>
+                </div>
+
+                <!-- Projections Overlay (Moved from sidebar) -->
+                <div id="projection-overlay" class="overlay-card" style="display: none;">
+                    <h3><i data-lucide="layers" class="w-4 h-4"></i> 投影平面图</h3>
+                    <div class="projections-container">
+                        <!-- Front View Projection Card -->
+                        <div id="front-projection-card" class="projection-card" style="display: none;">
+                            <div class="projection-info">
+                                <span class="projection-title">主视图 (从前面看)</span>
+                                <span class="projection-desc">X-Y 平面投影</span>
+                            </div>
+                            <div class="projection-grid-wrapper">
+                                <div id="front-grid" class="projection-grid"
+                                    style="grid-template-columns: repeat(5, 22px); grid-template-rows: repeat(4, 22px);">
+                                    <!-- Cells will be generated dynamically -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Left View Projection Card -->
+                        <div id="left-projection-card" class="projection-card" style="display: none;">
+                            <div class="projection-info">
+                                <span class="projection-title">左视图 (从左边看)</span>
+                                <span class="projection-desc">Z-Y 平面投影</span>
+                            </div>
+                            <div class="projection-grid-wrapper">
+                                <div id="left-grid" class="projection-grid"
+                                    style="grid-template-columns: repeat(5, 22px); grid-template-rows: repeat(4, 22px);">
+                                    <!-- Cells will be generated dynamically -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Top View Projection Card -->
+                        <div id="top-projection-card" class="projection-card" style="display: none;">
+                            <div class="projection-info">
+                                <span class="projection-title">俯视图 (从上面看)</span>
+                                <span class="projection-desc">X-Z 平面投影</span>
+                            </div>
+                            <div class="projection-grid-wrapper">
+                                <div id="top-grid" class="projection-grid"
+                                    style="grid-template-columns: repeat(5, 22px); grid-template-rows: repeat(5, 22px);">
+                                    <!-- Cells will be generated dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Highlight Visible Faces Action -->
+                    <button id="highlight-action-btn" class="btn-primary disabled" onclick="triggerHighlightAction()">
+                        <i data-lucide="sparkles"></i> 🔒 请旋转至特定视图以观察投影
+                    </button>
+                </div>
+            </div>
+
+            <!-- Status Indicator -->
+            <!-- <div id="status-badge-overlay" class="overlay-card badge-success">
+                <i data-lucide="check-circle" class="w-4.5 h-4.5"></i>
+                <span id="status-text">方块已成功连接</span>
+            </div> -->
+
+            <!-- Overlay View Angle Indicator -->
+            <div id="view-indicator" class="overlay-card">
+                自由视角
+            </div>
+
+            <!-- Three.js Canvas -->
+            <canvas id="three-canvas"></canvas>
+        </div>
+
+        <!-- Right Side: Dashboard Control Panel -->
+        <div id="sidebar">
+            <div class="app-title-container">
+                <h1 class="app-title">不同角度观察物体</h1>
+                <p class="app-subtitle">互动拼搭 3D 空间三视图教学演示课件</p>
+            </div>
+
+            <!-- Section 1: Presets & Controls -->
+            <div class="sidebar-section">
+                <h2><i data-lucide="layout-grid"></i> 1. 图形拼搭与预设</h2>
+                <!-- 🚀 增加了按钮对应的 ID，用来做高亮状态绑定 -->
+                <div class="preset-group">
+                    <button id="btn-preset-T" onclick="setPreset('T')"><i data-lucide="box"></i> 预设: T 形</button>
+                    <button id="btn-preset-L" onclick="setPreset('L')"><i data-lucide="box"></i> 预设: L 形</button>
+                    <button id="btn-preset-Z" onclick="setPreset('Z')"><i data-lucide="box"></i> 预设: Z 形</button>
+                    <button id="btn-preset-Corner" onclick="setPreset('Corner')"><i data-lucide="box"></i> 预设:
+                        拐角形</button>
+                </div>
+                <div class="btn-group">
+                    <button onclick="resetScene()" style="grid-column: span 3;"><i data-lucide="refresh-cw"></i>
+                        重置所有方块</button>
+                </div>
+            </div>
+
+            <!-- Section 2: View Angles -->
+            <div class="sidebar-section">
+                <h2><i data-lucide="video"></i> 2. 视角观察</h2>
+                <div class="btn-group">
+                    <button id="btn-front" onclick="snapCamera('front')">从前面看</button>
+                    <button id="btn-left" onclick="snapCamera('left')">从左边看</button>
+                    <button id="btn-top" onclick="snapCamera('top')">从上面看</button>
+                </div>
+                <button id="btn-reset-cam" onclick="resetCameraAngle()"><i data-lucide="compass"></i> 重置为 3D
+                    自由视角</button>
+            </div>
+
+            <!-- Mathematical context helper -->
+            <div class="info-card">
+                <i data-lucide="info" class="inline w-3.5 h-3.5 mr-1" style="vertical-align: middle;"></i>
+                <strong>空间想象提示：</strong>
+                在主视图中，重合在一条视线方向的方块会发生重叠；在左视图和俯视图中亦然。点击<strong>“视角观察”</strong>按钮或通过拖拽空白区域完美对齐到某视角，即可激活<strong>高亮投影</strong>功能。
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Implementation Code -->
+    <script>
+        // Init Lucide Icons
+        lucide.createIcons();
+
+        // Preset Configurations
+        const PRESETS = {
+            'T': [
+                { x: -1, y: 0, z: 0 },
+                { x: 0, y: 0, z: 0 },
+                { x: 1, y: 0, z: 0 },
+                { x: 0, y: 1, z: 0 }
+            ],
+            'L': [
+                { x: -1, y: 0, z: 0 },
+                { x: 0, y: 0, z: 0 },
+                { x: 1, y: 0, z: 0 },
+                { x: -1, y: 1, z: 0 }
+            ],
+            'Z': [
+                { x: -1, y: 0, z: 0 },
+                { x: 0, y: 0, z: 0 },
+                { x: 0, y: 1, z: 0 },
+                { x: 1, y: 1, z: 0 }
+            ],
+            'Corner': [
+                { x: 0, y: 0, z: 0 },
+                { x: 1, y: 0, z: 0 },
+                { x: 0, y: 0, z: 1 },
+                { x: 0, y: 1, z: 0 }
+            ]
+        };
+
+        // Grid Dimensions: X [-2, 2], Y [0, 3], Z [-2, 2]
+        const GRID = {
+            minX: -2, maxX: 2,
+            minY: 0, maxY: 3,
+            minZ: -2, maxZ: 2,
+            sizeX: 5, sizeY: 4, sizeZ: 5
+        };
+
+        // Core variables
+        let scene, camera, renderer, controls;
+        let blocks = []; // Array of {x, y, z, mesh}
+        let tabletopMesh, gridHelper;
+        let groundPlane;
+
+        // Raycasting and Drag & Drop variables
+        let raycaster = new THREE.Raycaster();
+        let mouse = new THREE.Vector2();
+        let draggedBlock = null;
+        let ghostMesh = null;
+        let isSnapValid = false;
+        let snapCoords = { x: 0, y: 0, z: 0 };
+        let hitNormal = new THREE.Vector3();
+        let hoveredBlock = null;
+
+        // Alignment state
+        let currentAlignedView = null; // 'front', 'left', 'top', or null
+        let highlightedView = null; // 'front', 'left', 'top', or null
+        let isConnected = true;
+
+        // Camera Animation variables
+        let isAnimatingCamera = false;
+        let targetCameraPos = new THREE.Vector3();
+        let targetCameraUp = new THREE.Vector3();
+        let cameraAnimStartTime = 0;
+        const cameraAnimDuration = 400; // ms
+        let startCameraPos = new THREE.Vector3();
+        let startCameraUp = new THREE.Vector3();
+
+        // Block snaps interpolation variables
+        let activeAnimations = []; // Array of { mesh, startPos, targetPos, startTime, duration }
+
+        // Setup Three.js scene
+        function init() {
+            const container = document.getElementById('canvas-container');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            // Scene
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x0f172a, 0.035);
+
+            // Camera
+            camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
+            resetCameraPosition();
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('three-canvas'), antialias: true, alpha: true });
+            renderer.setSize(width, height);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+            // Controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.maxPolarAngle = Math.PI / 2 + 0.1; // Don't orbit below the tabletop
+            controls.minDistance = 3;
+            controls.maxDistance = 15;
+            controls.target.set(0, 0.5, 0);
+
+            // Infinite plane helper at y = -0.5 for dragging reference
+            groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0.5);
+
+            // Create Tabletop Platform
+            const tableGeo = new THREE.CylinderGeometry(4.5, 4.5, 0.1, 64);
+            const tableMat = new THREE.MeshStandardMaterial({
+                color: 0x1e293b,
+                roughness: 0.7,
+                metalness: 0.15
+            });
+            tabletopMesh = new THREE.Mesh(tableGeo, tableMat);
+            tabletopMesh.position.y = -0.55;
+            tabletopMesh.receiveShadow = true;
+            scene.add(tabletopMesh);
+
+            // Tabletop Border rim for aesthetic value
+            const rimGeo = new THREE.CylinderGeometry(4.55, 4.55, 0.12, 64);
+            const rimMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.5, metalness: 0.8 });
+            const rimMesh = new THREE.Mesh(rimGeo, rimMat);
+            rimMesh.position.y = -0.55;
+            scene.add(rimMesh);
+
+            // Grid helper on top of table
+            gridHelper = new THREE.GridHelper(5, 5, 0x38bdf8, 0x334155);
+            gridHelper.position.y = -0.5;
+            scene.add(gridHelper);
+
+            // Lights
+            const ambientLight = new THREE.AmbientLight(0x38bdf8, 0.35); // Cool blue fill light
+            scene.add(ambientLight);
+
+            // Lights
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.75);
+            dirLight.position.set(6, 10, 5);
+            dirLight.castShadow = true;
+            dirLight.shadow.mapSize.width = 1024;
+            dirLight.shadow.mapSize.height = 1024;
+            dirLight.shadow.bias = -0.001;
+            scene.add(dirLight);
+
+            const pointLight = new THREE.PointLight(0xfbbf24, 0.4, 10);
+            pointLight.position.set(0, 4, 0);
+            scene.add(pointLight);
+
+            // Setup Ghost snapping block
+            const ghostGeo = new THREE.BoxGeometry(0.96, 0.96, 0.96);
+            const ghostMat = new THREE.MeshBasicMaterial({
+                color: 0x10b981,
+                transparent: true,
+                opacity: 0.4,
+                wireframe: false
+            });
+            ghostMesh = new THREE.Mesh(ghostGeo, ghostMat);
+            ghostMesh.visible = false;
+            scene.add(ghostMesh);
+
+            // Add wireframe edge to ghost mesh
+            const ghostEdges = new THREE.EdgesGeometry(ghostGeo);
+            const ghostLine = new THREE.LineSegments(ghostEdges, new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.6 }));
+            ghostMesh.add(ghostLine);
+
+            // Load default layout (T-Shape)
+            loadPreset('T');
+
+            // Set up HTML 2D view grids structure
+            createHTMLGridCells();
+
+            // Event Listeners
+            container.addEventListener('mousedown', onMouseDown);
+            container.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('mouseup', onMouseUp);
+            window.addEventListener('resize', onWindowResize);
+
+            // Render loop start
+            animate();
+        }
+
+        // Reset camera positions
+        function resetCameraPosition() {
+            camera.position.set(4, 3.5, 6.5);
+            camera.up.set(0, 1, 0);
+            if (controls) {
+                controls.target.set(0, 0.5, 0);
+                controls.update();
+            }
+        }
+
+        // 🚀 控制预设按钮 CSS 样式更新
+        function updatePresetActiveUI(activeKey) {
+            // 先移除所有预设按钮的激活样式
+            const keys = ['T', 'L', 'Z', 'Corner'];
+            keys.forEach(k => {
+                const btn = document.getElementById(`btn-preset-${k}`);
+                if (btn) {
+                    btn.classList.remove('btn-active');
+                }
+            });
+
+            // 为当前选中的预设添加激活样式
+            const activeBtn = document.getElementById(`btn-preset-${activeKey}`);
+            if (activeBtn) {
+                activeBtn.classList.add('btn-active');
+            }
+        }
+
+        // Load Preset Coordinates
+        function loadPreset(key) {
+            // Clean previous meshes
+            blocks.forEach(b => scene.remove(b.mesh));
+            blocks = [];
+
+            const coords = PRESETS[key] || PRESETS['T'];
+
+            // Materials setup
+            const defaultMat = new THREE.MeshLambertMaterial({
+                color: 0x10b981,
+                roughness: 0.35
+            });
+            const materials = Array(6).fill(defaultMat);
+
+            coords.forEach(coord => {
+                const geo = new THREE.BoxGeometry(0.96, 0.96, 0.96);
+                const mesh = new THREE.Mesh(geo, materials);
+                mesh.position.set(coord.x, coord.y, coord.z);
+                mesh.castShadow = true;
+                mesh.receiveShadow = true;
+
+                // Add wireframe outline
+                const edgesGeo = new THREE.EdgesGeometry(geo);
+                const borderLine = new THREE.LineSegments(edgesGeo, new THREE.LineBasicMaterial({ color: 0x064e3b, linewidth: 2 }));
+                mesh.add(borderLine);
+
+                scene.add(mesh);
+
+                blocks.push({
+                    x: coord.x,
+                    y: coord.y,
+                    z: coord.z,
+                    mesh: mesh
+                });
+            });
+
+            // 🚀 同步预设按钮样式
+            updatePresetActiveUI(key);
+
+            // Update status UI
+            updateAppState();
+        }
+
+        // Set preset trigger
+        function setPreset(key) {
+            clearHighlight();
+            loadPreset(key);
+            resetCameraAngle();
+        }
+
+        // Reset scene
+        function resetScene() {
+            clearHighlight();
+            loadPreset('T');
+            resetCameraAngle();
+        }
+
+        // Dynamic creation of static empty grids in HTML
+        function createHTMLGridCells() {
+            // Front Grid: 5 columns, 4 rows (y: 3..0, x: -2..2)
+            const frontGrid = document.getElementById('front-grid');
+            frontGrid.innerHTML = '';
+            for (let y = 3; y >= 0; y--) {
+                for (let x = -2; x <= 2; x++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell';
+                    cell.id = `front-cell-${x}-${y}`;
+                    frontGrid.appendChild(cell);
+                }
+            }
+
+            // Left Grid: 5 columns, 4 rows (y: 3..0, z: -2..2)
+            const leftGrid = document.getElementById('left-grid');
+            leftGrid.innerHTML = '';
+            for (let y = 3; y >= 0; y--) {
+                for (let z = -2; z <= 2; z++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell';
+                    cell.id = `left-cell-${z}-${y}`;
+                    leftGrid.appendChild(cell);
+                }
+            }
+
+            // Top Grid: 5 columns, 5 rows (z: -2..2, x: -2..2)
+            const topGrid = document.getElementById('top-grid');
+            topGrid.innerHTML = '';
+            for (let z = -2; z <= 2; z++) {
+                for (let x = -2; x <= 2; x++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell';
+                    cell.id = `top-cell-${x}-${z}`;
+                    topGrid.appendChild(cell);
+                }
+            }
+        }
+
+        // Calculate and Draw Projections on the HTML grids
+        function renderProjections() {
+            // Clear occupancy and highlight classes
+            document.querySelectorAll('.grid-cell').forEach(cell => {
+                cell.classList.remove('occupied', 'cell-highlight');
+            });
+
+            // Calculate projections
+            blocks.forEach(b => {
+                // Front View: X vs Y
+                const frontCell = document.getElementById(`front-cell-${b.x}-${b.y}`);
+                if (frontCell) frontCell.classList.add('occupied');
+
+                // Left View: Z vs Y
+                const leftCell = document.getElementById(`left-cell-${b.z}-${b.y}`);
+                if (leftCell) leftCell.classList.add('occupied');
+
+                // Top View: X vs Z
+                const topCell = document.getElementById(`top-cell-${b.x}-${b.z}`);
+                if (topCell) topCell.classList.add('occupied');
+            });
+
+            // If a highlight view is already active, preserve its highlighting classes
+            if (highlightedView) {
+                applyHighlightClasses(highlightedView);
+            }
+        }
+
+        // Apply highlighting color class directly to the visual elements
+        function applyHighlightClasses(view) {
+            // Calculate visible cubes for the given view
+            const visibleCubes = getVisibleCubes(view);
+
+            visibleCubes.forEach(b => {
+                if (view === 'front') {
+                    const cell = document.getElementById(`front-cell-${b.x}-${b.y}`);
+                    if (cell) cell.classList.add('cell-highlight');
+                } else if (view === 'left') {
+                    const cell = document.getElementById(`left-cell-${b.z}-${b.y}`);
+                    if (cell) cell.classList.add('cell-highlight');
+                } else if (view === 'top') {
+                    const cell = document.getElementById(`top-cell-${b.x}-${b.z}`);
+                    if (cell) cell.classList.add('cell-highlight');
+                }
+            });
+        }
+
+        // Compute visible cubes (non-occluded cubes) along projection rays
+        function getVisibleCubes(view) {
+            const visibleMap = new Map();
+            blocks.forEach(b => {
+                let key;
+                if (view === 'front') {
+                    key = `${b.x},${b.y}`;
+                    if (!visibleMap.has(key) || b.z > visibleMap.get(key).z) {
+                        visibleMap.set(key, b);
+                    }
+                } else if (view === 'left') {
+                    key = `${b.z},${b.y}`;
+                    if (!visibleMap.has(key) || b.x < visibleMap.get(key).x) {
+                        visibleMap.set(key, b);
+                    }
+                } else if (view === 'top') {
+                    key = `${b.x},${b.z}`;
+                    if (!visibleMap.has(key) || b.y > visibleMap.get(key).y) {
+                        visibleMap.set(key, b);
+                    }
+                }
+            });
+            return Array.from(visibleMap.values());
+        }
+
+        // Perform Breadth-First-Search connectivity check
+        function checkConnectivity() {
+            if (blocks.length === 0) return true;
+            let visited = new Set();
+            let queue = [blocks[0]];
+            visited.add(0);
+
+            while (queue.length > 0) {
+                let current = queue.shift();
+                for (let i = 0; i < blocks.length; i++) {
+                    if (visited.has(i)) continue;
+                    let other = blocks[i];
+                    // Manhattan distance of 1 means face sharing (adjacency)
+                    let dist = Math.abs(current.x - other.x) + Math.abs(current.y - other.y) + Math.abs(current.z - other.z);
+                    if (dist === 1) {
+                        visited.add(i);
+                        queue.push(other);
+                    }
+                }
+            }
+            return visited.size === blocks.length;
+        }
+
+        // Update application state
+        function updateAppState() {
+            isConnected = checkConnectivity();
+
+            // const badge = document.getElementById('status-badge-overlay');
+
+            // if (isConnected) {
+            //     badge.className = 'overlay-card badge-success';
+            //     badge.innerHTML = `<i data-lucide="check-circle" class="w-4.5 h-4.5"></i><span id="status-text">方块已成功连接</span>`;
+            // } else {
+            //     badge.className = 'overlay-card badge-warning';
+            //     badge.innerHTML = `<i data-lucide="alert-triangle" class="w-4.5 h-4.5"></i><span id="status-text">⚠️ 块未完全连接 (拖动靠近以合并)</span>`;
+            // }
+            lucide.createIcons();
+
+            // Redraw 2D maps
+            renderProjections();
+        }
+
+        // Drag & Drop event handling
+        function onMouseDown(event) {
+            event.preventDefault();
+            const container = document.getElementById('canvas-container');
+            const rect = container.getBoundingClientRect();
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+
+            // Check block mesh selections
+            const intersects = raycaster.intersectObjects(blocks.map(b => b.mesh));
+            if (intersects.length > 0) {
+                const clickedMesh = intersects[0].object;
+                draggedBlock = blocks.find(b => b.mesh === clickedMesh);
+
+                if (draggedBlock) {
+                    controls.enabled = false; // Turn off view rotations
+                    draggedBlock.originalCoords = { x: draggedBlock.x, y: draggedBlock.y, z: draggedBlock.z };
+
+                    clearHighlight();
+
+                    ghostMesh.visible = true;
+                    ghostMesh.position.set(draggedBlock.x, draggedBlock.y, draggedBlock.z);
+                    isSnapValid = true;
+                    snapCoords = { x: draggedBlock.x, y: draggedBlock.y, z: draggedBlock.z };
+                }
+            }
+        }
+
+        function onMouseMove(event) {
+            const container = document.getElementById('canvas-container');
+            const rect = container.getBoundingClientRect();
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+
+            if (draggedBlock) {
+                // Intersect with remaining blocks and table
+                const otherBlockMeshes = blocks.filter(b => b !== draggedBlock).map(b => b.mesh);
+                const intersects = raycaster.intersectObjects(otherBlockMeshes);
+
+                let gx, gy, gz;
+                let rawHitPoint = new THREE.Vector3();
+
+                if (intersects.length > 0) {
+                    // Hovering on another block
+                    const hit = intersects[0];
+                    hitNormal.copy(hit.face.normal);
+
+                    const hitBlock = blocks.find(b => b.mesh === hit.object);
+                    gx = hitBlock.x + Math.round(hitNormal.x);
+                    gy = hitBlock.y + Math.round(hitNormal.y);
+                    gz = hitBlock.z + Math.round(hitNormal.z);
+
+                    rawHitPoint.copy(hit.point);
+                } else {
+                    // Try table surface intersection
+                    const tableIntersects = raycaster.intersectObject(tabletopMesh);
+                    if (tableIntersects.length > 0) {
+                        rawHitPoint.copy(tableIntersects[0].point);
+                    } else {
+                        // Fallback plane intersection
+                        raycaster.ray.intersectPlane(groundPlane, rawHitPoint);
+                    }
+
+                    gx = Math.round(rawHitPoint.x);
+                    gy = 0; // Ground surface starts at height 0
+                    gz = Math.round(rawHitPoint.z);
+                    hitNormal.set(0, 1, 0);
+                }
+
+                // Grid bounding limits constraints
+                gx = Math.max(GRID.minX, Math.min(GRID.maxX, gx));
+                gy = Math.max(GRID.minY, Math.min(GRID.maxY, gy));
+                gz = Math.max(GRID.minZ, Math.min(GRID.maxZ, gz));
+
+                snapCoords = { x: gx, y: gy, z: gz };
+
+                // Occupancy verification check
+                const isOccupied = blocks.some(b => b !== draggedBlock && b.x === gx && b.y === gy && b.z === gz);
+                isSnapValid = !isOccupied && gy >= 0;
+
+                // Update Visual snap indicator block
+                if (isSnapValid) {
+                    ghostMesh.position.set(gx, gy, gz);
+                    ghostMesh.material.color.setHex(0x10b981); // Emerald Green
+                } else {
+                    ghostMesh.position.set(gx, gy, gz);
+                    ghostMesh.material.color.setHex(0xef4444); // Red warning
+                }
+
+                // Smooth sliding mesh position feedback
+                // Offsets the dragged block mesh slightly in direction of face normal to show sliding
+                const slideTarget = rawHitPoint.clone().add(hitNormal.clone().multiplyScalar(0.48));
+                draggedBlock.mesh.position.lerp(slideTarget, 0.3);
+
+            } else {
+                // Drag hover selection highlights
+                const intersects = raycaster.intersectObjects(blocks.map(b => b.mesh));
+                if (intersects.length > 0) {
+                    container.style.cursor = 'pointer';
+                    const hoverMesh = intersects[0].object;
+                    const block = blocks.find(b => b.mesh === hoverMesh);
+
+                    if (block && block !== hoveredBlock && !highlightedView) {
+                        resetHoverBlock();
+                        hoveredBlock = block;
+                        hoveredBlock.mesh.material.forEach(mat => {
+                            mat.emissive.setHex(0x064e3b);
+                            mat.emissiveIntensity = 0.35;
+                        });
+                    }
+                } else {
+                    container.style.cursor = 'default';
+                    resetHoverBlock();
+                }
+            }
+        }
+
+        function onMouseUp() {
+            if (draggedBlock) {
+                ghostMesh.visible = false;
+                controls.enabled = true;
+
+                if (isSnapValid) {
+                    draggedBlock.x = snapCoords.x;
+                    draggedBlock.y = snapCoords.y;
+                    draggedBlock.z = snapCoords.z;
+                } else {
+                    // Reset to coordinates before drag began
+                    draggedBlock.x = draggedBlock.originalCoords.x;
+                    draggedBlock.y = draggedBlock.originalCoords.y;
+                    draggedBlock.z = draggedBlock.originalCoords.z;
+                }
+
+                // Add grid snapping slide animation
+                animateSnappingBlock(draggedBlock);
+                draggedBlock = null;
+
+                // Revalidate connectivity and redraw maps
+                updateAppState();
+            }
+        }
+
+        // Reset hover material overrides
+        function resetHoverBlock() {
+            if (hoveredBlock && !highlightedView) {
+                hoveredBlock.mesh.material.forEach(mat => {
+                    mat.emissive.setHex(0x000000);
+                    mat.emissiveIntensity = 0;
+                });
+                hoveredBlock = null;
+            }
+        }
+
+        // Set up block snapping animation interpolation values
+        function animateSnappingBlock(block) {
+            const targetPos = new THREE.Vector3(block.x, block.y, block.z);
+            const startPos = block.mesh.position.clone();
+            const startTime = performance.now();
+            const duration = 200; // ms
+
+            // Clear duplicate animation references
+            activeAnimations = activeAnimations.filter(a => a.mesh !== block.mesh);
+
+            activeAnimations.push({
+                mesh: block.mesh,
+                startPos: startPos,
+                targetPos: targetPos,
+                startTime: startTime,
+                duration: duration
+            });
+        }
+
+        // Process animations loop
+        function updateAnimations() {
+            const now = performance.now();
+            for (let i = activeAnimations.length - 1; i >= 0; i--) {
+                const anim = activeAnimations[i];
+                const elapsed = now - anim.startTime;
+                const progress = Math.min(1, elapsed / anim.duration);
+
+                // Ease out cubic cubic equation
+                const t = 1 - Math.pow(1 - progress, 3);
+                anim.mesh.position.lerpVectors(anim.startPos, anim.targetPos, t);
+
+                if (progress === 1) {
+                    activeAnimations.splice(i, 1);
+                }
+            }
+        }
+
+        // Window resize update handler
+        function onWindowResize() {
+            const container = document.getElementById('canvas-container');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(width, height);
+        }
+
+        // Handle camera alignments & target positioning animations
+        function snapCamera(view) {
+            if (isAnimatingCamera) return;
+
+            clearHighlight();
+
+            // Define targeting vectors
+            startCameraPos.copy(camera.position);
+            startCameraUp.copy(camera.up);
+
+            if (view === 'front') {
+                targetCameraPos.set(0, 0.5, 5.5);
+                targetCameraUp.set(0, 1, 0);
+            } else if (view === 'left') {
+                targetCameraPos.set(-5.5, 0.5, 0);
+                targetCameraUp.set(0, 1, 0);
+            } else if (view === 'top') {
+                // Use a microscopic Z offset value to prevent gymbal lock axis lockups
+                targetCameraPos.set(0, 5.5, 0.005);
+                targetCameraUp.set(0, 1, 0);
+            }
+
+            cameraAnimStartTime = performance.now();
+            isAnimatingCamera = true;
+            controls.enabled = false;
+
+            // Set aligned view state and update UI immediately
+            currentAlignedView = view;
+            updateAlignmentUI();
+        }
+
+        // Interpolate camera parameters smoothly
+        function updateCameraAnimation() {
+            if (!isAnimatingCamera) return;
+
+            const now = performance.now();
+            const elapsed = now - cameraAnimStartTime;
+            const progress = Math.min(1, elapsed / cameraAnimDuration);
+
+            // Sine ease in-out equation
+            const t = -(Math.cos(Math.PI * progress) - 1) / 2;
+
+            // Interpolate position and up vector variables
+            camera.position.lerpVectors(startCameraPos, targetCameraPos, t);
+            camera.up.lerpVectors(startCameraUp, targetCameraUp, t);
+            controls.target.lerp(new THREE.Vector3(0, 0.5, 0), t);
+
+            controls.update();
+
+            if (progress === 1) {
+                isAnimatingCamera = false;
+                controls.enabled = true;
+
+                // After camera animation settles, automatically trigger highlight features!
+                setTimeout(() => {
+                    if (currentAlignedView) {
+                        highlightVisibleFaces(currentAlignedView);
+                    }
+                }, 100);
+            }
+        }
+
+        // Reset camera positions back to isometric 3D
+        function resetCameraAngle() {
+            clearHighlight();
+            if (isAnimatingCamera) return;
+
+            startCameraPos.copy(camera.position);
+            startCameraUp.copy(camera.up);
+
+            targetCameraPos.set(4, 3.5, 6.5);
+            targetCameraUp.set(0, 1, 0);
+
+            cameraAnimStartTime = performance.now();
+            isAnimatingCamera = true;
+            controls.enabled = false;
+
+            // Reset aligned view state and update UI immediately
+            currentAlignedView = null;
+            updateAlignmentUI();
+        }
+
+        // Check camera angles alignment configurations
+        function checkCameraAlignment() {
+            if (isAnimatingCamera) return;
+            if (currentAlignedView === null) return; // Do not auto-associate when in free view
+
+            const target = new THREE.Vector3(0, 0.5, 0);
+            const viewDir = camera.position.clone().sub(target).normalize();
+
+            // Check if we deviated from the current aligned view
+            const threshold = 0.995; // ~5.7 degrees deviation threshold
+            let isStillAligned = false;
+
+            if (currentAlignedView === 'front') {
+                const frontDot = viewDir.dot(new THREE.Vector3(0, 0, 1));
+                if (frontDot > threshold) isStillAligned = true;
+            } else if (currentAlignedView === 'left') {
+                const leftDot = viewDir.dot(new THREE.Vector3(-1, 0, 0));
+                if (leftDot > threshold) isStillAligned = true;
+            } else if (currentAlignedView === 'top') {
+                const topDot = viewDir.dot(new THREE.Vector3(0, 1, 0));
+                if (topDot > threshold) isStillAligned = true;
+            }
+
+            // If we are no longer aligned, reset to free view
+            if (!isStillAligned) {
+                currentAlignedView = null;
+                updateAlignmentUI();
+            }
+        }
+
+        // Synchronize HTML views layout components based on alignment state
+        function updateAlignmentUI() {
+            const btnFront = document.getElementById('btn-front');
+            const btnLeft = document.getElementById('btn-left');
+            const btnTop = document.getElementById('btn-top');
+            const viewIndicator = document.getElementById('view-indicator');
+            const actionBtn = document.getElementById('highlight-action-btn');
+
+            const projectionOverlay = document.getElementById('projection-overlay');
+            const frontCard = document.getElementById('front-projection-card');
+            const leftCard = document.getElementById('left-projection-card');
+            const topCard = document.getElementById('top-projection-card');
+
+            // Reset states
+            btnFront.classList.remove('btn-active');
+            btnLeft.classList.remove('btn-active');
+            btnTop.classList.remove('btn-active');
+
+            if (currentAlignedView) {
+                viewIndicator.textContent = currentAlignedView === 'front' ? '视角: 正面' :
+                    currentAlignedView === 'left' ? '视角: 左面' : '视角: 上面';
+                viewIndicator.style.color = 'var(--color-primary)';
+
+                if (currentAlignedView === 'front') btnFront.classList.add('btn-active');
+                if (currentAlignedView === 'left') btnLeft.classList.add('btn-active');
+                if (currentAlignedView === 'top') btnTop.classList.add('btn-active');
+
+                // Enable Action button
+                if (actionBtn) {
+                    actionBtn.classList.remove('disabled');
+                    const viewName = currentAlignedView === 'front' ? '前面' :
+                        currentAlignedView === 'left' ? '左边' : '上面';
+                    actionBtn.innerHTML = `<i data-lucide="sparkles"></i> ✨ 观察并高亮${viewName}投影`;
+                }
+
+                // Show projection overlay and the specific view card
+                if (projectionOverlay) projectionOverlay.style.display = 'block';
+                if (frontCard) frontCard.style.display = currentAlignedView === 'front' ? 'flex' : 'none';
+                if (leftCard) leftCard.style.display = currentAlignedView === 'left' ? 'flex' : 'none';
+                if (topCard) topCard.style.display = currentAlignedView === 'top' ? 'flex' : 'none';
+            } else {
+                viewIndicator.textContent = '自由 3D 视角';
+                viewIndicator.style.color = 'rgba(255, 255, 255, 0.15)';
+
+                // Disable Action button
+                if (actionBtn) {
+                    actionBtn.classList.add('disabled');
+                    actionBtn.innerHTML = `<i data-lucide="sparkles"></i> 🔒 请旋转至特定视图以观察投影`;
+                }
+
+                // Hide projection overlay and cards
+                if (projectionOverlay) projectionOverlay.style.display = 'none';
+                if (frontCard) frontCard.style.display = 'none';
+                if (leftCard) leftCard.style.display = 'none';
+                if (topCard) topCard.style.display = 'none';
+
+                // Clear highlight state if we orbit away
+                if (highlightedView) {
+                    clearHighlight();
+                }
+            }
+            lucide.createIcons();
+        }
+
+        // Action button click action handler
+        function triggerHighlightAction() {
+            if (currentAlignedView && isConnected) {
+                highlightVisibleFaces(currentAlignedView);
+            }
+        }
+
+        // Apply highlighting color schemas to Three.js materials
+        function highlightVisibleFaces(view) {
+            highlightedView = view;
+
+            // Define highlight shader colors
+            const defaultMat = new THREE.MeshLambertMaterial({ color: 0x10b981, roughness: 0.35 });
+            const dimmedMat = new THREE.MeshPhysicalMaterial({
+                color: 0x475569,
+                roughness: 0.8,
+                transparent: true,
+                opacity: 0.22,
+                depthWrite: false
+            });
+            const highlightMat = new THREE.MeshStandardMaterial({
+                color: 0xfbbf24, // Gold Accent
+                emissive: 0xf59e0b,
+                emissiveIntensity: 0.55,
+                roughness: 0.2,
+                metalness: 0.3
+            });
+
+            const visibleCubes = getVisibleCubes(view);
+
+            // Apply face materials
+            blocks.forEach(b => {
+                const isVisible = visibleCubes.includes(b);
+                const materials = [];
+
+                for (let i = 0; i < 6; i++) {
+                    if (isVisible) {
+                        let faceMatches = false;
+                        if (view === 'front' && i === 4) faceMatches = true; // Front Face (+Z)
+                        if (view === 'left' && i === 1) faceMatches = true;  // Left Face (-X)
+                        if (view === 'top' && i === 2) faceMatches = true;   // Top Face (+Y)
+
+                        if (faceMatches) {
+                            materials.push(highlightMat);
+                        } else {
+                            materials.push(dimmedMat);
+                        }
+                    } else {
+                        materials.push(dimmedMat);
+                    }
+                }
+                b.mesh.material = materials;
+            });
+
+            // Refresh UI projections highlights
+            renderProjections();
+
+            // Set visual border flash classes
+            document.querySelectorAll('.projection-card').forEach(card => card.classList.remove('active-projection'));
+            const activeCard = document.getElementById(`${view}-projection-card`);
+            if (activeCard) {
+                activeCard.classList.add('active-projection');
+                activeCard.querySelectorAll('.grid-cell.occupied').forEach(cell => {
+                    cell.classList.add('cell-highlight');
+                });
+            }
+        }
+
+        // Reset highlights
+        function clearHighlight() {
+            highlightedView = null;
+            const defaultMat = new THREE.MeshLambertMaterial({ color: 0x10b981, roughness: 0.35 });
+
+            blocks.forEach(b => {
+                b.mesh.material = Array(6).fill(defaultMat);
+            });
+
+            document.querySelectorAll('.projection-card').forEach(card => {
+                card.classList.remove('active-projection');
+                card.querySelectorAll('.grid-cell').forEach(cell => cell.classList.remove('cell-highlight'));
+            });
+        }
+
+        // Render loop ticks
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Update animations & position interpolations
+            updateCameraAnimation();
+            updateAnimations();
+
+            // Controls update
+            if (controls.enabled) {
+                controls.update();
+            }
+
+            // Sync alignments
+            checkCameraAlignment();
+
+            // Render view
+            renderer.render(scene, camera);
+        }
+
+        // Fire initial setup on loads
+        window.onload = init;
+    </script>
+</body>
+
+</html>

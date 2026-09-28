@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>不同角度观察物体 - 3D 互动几何教学</title>
+    <!-- jsDelivr CDNs -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+
+    <style>
+        :root {
+            --bg-main: #0b0f19;
+            --bg-sidebar: #111827;
+            --bg-card: rgba(31, 41, 55, 0.6);
+            --border-card: rgba(255, 255, 255, 0.08);
+            --color-primary: #38bdf8;
+            --color-primary-hover: #0ea5e9;
+            --color-success: #10b981;
+            --color-warning: #f59e0b;
+            --color-danger: #ef4444;
+            --color-highlight: #fbbf24;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", Roboto, sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+        }
+
+        #app-container {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        #canvas-container {
+            flex-grow: 1;
+            height: 100%;
+            position: relative;
+            background: radial-gradient(circle at 50% 40%, #1e293b 0%, #090d16 100%);
+        }
+
+        #three-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .overlay-card {
+            position: absolute;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-card);
+            border-radius: 12px;
+            padding: 12px 16px;
+            z-index: 10;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        #instruction-overlay {
+            top: 20px;
+            left: 20px;
+            max-width: 320px;
+            pointer-events: none;
+        }
+
+        #instruction-overlay h3 {
+            font-size: 14px;
+            margin-bottom: 6px;
+            color: var(--color-primary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        #instruction-overlay p {
+            font-size: 12px;
+            line-height: 1.6;
+            color: var(--text-muted);
+        }
+
+        #view-indicator {
+            bottom: 20px;
+            left: 20px;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--color-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #sidebar {
+            width: 400px;
+            background-color: var(--bg-sidebar);
+            border-left: 1px solid var(--border-card);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+            height: 100%;
+            z-index: 20;
+            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .sidebar-section {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .sidebar-section h2 {
+            font-size: 15px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-main);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 8px;
+        }
+
+        .app-title-container {
+            margin-bottom: 4px;
+        }
+
+        .app-title {
+            font-size: 22px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 4px;
+        }
+
+        .app-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .preset-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        button {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            padding: 10px 12px;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        button.btn-active {
+            background-color: rgba(56, 189, 248, 0.15);
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+            font-weight: 700;
+        }
+
+        .info-card {
+            background-color: rgba(56, 189, 248, 0.03);
+            border: 1px dashed rgba(56, 189, 248, 0.2);
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 12px;
+            line-height: 1.6;
+            color: var(--text-muted);
+        }
+
+        .info-card strong {
+            color: var(--color-primary);
+        }
+
+        .icon {
+            width: 16px;
+            height: 16px;
+            stroke-width: 2;
+            stroke: currentColor;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            display: inline-block;
+            vertical-align: middle;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app-container">
+        <!-- 3D 场景区域 -->
+        <div id="canvas-container">
+            <div id="instruction-overlay" class="overlay-card">
+                <h3>
+                    <svg class="icon" viewBox="0 0 24 24"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                    交互操作指南
+                </h3>
+                <p>
+                    1. <strong>旋转视角</strong>：鼠标左键按住拖动（长按旋转不会触发添加）。<br>
+                    2. <strong>生长方块</strong>：鼠标悬浮在方块表面，<strong>短按单击</strong>新增。<br>
+                    3. <strong>删除方块</strong>：鼠标<strong>右键单击</strong>已有方块。<br>
+                    4. <strong>光束投影</strong>：点击右侧视角按钮观察光束投影。
+                </p>
+            </div>
+
+            <div id="view-indicator" class="overlay-card">
+                <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0"/><path d="M12 3a9 9 0 0 0 0 18"/></svg>
+                <span id="current-view-text">自由 3D 视角</span>
+            </div>
+
+            <canvas id="three-canvas"></canvas>
+        </div>
+
+        <!-- 侧边栏 -->
+        <div id="sidebar">
+            <div class="app-title-container">
+                <h1 class="app-title">不同角度观察物体</h1>
+                <p class="app-subtitle">人教版数学五年级下册 · 3D 互动几何教学</p>
+            </div>
+
+            <div class="sidebar-section">
+                <h2>
+                    <svg class="icon" viewBox="0 0 24 24"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+                    1. 图形拼搭与预设
+                </h2>
+                <div class="preset-group">
+                    <button id="btn-preset-T" onclick="setPreset('T')">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+                        预设: T 形
+                    </button>
+                    <button id="btn-preset-L" onclick="setPreset('L')">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+                        预设: L 形
+                    </button>
+                </div>
+                <div class="btn-group">
+                    <button onclick="resetScene()" style="grid-column: span 3;">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+                        重置所有方块
+                    </button>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h2>
+                    <svg class="icon" viewBox="0 0 24 24"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2"/></svg>
+                    2. 视角观察与投影
+                </h2>
+                <div class="btn-group">
+                    <button id="btn-front" onclick="snapCamera('front')">从前面看</button>
+                    <button id="btn-left" onclick="snapCamera('left')">从左边看</button>
+                    <button id="btn-top" onclick="snapCamera('top')">从上面看</button>
+                </div>
+                <button id="btn-reset-cam" onclick="resetCameraAngle()">
+                    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+                    重置为 3D 自由视角
+                </button>
+            </div>
+
+            <div class="info-card">
+                <svg class="icon" viewBox="0 0 24 24" style="margin-right: 4px;"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                <strong>空间想象提示：</strong><br>
+                从不同的角度观察物体，看到的平面投影图形可能不同。点击<strong>“从上面看”</strong>可观察俯视光束向地面背板投射的完整轮廓。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const PRESETS = {
+            'T': [
+                { x: -1, y: 0, z: 0 },
+                { x: 0, y: 0, z: 0 },
+                { x: 1, y: 0, z: 0 },
+                { x: 0, y: 1, z: 0 }
+            ],
+            'L': [
+                { x: -1, y: 0, z: 0 },
+                { x: 0, y: 0, z: 0 },
+                { x: 1, y: 0, z: 0 },
+                { x: -1, y: 1, z: 0 }
+            ]
+        };
+
+        let scene, camera, renderer, controls;
+        let blocks = [];
+        let projectionGroup;
+        let ghostMesh;
+
+        let raycaster = new THREE.Raycaster();
+        let mouse = new THREE.Vector2();
+
+        let pointerDownPos = { x: 0, y: 0 };
+        let pointerDownTime = 0;
+        let isPointerInteracting = false;
+        let currentCandidate = null;
+
+        let currentAlignedView = null;
+        let isAnimatingCamera = false;
+        let cameraAnimStartTime = 0;
+        const cameraAnimDuration = 600;
+        let startCameraPos = new THREE.Vector3();
+        let targetCameraPos = new THREE.Vector3();
+
+        const cubeMat = new THREE.MeshStandardMaterial({
+            color: 0x7dd3fc,
+            roughness: 0.35,
+            metalness: 0.1
+        });
+        const borderMat = new THREE.LineBasicMaterial({ color: 0x0284c7, linewidth: 2 });
+        const screenMat = new THREE.MeshBasicMaterial({ color: 0x1e293b, side: THREE.DoubleSide, transparent: true, opacity: 0.92 });
+        const shadowMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.88 });
+        const rayLineMat = new THREE.LineDashedMaterial({ color: 0xfbbf24, dashSize: 0.18, gapSize: 0.08, transparent: true, opacity: 0.55 });
+
+        function init() {
+            const container = document.getElementById('canvas-container');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x0b0f19, 0.03);
+
+            camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
+            camera.position.set(4.5, 4.0, 7.0);
+
+            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('three-canvas'), antialias: true });
+            renderer.setSize(width, height);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.maxPolarAngle = Math.PI / 2 + 0.05;
+            controls.target.set(0, 0.5, 0);
+
+            const ambient = new THREE.AmbientLight(0xffffff, 0.75);
+            scene.add(ambient);
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.65);
+            dirLight.position.set(8, 14, 6);
+            dirLight.castShadow = true;
+            scene.add(dirLight);
+
+            projectionGroup = new THREE.Group();
+            scene.add(projectionGroup);
+
+            const ghostGeo = new THREE.BoxGeometry(0.98, 0.98, 0.98);
+            const ghostMat = new THREE.MeshBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.45, depthWrite: false });
+            ghostMesh = new THREE.Mesh(ghostGeo, ghostMat);
+            ghostMesh.raycast = function () { };
+            ghostMesh.visible = false;
+            const ghostLine = new THREE.LineSegments(new THREE.EdgesGeometry(ghostGeo), new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.8 }));
+            ghostLine.raycast = function () { };
+            ghostMesh.add(ghostLine);
+            scene.add(ghostMesh);
+
+            const tableGeo = new THREE.CylinderGeometry(6, 6, 0.1, 64);
+            const tableMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.8 });
+            const table = new THREE.Mesh(tableGeo, tableMat);
+            table.position.y = -0.55;
+            table.receiveShadow = true;
+            table.raycast = function () { };
+            scene.add(table);
+
+            const grid = new THREE.GridHelper(10, 10, 0x38bdf8, 0x334155);
+            grid.position.y = -0.49;
+            grid.raycast = function () { };
+            scene.add(grid);
+
+            loadPreset('T');
+
+            const canvasEl = document.getElementById('three-canvas');
+            canvasEl.addEventListener('pointerdown', onPointerDown);
+            canvasEl.addEventListener('pointermove', onPointerMove);
+            window.addEventListener('pointerup', onPointerUp);
+            canvasEl.addEventListener('contextmenu', onContextMenu);
+            window.addEventListener('resize', onWindowResize);
+
+            animate();
+        }
+
+        function createCubeMesh() {
+            const geo = new THREE.BoxGeometry(0.96, 0.96, 0.96);
+            const mesh = new THREE.Mesh(geo, cubeMat);
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+
+            const edges = new THREE.EdgesGeometry(geo);
+            const line = new THREE.LineSegments(edges, borderMat);
+            line.raycast = function () { };
+            mesh.add(line);
+            return mesh;
+        }
+
+        function loadPreset(key) {
+            clearProjections();
+            blocks.forEach(b => scene.remove(b.mesh));
+            blocks = [];
+
+            const coords = PRESETS[key] || PRESETS['T'];
+            coords.forEach(coord => {
+                const mesh = createCubeMesh();
+                mesh.position.set(coord.x, coord.y, coord.z);
+                scene.add(mesh);
+                blocks.push({ x: coord.x, y: coord.y, z: coord.z, mesh });
+            });
+
+            ['T', 'L'].forEach(k => {
+                const btn = document.getElementById(`btn-preset-${k}`);
+                if (btn) btn.classList.toggle('btn-active', k === key);
+            });
+        }
+
+        function setPreset(key) {
+            loadPreset(key);
+            resetCameraAngle();
+        }
+
+        function resetScene() {
+            loadPreset('T');
+            resetCameraAngle();
+        }
+
+        function getMouseCoords(e) {
+            const container = document.getElementById('canvas-container');
+            const rect = container.getBoundingClientRect();
+            return {
+                x: ((e.clientX - rect.left) / rect.width) * 2 - 1,
+                y: -((e.clientY - rect.top) / rect.height) * 2 + 1
+            };
+        }
+
+        function onPointerMove(e) {
+            if (isPointerInteracting) {
+                const moveDist = Math.hypot(e.clientX - pointerDownPos.x, e.clientY - pointerDownPos.y);
+                if (moveDist > 4) {
+                    ghostMesh.visible = false;
+                    currentCandidate = null;
+                    return;
+                }
+            }
+
+            if (currentAlignedView !== null) {
+                ghostMesh.visible = false;
+                currentCandidate = null;
+                return;
+            }
+
+            const m = getMouseCoords(e);
+            mouse.set(m.x, m.y);
+            raycaster.setFromCamera(mouse, camera);
+
+            const meshes = blocks.map(b => b.mesh);
+            const intersects = raycaster.intersectObjects(meshes, false);
+
+            if (intersects.length > 0) {
+                const hit = intersects[0];
+                const hitBlock = blocks.find(b => b.mesh === hit.object);
+                if (hitBlock && hit.face) {
+                    const normal = hit.face.normal;
+                    const gx = hitBlock.x + Math.round(normal.x);
+                    const gy = hitBlock.y + Math.round(normal.y);
+                    const gz = hitBlock.z + Math.round(normal.z);
+
+                    if (gy >= 0 && gy <= 4 && Math.abs(gx) <= 3 && Math.abs(gz) <= 3) {
+                        if (!blocks.some(b => b.x === gx && b.y === gy && b.z === gz)) {
+                            currentCandidate = { x: gx, y: gy, z: gz };
+                            ghostMesh.position.set(gx, gy, gz);
+                            ghostMesh.visible = true;
+                            document.getElementById('canvas-container').style.cursor = 'pointer';
+                            return;
+                        }
+                    }
+                }
+            }
+
+            ghostMesh.visible = false;
+            currentCandidate = null;
+            document.getElementById('canvas-container').style.cursor = 'default';
+        }
+
+        function onPointerDown(e) {
+            if (e.button === 0) {
+                pointerDownPos.x = e.clientX;
+                pointerDownPos.y = e.clientY;
+                pointerDownTime = performance.now();
+                isPointerInteracting = true;
+            }
+        }
+
+        function onPointerUp(e) {
+            if (e.button !== 0 || !isPointerInteracting) return;
+            isPointerInteracting = false;
+
+            if (currentAlignedView !== null) return;
+
+            const moveDist = Math.hypot(e.clientX - pointerDownPos.x, e.clientY - pointerDownPos.y);
+            const duration = performance.now() - pointerDownTime;
+
+            if (moveDist < 4 && duration < 250 && currentCandidate) {
+                const { x, y, z } = currentCandidate;
+                if (!blocks.some(b => b.x === x && b.y === y && b.z === z)) {
+                    const mesh = createCubeMesh();
+                    mesh.position.set(x, y, z);
+                    scene.add(mesh);
+                    blocks.push({ x, y, z, mesh });
+
+                    clearProjections();
+                    ghostMesh.visible = false;
+                    currentCandidate = null;
+
+                    ['T', 'L'].forEach(k => {
+                        const btn = document.getElementById(`btn-preset-${k}`);
+                        if (btn) btn.classList.remove('btn-active');
+                    });
+                }
+            }
+        }
+
+        function onContextMenu(e) {
+            e.preventDefault();
+            if (currentAlignedView !== null) return;
+
+            const m = getMouseCoords(e);
+            mouse.set(m.x, m.y);
+            raycaster.setFromCamera(mouse, camera);
+
+            const meshes = blocks.map(b => b.mesh);
+            const intersects = raycaster.intersectObjects(meshes, false);
+
+            if (intersects.length > 0) {
+                const targetMesh = intersects[0].object;
+                const idx = blocks.findIndex(b => b.mesh === targetMesh);
+                if (idx !== -1) {
+                    scene.remove(blocks[idx].mesh);
+                    blocks.splice(idx, 1);
+                    clearProjections();
+                    ghostMesh.visible = false;
+                    currentCandidate = null;
+                }
+            }
+        }
+
+        function buildDynamicProjections(view) {
+            clearProjections();
+            if (blocks.length === 0) return;
+
+            let minX = Infinity, maxX = -Infinity;
+            let minY = Infinity, maxY = -Infinity;
+            let minZ = Infinity, maxZ = -Infinity;
+
+            const shadowMap = new Set();
+            blocks.forEach(b => {
+                minX = Math.min(minX, b.x); maxX = Math.max(maxX, b.x);
+                minY = Math.min(minY, b.y); maxY = Math.max(maxY, b.y);
+                minZ = Math.min(minZ, b.z); maxZ = Math.max(maxZ, b.z);
+
+                if (view === 'front') shadowMap.add(`${b.x},${b.y}`);
+                else if (view === 'left') shadowMap.add(`${b.z},${b.y}`);
+                else if (view === 'top') shadowMap.add(`${b.x},${b.z}`);
+            });
+
+            const centerX = (minX + maxX) / 2;
+            const centerY = (minY + maxY) / 2;
+            const centerZ = (minZ + maxZ) / 2;
+
+            const spanX = Math.max(3.8, maxX - minX + 3.2);
+            const spanY = Math.max(3.2, maxY - minY + 2.8);
+            const spanZ = Math.max(3.8, maxZ - minZ + 3.2);
+
+            let boardMesh;
+
+            if (view === 'front') {
+                const boardGeo = new THREE.PlaneGeometry(spanX, spanY);
+                boardMesh = new THREE.Mesh(boardGeo, screenMat);
+                boardMesh.raycast = function () { };
+                const boardZ = minZ - 2.0;
+                boardMesh.position.set(centerX, centerY, boardZ);
+                projectionGroup.add(boardMesh);
+
+                shadowMap.forEach(key => {
+                    const [px, py] = key.split(',').map(Number);
+                    const sMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.96, 0.96), shadowMat);
+                    sMesh.raycast = function () { };
+                    sMesh.position.set(px, py, boardZ + 0.02);
+                    projectionGroup.add(sMesh);
+
+                    const rayGeo = new THREE.BufferGeometry().setFromPoints([
+                        new THREE.Vector3(px, py, maxZ + 2.8),
+                        new THREE.Vector3(px, py, boardZ + 0.02)
+                    ]);
+                    const rayLine = new THREE.Line(rayGeo, rayLineMat);
+                    rayLine.computeLineDistances();
+                    rayLine.raycast = function () { };
+                    projectionGroup.add(rayLine);
+                });
+            } else if (view === 'left') {
+                const boardGeo = new THREE.PlaneGeometry(spanZ, spanY);
+                boardMesh = new THREE.Mesh(boardGeo, screenMat);
+                boardMesh.raycast = function () { };
+                const boardX = maxX + 2.0;
+                boardMesh.position.set(boardX, centerY, centerZ);
+                boardMesh.rotation.y = -Math.PI / 2;
+                projectionGroup.add(boardMesh);
+
+                shadowMap.forEach(key => {
+                    const [pz, py] = key.split(',').map(Number);
+                    const sMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.96, 0.96), shadowMat);
+                    sMesh.raycast = function () { };
+                    sMesh.position.set(boardX - 0.02, py, pz);
+                    sMesh.rotation.y = -Math.PI / 2;
+                    projectionGroup.add(sMesh);
+
+                    const rayGeo = new THREE.BufferGeometry().setFromPoints([
+                        new THREE.Vector3(minX - 2.8, py, pz),
+                        new THREE.Vector3(boardX - 0.02, py, pz)
+                    ]);
+                    const rayLine = new THREE.Line(rayGeo, rayLineMat);
+                    rayLine.computeLineDistances();
+                    rayLine.raycast = function () { };
+                    projectionGroup.add(rayLine);
+                });
+            } else if (view === 'top') {
+                const boardGeo = new THREE.PlaneGeometry(spanX + 1.0, spanZ + 1.0);
+                const topScreenMat = new THREE.MeshBasicMaterial({ color: 0x0f172a, side: THREE.DoubleSide, transparent: true, opacity: 0.96 });
+                boardMesh = new THREE.Mesh(boardGeo, topScreenMat);
+                boardMesh.raycast = function () { };
+                const boardY = -0.48;
+                boardMesh.position.set(centerX, boardY, centerZ);
+                boardMesh.rotation.x = -Math.PI / 2;
+                projectionGroup.add(boardMesh);
+
+                const borderLines = new THREE.LineSegments(
+                    new THREE.EdgesGeometry(boardGeo),
+                    new THREE.LineBasicMaterial({ color: 0x38bdf8, linewidth: 2 })
+                );
+                borderLines.raycast = function () { };
+                borderLines.position.set(centerX, boardY + 0.01, centerZ);
+                borderLines.rotation.x = -Math.PI / 2;
+                projectionGroup.add(borderLines);
+
+                shadowMap.forEach(key => {
+                    const [px, pz] = key.split(',').map(Number);
+                    const sMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.96, 0.96), shadowMat);
+                    sMesh.raycast = function () { };
+                    sMesh.position.set(px, boardY + 0.02, pz);
+                    sMesh.rotation.x = -Math.PI / 2;
+                    projectionGroup.add(sMesh);
+
+                    const rayGeo = new THREE.BufferGeometry().setFromPoints([
+                        new THREE.Vector3(px, maxY + 3.0, pz),
+                        new THREE.Vector3(px, boardY + 0.02, pz)
+                    ]);
+                    const rayLine = new THREE.Line(rayGeo, rayLineMat);
+                    rayLine.computeLineDistances();
+                    rayLine.raycast = function () { };
+                    projectionGroup.add(rayLine);
+                });
+            }
+        }
+
+        function clearProjections() {
+            while (projectionGroup.children.length > 0) {
+                projectionGroup.remove(projectionGroup.children[0]);
+            }
+        }
+
+        function snapCamera(view) {
+            if (isAnimatingCamera) return;
+            currentAlignedView = view;
+            ghostMesh.visible = false;
+            currentCandidate = null;
+            updateButtonsUI();
+
+            startCameraPos.copy(camera.position);
+
+            if (view === 'front') targetCameraPos.set(0, 0.5, 6.5);
+            else if (view === 'left') targetCameraPos.set(-6.5, 0.5, 0);
+            else if (view === 'top') targetCameraPos.set(0, 7.5, 0.001);
+
+            cameraAnimStartTime = performance.now();
+            isAnimatingCamera = true;
+            controls.enabled = false;
+
+            setTimeout(() => {
+                buildDynamicProjections(view);
+            }, cameraAnimDuration * 0.5);
+        }
+
+        function resetCameraAngle() {
+            clearProjections();
+            currentAlignedView = null;
+            updateButtonsUI();
+
+            startCameraPos.copy(camera.position);
+            targetCameraPos.set(4.5, 4.0, 7.0);
+
+            cameraAnimStartTime = performance.now();
+            isAnimatingCamera = true;
+            controls.enabled = false;
+        }
+
+        function updateButtonsUI() {
+            document.getElementById('btn-front').classList.toggle('btn-active', currentAlignedView === 'front');
+            document.getElementById('btn-left').classList.toggle('btn-active', currentAlignedView === 'left');
+            document.getElementById('btn-top').classList.toggle('btn-active', currentAlignedView === 'top');
+
+            const viewText = document.getElementById('current-view-text');
+            if (currentAlignedView === 'front') viewText.textContent = '视角：从前面看 (主视图投影)';
+            else if (currentAlignedView === 'left') viewText.textContent = '视角：从左面看 (左视图投影)';
+            else if (currentAlignedView === 'top') viewText.textContent = '视角：从上面看 (俯视图投影)';
+            else viewText.textContent = '自由 3D 视角';
+        }
+
+        function onWindowResize() {
+            const container = document.getElementById('canvas-container');
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (isAnimatingCamera) {
+                const elapsed = performance.now() - cameraAnimStartTime;
+                const progress = Math.min(1, elapsed / cameraAnimDuration);
+                const t = 0.5 - 0.5 * Math.cos(progress * Math.PI);
+                camera.position.lerpVectors(startCameraPos, targetCameraPos, t);
+                controls.target.lerp(new THREE.Vector3(0, 0.5, 0), t);
+                controls.update();
+
+                if (progress >= 1) {
+                    isAnimatingCamera = false;
+                    controls.enabled = true;
+                }
+            }
+
+            if (controls.enabled) controls.update();
+            renderer.render(scene, camera);
+        }
+
+        window.onload = init;
+    </script>
+</body>
+
+</html>

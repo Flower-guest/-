@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>租船方案最优化 - 教学向导</title>
+    <style>
+        :root {
+            /* 色彩系统 */
+            --bg-app: #f4f4f5;
+            --bg-card: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --text-hint: #94a3b8;
+            --border-light: #e2e8f0;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --success-bg: #ecfdf5;
+            --success-border: #a7f3d0;
+            --success-text: #047857;
+            --error-bg: #fef2f2;
+            --error-text: #b91c1c;
+            --warning-bg: #fffbeb;
+            --warning-text: #b45309;
+            --guide-bg: #f8fafc;
+            --guide-border: #93c5fd;
+
+            /* 空间与间距 */
+            --space-2: 8px;
+            --space-3: 12px;
+            --space-4: 16px;
+            --space-6: 24px;
+            --radius-lg: 12px;
+            --radius-md: 8px;
+        }
+
+        /* 全局重置与 App 级布局 */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body,
+        html {
+            height: 100vh;
+            overflow: hidden;
+            /* 绝对禁止全局滚动 */
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-app);
+            color: var(--text-primary);
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--space-4);
+            gap: var(--space-4);
+        }
+
+        /* 顶部 Header */
+        header {
+            flex-shrink: 0;
+            background: var(--bg-card);
+            padding: var(--space-4) var(--space-6);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .header-hint {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* 主体内容分栏 */
+        .main-content {
+            flex: 1;
+            display: flex;
+            gap: var(--space-4);
+            overflow: hidden;
+        }
+
+        /* 左侧面板：控制与历史 */
+        .panel-left {
+            width: 450px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+
+        /* 卡片基础样式 */
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-light);
+            padding: var(--space-4);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: var(--space-3);
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* 表单输入区 */
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-3);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .input-group label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 8px 30px 8px 12px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        .input-wrapper input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+
+        .input-wrapper .unit {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-hint);
+            font-size: 0.85rem;
+            pointer-events: none;
+        }
+
+        /* 引导向导区 */
+        .guide-zone {
+            background: var(--guide-bg);
+            border: 2px solid var(--guide-border);
+            position: relative;
+        }
+
+        .guide-zone .card-title {
+            color: var(--primary);
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 10px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            margin-top: var(--space-3);
+        }
+
+        .action-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* 历史记录表格区 */
+        .history-card {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .table-container {
+            flex: 1;
+            overflow-y: auto;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-light);
+        }
+
+        .table-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .table-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .table-container::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: right;
+            font-size: 0.9rem;
+        }
+
+        th,
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: #f8fafc;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        th:first-child,
+        td:first-child {
+            text-align: left;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .optimal-row {
+            background-color: var(--success-bg);
+        }
+
+        .optimal-badge {
+            background: var(--success-border);
+            color: var(--success-text);
+        }
+
+        .error-badge {
+            background: #fca5a5;
+            color: var(--error-text);
+        }
+
+        .warn-badge {
+            background: #fde68a;
+            color: var(--warning-text);
+        }
+
+        /* 右侧面板：Canvas 动画 */
+        .panel-right {
+            flex: 1;
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-light);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .canvas-header {
+            padding: var(--space-3) var(--space-4);
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #feedback-text {
+            font-weight: 500;
+        }
+
+        .canvas-container {
+            flex: 1;
+            position: relative;
+            background: linear-gradient(180deg, #e0f2fe 0%, #bae6fd 100%);
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-container">
+        <header>
+            <h1>⛵️ 租船最优化 - 步步推理实验</h1>
+            <div class="header-hint">别急着猜！让我们通过 3 个步骤，严谨地推导出最省钱的方案。</div>
+        </header>
+
+        <div class="main-content">
+            <div class="panel-left">
+                <!-- 情景参数设定 -->
+                <div class="card">
+                    <div class="card-title" style="margin-bottom: 8px;">1. 情景参数 (修改会重置向导)</div>
+                    <div class="input-grid">
+                        <div class="input-group" style="grid-column: span 2;">
+                            <label>游玩总人数</label>
+                            <div class="input-wrapper"><input type="number" id="sys-people" value="32" min="1"><span
+                                    class="unit">人</span></div>
+                        </div>
+                        <div class="input-group">
+                            <label>大船限乘</label>
+                            <div class="input-wrapper"><input type="number" id="sys-l-cap" value="6" min="1"><span
+                                    class="unit">人</span></div>
+                        </div>
+                        <div class="input-group">
+                            <label>大船租金</label>
+                            <div class="input-wrapper"><input type="number" id="sys-l-price" value="30" min="1"><span
+                                    class="unit">元</span></div>
+                        </div>
+                        <div class="input-group">
+                            <label>小船限乘</label>
+                            <div class="input-wrapper"><input type="number" id="sys-s-cap" value="4" min="1"><span
+                                    class="unit">人</span></div>
+                        </div>
+                        <div class="input-group">
+                            <label>小船租金</label>
+                            <div class="input-wrapper"><input type="number" id="sys-s-price" value="24" min="1"><span
+                                    class="unit">元</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 动态向导区 -->
+                <div class="card guide-zone" id="guide-container">
+                    <!-- 由 JS 动态渲染引导步骤 -->
+                </div>
+
+                <!-- 历史记录区 -->
+                <div class="card history-card">
+                    <div class="card-title">探索记录</div>
+                    <div class="table-container">
+                        <table id="history-table">
+                            <thead>
+                                <tr>
+                                    <th>方案</th>
+                                    <th>大船</th>
+                                    <th>小船</th>
+                                    <th>总花费</th>
+                                    <th>状态判定</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-body">
+                                <!-- 动态插入行 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-right">
+                <div class="canvas-header">
+                    <div class="card-title" style="margin:0;">动画演示视窗</div>
+                    <div id="feedback-text" style="color: var(--text-secondary);">等待分配指令...</div>
+                </div>
+                <div class="canvas-container" id="canvas-wrapper">
+                    <canvas id="sim-canvas"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 系统核心状态与计算逻辑 ---
+        let params = { people: 32, lCap: 6, lPrice: 30, sCap: 4, sPrice: 24 };
+        let trueOptimalCost = 0;
+        let historyCount = 0;
+
+        // 引导器状态机
+        let currentStep = 1;
+        let guideState = { cheaperBoat: 'large', step2L: 0, step2S: 0, step2Cost: 0 };
+
+        function updateParamsFromUI() {
+            params.people = parseInt(document.getElementById('sys-people').value) || 1;
+            params.lCap = parseInt(document.getElementById('sys-l-cap').value) || 1;
+            params.lPrice = parseInt(document.getElementById('sys-l-price').value) || 1;
+            params.sCap = parseInt(document.getElementById('sys-s-cap').value) || 1;
+            params.sPrice = parseInt(document.getElementById('sys-s-price').value) || 1;
+
+            calculateSystemOptimal();
+            // 参数改变，重置历史和向导
+            document.getElementById('history-body').innerHTML = '';
+            historyCount = 0;
+            initGuide();
+        }
+
+        function calculateSystemOptimal() {
+            let minCost = Infinity;
+            let maxL = Math.ceil(params.people / params.lCap);
+
+            for (let l = maxL; l >= 0; l--) {
+                let rem = params.people - (l * params.lCap);
+                let s = Math.max(0, Math.ceil(rem / params.sCap));
+                let cost = l * params.lPrice + s * params.sPrice;
+                if (cost < minCost) minCost = cost;
+            }
+            trueOptimalCost = minCost;
+        }
+
+        document.querySelectorAll('[id^="sys-"]').forEach(el => {
+            el.addEventListener('change', updateParamsFromUI);
+        });
+
+        // --- 统一的方案提交与记录逻辑 ---
+        function processSubmission(lBoats, sBoats) {
+            const capacity = lBoats * params.lCap + sBoats * params.sCap;
+            const cost = lBoats * params.lPrice + sBoats * params.sPrice;
+            const emptySeats = capacity - params.people;
+
+            historyCount++;
+            let statusHtml = '';
+            let rowClass = '';
+
+            if (capacity < params.people) {
+                statusHtml = `<span class="status-badge error-badge">座位不够 (-${params.people - capacity})</span>`;
+            } else if (cost === trueOptimalCost) {
+                statusHtml = `<span class="status-badge optimal-badge">✨ 最优推荐</span>`;
+                rowClass = 'optimal-row';
+            } else {
+                statusHtml = `<span class="status-badge warn-badge">可行 (空 ${emptySeats})</span>`;
+            }
+
+            const tbody = document.getElementById('history-body');
+            const tr = document.createElement('tr');
+            if (rowClass) tr.className = rowClass;
+            tr.innerHTML = `
+            <td>#${historyCount}</td>
+            <td>${lBoats}</td>
+            <td>${sBoats}</td>
+            <td style="font-weight:600;">¥${cost}</td>
+            <td>${statusHtml}</td>
+        `;
+            tbody.prepend(tr); // 插入到最新行
+
+            startAnimation(lBoats, sBoats);
+
+            return { capacity, cost, emptySeats, statusHtml };
+        }
+
+
+        // --- 互动教学向导引擎 ---
+        function initGuide() {
+            let uL = params.lPrice / params.lCap;
+            let uS = params.sPrice / params.sCap;
+            guideState.cheaperBoat = uL <= uS ? 'large' : 'small';
+
+            // 计算第二步的预设值（尽量多租便宜的船）
+            if (guideState.cheaperBoat === 'large') {
+                guideState.step2L = Math.floor(params.people / params.lCap);
+                let rem = params.people - guideState.step2L * params.lCap;
+                guideState.step2S = Math.ceil(rem / params.sCap);
+            } else {
+                guideState.step2S = Math.floor(params.people / params.sCap);
+                let rem = params.people - guideState.step2S * params.sCap;
+                guideState.step2L = Math.ceil(rem / params.lCap);
+            }
+
+            currentStep = 1;
+            renderGuide();
+        }
+
+        function renderGuide() {
+            const container = document.getElementById('guide-container');
+            let html = '';
+
+            if (currentStep === 1) {
+                let uL = (params.lPrice / params.lCap).toFixed(1);
+                let uS = (params.sPrice / params.sCap).toFixed(1);
+                let cheaperName = guideState.cheaperBoat === 'large' ? '大船' : '小船';
+
+                html = `
+                <div class="card-title">向导 1/3：比较人均成本 (单价)</div>
+                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 12px;">
+                    要想最省钱，第一步必须弄清楚哪种船更划算。算一算每个人平均要花多少钱？
+                </p>
+                <div id="step1-result" style="display: none; background: #e0f2fe; padding: 12px; border-radius: 8px; margin-bottom: 12px; font-size: 0.9rem; border: 1px solid #bae6fd;">
+                    <strong>计算结果：</strong><br>
+                    大船单价：${params.lPrice} ÷ ${params.lCap} = <strong>${uL} 元/人</strong><br>
+                    小船单价：${params.sPrice} ÷ ${params.sCap} = <strong>${uS} 元/人</strong><br>
+                    <div style="margin-top:8px; color: var(--primary); font-weight: 600;">
+                        💡 结论：${cheaperName}更便宜！所以策略是尽量多租${cheaperName}。
+                    </div>
+                </div>
+                <button class="action-btn" id="btn-step1" onclick="completeStep1()">💡 计算单客成本</button>
+                <button class="action-btn" id="btn-next1" style="display: none; background: var(--success-border); color: var(--success-text);" onclick="goToStep(2)">明白！进入下一步 ➔</button>
+            `;
+                document.getElementById('feedback-text').innerText = "提示：先算算出大船和小船谁更便宜。";
+            }
+            else if (currentStep === 2) {
+                let cheaperName = guideState.cheaperBoat === 'large' ? '大船' : '小船';
+                html = `
+                <div class="card-title">向导 2/3：尽量多租${cheaperName}</div>
+                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 12px;">
+                    既然${cheaperName}便宜，我们让 ${params.people} 人先尽量坐满${cheaperName}，剩下的人再租另一条船。算算看需要几条大船和小船？
+                </p>
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label>填入大船数</label>
+                        <div class="input-wrapper"><input type="number" id="guide-l-boats" value="0" min="0"><span class="unit">条</span></div>
+                    </div>
+                    <div class="input-group">
+                        <label>填入小船数</label>
+                        <div class="input-wrapper"><input type="number" id="guide-s-boats" value="0" min="0"><span class="unit">条</span></div>
+                    </div>
+                </div>
+                <button class="action-btn" onclick="submitStep2()">🚀 演示初步方案</button>
+                <div id="step2-feedback" style="margin-top: 12px; font-size: 0.9rem;"></div>
+                <button class="action-btn" id="btn-next2" style="display: none; background: var(--success-border); color: var(--success-text); margin-top: 8px;" onclick="goToStep(3)">发现空座！进入最后优化 ➔</button>
+            `;
+                document.getElementById('feedback-text').innerText = "提示：用总人数除以限乘人数，求出最大使用量。";
+            }
+            else if (currentStep === 3) {
+                html = `
+                <div class="card-title">向导 3/3：调整方案消灭空座</div>
+                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 12px;">
+                    刚刚的方案虽然可行，但有空座位产生浪费。试着<strong>少租 1 条大船</strong>，把空出来的人和剩下的人凑一凑，看看能不能正好坐满所有的船？
+                </p>
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label>调整后大船数</label>
+                        <div class="input-wrapper"><input type="number" id="guide-l-boats" value="${Math.max(0, guideState.step2L - 1)}" min="0"><span class="unit">条</span></div>
+                    </div>
+                    <div class="input-group">
+                        <label>调整后小船数</label>
+                        <div class="input-wrapper"><input type="number" id="guide-s-boats" value="${Math.ceil((params.people - Math.max(0, guideState.step2L - 1) * params.lCap) / params.sCap)}" min="0"><span class="unit">条</span></div>
+                    </div>
+                </div>
+                <button class="action-btn" onclick="submitStep3()">✨ 演示优化方案</button>
+                <div id="step3-feedback" style="margin-top: 12px; font-size: 0.9rem;"></div>
+                <button class="action-btn" id="btn-next3" style="display: none; background: var(--primary); margin-top: 8px;" onclick="goToStep(4)">恭喜通关！解锁自由探索模式 ➔</button>
+            `;
+                document.getElementById('feedback-text').innerText = "关键一步：尝试制造组合，让总座位数完全贴合总人数。";
+            }
+            else if (currentStep === 4) {
+                html = `
+                <div class="card-title">🎮 自由探索模式</div>
+                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 12px;">
+                    你已掌握核心秘诀：<strong>1. 先尽量多租便宜的船；2. 再微调数量减少空座。</strong> 现在可以任意修改上面的“情景参数”或随意派船啦！
+                </p>
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label>任选大船数</label>
+                        <div class="input-wrapper"><input type="number" id="guide-l-boats" value="${guideState.step2L}" min="0"><span class="unit">条</span></div>
+                    </div>
+                    <div class="input-group">
+                        <label>任选小船数</label>
+                        <div class="input-wrapper"><input type="number" id="guide-s-boats" value="${guideState.step2S}" min="0"><span class="unit">条</span></div>
+                    </div>
+                </div>
+                <button class="action-btn" onclick="submitFreePlay()">🚀 演示任意方案</button>
+            `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        // 向导行为函数
+        function completeStep1() {
+            document.getElementById('step1-result').style.display = 'block';
+            document.getElementById('btn-step1').style.display = 'none';
+            document.getElementById('btn-next1').style.display = 'block';
+        }
+
+        function goToStep(n) {
+            currentStep = n;
+            renderGuide();
+        }
+
+        function submitStep2() {
+            const l = parseInt(document.getElementById('guide-l-boats').value) || 0;
+            const s = parseInt(document.getElementById('guide-s-boats').value) || 0;
+            const fb = document.getElementById('step2-feedback');
+
+            const res = processSubmission(l, s);
+
+            if (l === guideState.step2L && s === guideState.step2S) {
+                guideState.step2Cost = res.cost;
+                if (res.emptySeats === 0) {
+                    // 如果刚好整除没有空座，直接通关
+                    fb.innerHTML = `🎉 <strong>完美开局！</strong> 0个空座直接坐满，这就是最省钱的方案！`;
+                    fb.style.color = "var(--success-text)";
+                    document.getElementById('feedback-text').innerText = "完美方案！";
+                    document.getElementById('btn-next2').innerText = "跳过优化，解锁自由探索模式 ➔";
+                    document.getElementById('btn-next2').onclick = () => goToStep(4);
+                    document.getElementById('btn-next2').style.display = 'block';
+                } else {
+                    fb.innerHTML = `✅ 方案可行！花费 <strong>${res.cost} 元</strong>。但看右侧动画闪烁的地方，我们为 <strong style="color:var(--error-text);">${res.emptySeats} 个空座位</strong> 花了冤枉钱。进入下一步尝试优化。`;
+                    fb.style.color = "var(--text-primary)";
+                    document.getElementById('feedback-text').innerText = "有空座位产生，还能不能更省钱？";
+                    document.getElementById('btn-next2').style.display = 'block';
+                }
+            } else {
+                if (res.capacity < params.people) {
+                    fb.innerHTML = `❌ 哎呀，座位不够，动画里还有人没上船呢。提示：按照策略，大船填 ${guideState.step2L}，小船填 ${guideState.step2S} 试试。`;
+                    fb.style.color = "var(--error-text)";
+                    document.getElementById('feedback-text').innerText = "有人滞留码头了！";
+                } else {
+                    fb.innerHTML = `🤔 这个方案花费 ${res.cost} 元。为了学习规律，请先严格执行“尽量多租便宜船”的策略，即大船填 ${guideState.step2L}，小船填 ${guideState.step2S}。`;
+                    fb.style.color = "var(--warning-text)";
+                }
+            }
+        }
+
+        function submitStep3() {
+            const l = parseInt(document.getElementById('guide-l-boats').value) || 0;
+            const s = parseInt(document.getElementById('guide-s-boats').value) || 0;
+            const fb = document.getElementById('step3-feedback');
+
+            const res = processSubmission(l, s);
+
+            if (res.capacity < params.people) {
+                fb.innerHTML = `❌ 座位不够啦，别减得太多，再算算看。`;
+                fb.style.color = "var(--error-text)";
+                document.getElementById('feedback-text').innerText = "有人滞留码头了！";
+                return;
+            }
+
+            if (res.cost < guideState.step2Cost) {
+                fb.innerHTML = `🎉 <strong>推理成功！</strong> 空座位减少了，总花费降到了 <strong>${res.cost} 元</strong>，比刚才省了 ${guideState.step2Cost - res.cost} 元！这就是最优解！`;
+                fb.style.color = "var(--success-text)";
+                document.getElementById('feedback-text').innerText = "找到最优解！";
+                document.getElementById('btn-next3').style.display = 'block';
+            } else {
+                fb.innerHTML = `🤔 这个方案花费 ${res.cost} 元，并没有比上一步更省。试试只少租 1 条大船（即 ${guideState.step2L - 1}条）。`;
+                fb.style.color = "var(--warning-text)";
+                document.getElementById('feedback-text').innerText = "好像没达到最省钱的目的？";
+            }
+        }
+
+        function submitFreePlay() {
+            const l = parseInt(document.getElementById('guide-l-boats').value) || 0;
+            const s = parseInt(document.getElementById('guide-s-boats').value) || 0;
+            const res = processSubmission(l, s);
+
+            const fb = document.getElementById('feedback-text');
+            if (res.capacity < params.people) {
+                fb.innerHTML = `❌ 座位不够，还有 ${params.people - res.capacity} 人滞留！`;
+                fb.style.color = "var(--error-text)";
+            } else if (res.cost === trueOptimalCost) {
+                fb.innerHTML = `🎉 恭喜你！找出了当前设定的最省钱方案！`;
+                fb.style.color = "var(--success-text)";
+            } else {
+                fb.innerHTML = `💡 方案可行！花费 ${res.cost} 元，但空了 ${res.emptySeats} 个座位，不是最省钱的。`;
+                fb.style.color = "var(--warning-text)";
+            }
+        }
+
+
+        // --- Canvas 动画引擎 ---
+        const canvas = document.getElementById('sim-canvas');
+        const ctx = canvas.getContext('2d');
+        const wrapper = document.getElementById('canvas-wrapper');
+
+        let animId;
+        let animState = {};
+
+        function resizeCanvas() {
+            const rect = wrapper.getBoundingClientRect();
+            canvas.width = rect.width * window.devicePixelRatio;
+            canvas.height = rect.height * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            canvas.style.width = rect.width + 'px';
+            canvas.style.height = rect.height + 'px';
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        function lerp(start, end, t) {
+            return start * (1 - t) + end * t;
+        }
+
+        function startAnimation(lBoats, sBoats) {
+            cancelAnimationFrame(animId);
+            resizeCanvas();
+
+            const w = wrapper.clientWidth;
+            const h = wrapper.clientHeight;
+            const dockWidth = 120;
+
+            const boats = [];
+            const seats = [];
+            const startX = dockWidth + 40;
+            let currentY = 40;
+            let currentX = startX;
+
+            // 生成大船
+            for (let i = 0; i < lBoats; i++) {
+                if (currentX + 160 > w) { currentX = startX; currentY += 100; }
+                const boat = { x: currentX, y: currentY, w: 140, h: 70, type: 'large', capacity: params.lCap };
+                boats.push(boat);
+                for (let j = 0; j < params.lCap; j++) {
+                    seats.push({
+                        x: boat.x + 20 + (j % (params.lCap / 2)) * 35,
+                        y: boat.y + 15 + Math.floor(j / (params.lCap / 2)) * 30,
+                        filled: false,
+                        boatIndex: boats.length - 1
+                    });
+                }
+                currentX += 160;
+            }
+
+            // 生成小船
+            for (let i = 0; i < sBoats; i++) {
+                if (currentX + 120 > w) { currentX = startX; currentY += 100; }
+                const boat = { x: currentX, y: currentY + 10, w: 100, h: 60, type: 'small', capacity: params.sCap };
+                boats.push(boat);
+                for (let j = 0; j < params.sCap; j++) {
+                    seats.push({
+                        x: boat.x + 20 + (j % (params.sCap / 2)) * 35,
+                        y: boat.y + 10 + Math.floor(j / (params.sCap / 2)) * 30,
+                        filled: false,
+                        boatIndex: boats.length - 1
+                    });
+                }
+                currentX += 120;
+            }
+
+            // 生成人员散布在码头
+            const people = [];
+            for (let i = 0; i < params.people; i++) {
+                people.push({
+                    x: 20 + Math.random() * 60,
+                    y: 40 + Math.random() * (h - 80),
+                    targetX: null, targetY: null,
+                    seated: false,
+                    progress: 0,
+                    delay: i * 2
+                });
+            }
+
+            // 分配座位目标
+            for (let i = 0; i < people.length; i++) {
+                if (i < seats.length) {
+                    people[i].targetX = seats[i].x;
+                    people[i].targetY = seats[i].y;
+                    seats[i].personIndex = i;
+                }
+            }
+
+            animState = { boats, seats, people, frame: 0, w, h, dockWidth };
+            renderLoop();
+        }
+
+        function renderLoop() {
+            animState.frame++;
+            const { boats, seats, people, w, h, dockWidth } = animState;
+
+            ctx.clearRect(0, 0, w, h);
+
+            // 绘制码头
+            ctx.fillStyle = '#cbd5e1';
+            ctx.fillRect(0, 0, dockWidth, h);
+            ctx.fillStyle = '#64748b';
+            ctx.font = 'bold 16px sans-serif';
+            ctx.fillText('码头等待区', 15, 30);
+
+            // 绘制船只
+            boats.forEach(b => {
+                ctx.fillStyle = b.type === 'large' ? '#fbbf24' : '#60a5fa';
+                ctx.beginPath();
+                ctx.roundRect(b.x, b.y, b.w, b.h, 20);
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.fillStyle = '#fff';
+                ctx.font = '12px sans-serif';
+                ctx.fillText(b.type === 'large' ? `大(${params.lPrice}元)` : `小(${params.sPrice}元)`, b.x + 5, b.y + b.h / 2 + 4);
+            });
+
+            // 绘制座位
+            seats.forEach(s => {
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, 10, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255,255,255,0.4)';
+                ctx.fill();
+
+                // 空座红圈闪烁警告 (延时触发)
+                if (animState.frame > 100 && s.personIndex === undefined) {
+                    ctx.strokeStyle = '#ef4444';
+                    ctx.setLineDash([3, 3]);
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+
+                    if (animState.frame % 60 < 30) {
+                        ctx.fillStyle = '#ef4444';
+                        ctx.font = '10px sans-serif';
+                        ctx.fillText('空', s.x - 5, s.y + 3);
+                    }
+                } else {
+                    ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                }
+            });
+
+            // 绘制人员
+            let allDone = true;
+            people.forEach(p => {
+                let drawX = p.x;
+                let drawY = p.y;
+                let color = '#334155';
+
+                if (p.targetX !== null) {
+                    if (animState.frame > p.delay) {
+                        p.progress = Math.min(1, p.progress + 0.02);
+                        const t = p.progress * (2 - p.progress); // easeOutQuad
+                        drawX = lerp(p.x, p.targetX, t);
+                        drawY = lerp(p.y, p.targetY, t);
+                        if (p.progress < 1) allDone = false;
+                    } else {
+                        allDone = false;
+                    }
+                } else {
+                    // 没座位滞留
+                    color = '#ef4444';
+                    if (animState.frame > 100 && animState.frame % 40 < 20) {
+                        drawY -= 5; // 原地跳动
+                    }
+                }
+
+                ctx.fillStyle = color;
+                ctx.beginPath(); ctx.arc(drawX, drawY - 3, 5, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(drawX, drawY + 4, 6, Math.PI, 0); ctx.fill();
+            });
+
+            animId = requestAnimationFrame(renderLoop);
+        }
+
+        // --- 启动初始化 ---
+        updateParamsFromUI();
+        resizeCanvas();
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '16px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('按照左侧的向导指令，一步一步推导最佳方案吧！', canvas.width / 2 / window.devicePixelRatio, canvas.height / 2 / window.devicePixelRatio);
+        ctx.textAlign = 'left';
+
+    </script>
+
+</body>
+
+</html>

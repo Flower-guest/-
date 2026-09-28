@@ -1,0 +1,2547 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小数乘小数：算理透视与算法生成 - 互动探究课件</title>
+    <!-- Google Fonts 预连接 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- 本地引入 Tailwind CSS -->
+    <script src="../tailwind/tailwind.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            900: '#0c4a6e',
+                        },
+                        amber: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        },
+                        emerald: {
+                            400: '#34d399',
+                            500: '#10b981',
+                            600: '#059669',
+                        },
+                        rose: {
+                            400: '#fb7185',
+                            500: '#f43f5e',
+                            600: '#e11d48',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans SC', 'Outfit', '-apple-system', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Courier New', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Vue 3 CDN -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/vue/3.4.21/vue.global.prod.js"></script>
+
+    <style>
+        /* ==========================================
+           1. 全局设计系统与视觉变量
+           ========================================== */
+        :root {
+            --bg-dark-base: #090d16;
+            --bg-dark-panel: rgba(15, 23, 42, 0.75);
+            --bg-dark-card: rgba(30, 41, 59, 0.7);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --border-glass-hover: rgba(56, 189, 248, 0.3);
+            --shadow-glow-sky: 0 0 25px rgba(2, 132, 199, 0.25);
+            --shadow-glow-amber: 0 0 25px rgba(245, 158, 11, 0.25);
+            --shadow-glow-emerald: 0 0 25px rgba(16, 185, 129, 0.25);
+            --shadow-glow-rose: 0 0 25px rgba(244, 63, 94, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', 'Outfit', sans-serif;
+            background-color: var(--bg-dark-base);
+            color: #f8fafc;
+            height: 100vh;
+            overflow: hidden;
+            background-image:
+                radial-gradient(circle at 15% 15%, rgba(2, 132, 199, 0.12) 0%, transparent 45%),
+                radial-gradient(circle at 85% 80%, rgba(245, 158, 11, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.05) 0%, transparent 60%);
+            background-attachment: fixed;
+            user-select: none;
+        }
+
+        /* 滚动条 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.3);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* 玻璃拟态卡片 */
+        .glass-card {
+            background: rgba(30, 41, 59, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            border-color: var(--border-glass-hover);
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+        }
+
+        /* 等宽数位网格 */
+        .math-digit {
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2rem;
+            height: 2.75rem;
+            font-size: 1.75rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .math-digit-lg {
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 3rem;
+            height: 4rem;
+            font-size: 2.75rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        /* 划去末尾0的斜线动效 */
+        .slash-zero-box {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slash-zero-box.slashed::after {
+            content: '';
+            position: absolute;
+            width: 130%;
+            height: 5px;
+            background: #ef4444;
+            transform: rotate(-45deg);
+            transform-origin: center;
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.9);
+            border-radius: 3px;
+            animation: slashCut 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        .slash-zero-box.slashed {
+            color: #64748b !important;
+            transition: color 0.3s ease;
+        }
+
+        @keyframes slashCut {
+            0% {
+                transform: scaleX(0) rotate(-45deg);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scaleX(1) rotate(-45deg);
+                opacity: 1;
+            }
+        }
+
+        /* 脉冲红点 */
+        .pulse-dot {
+            width: 12px;
+            height: 12px;
+            background-color: #ef4444;
+            border-radius: 50%;
+            box-shadow: 0 0 12px #ef4444, 0 0 20px rgba(239, 68, 68, 0.6);
+            animation: dotGlow 1.5s infinite alternate ease-in-out;
+        }
+
+        .pulse-dot-lg {
+            width: 22px;
+            height: 22px;
+            background-color: #ef4444;
+            border-radius: 50%;
+            box-shadow: 0 0 16px #ef4444, 0 0 28px rgba(239, 68, 68, 0.7);
+            animation: dotGlowLg 1.5s infinite alternate ease-in-out;
+        }
+
+        @keyframes dotGlow {
+            from {
+                transform: scale(0.85);
+                opacity: 0.8;
+                box-shadow: 0 0 8px #ef4444;
+            }
+
+            to {
+                transform: scale(1.25);
+                opacity: 1;
+                box-shadow: 0 0 16px #ef4444, 0 0 24px rgba(239, 68, 68, 0.8);
+            }
+        }
+
+        @keyframes dotGlowLg {
+            from {
+                transform: scale(0.85);
+                opacity: 0.85;
+                box-shadow: 0 0 12px #ef4444;
+            }
+
+            to {
+                transform: scale(1.25);
+                opacity: 1;
+                box-shadow: 0 0 22px #ef4444, 0 0 36px rgba(239, 68, 68, 0.9);
+            }
+        }
+
+        /* 动画箭头虚线流动 */
+        @keyframes dashFlow {
+            to {
+                stroke-dashoffset: -20;
+            }
+        }
+
+        .flow-line {
+            stroke-dasharray: 6, 6;
+            animation: dashFlow 1s linear infinite;
+        }
+
+        /* 卡片翻出与展开动效 */
+        @keyframes cardReveal {
+            0% {
+                opacity: 0;
+                transform: translateY(16px) scale(0.96);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .anim-card-reveal {
+            animation: cardReveal 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* 晃动反馈 */
+        @keyframes errorShake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            20%,
+            60% {
+                transform: translateX(-6px);
+            }
+
+            40%,
+            80% {
+                transform: translateX(6px);
+            }
+        }
+
+        .shake-error {
+            animation: errorShake 0.4s ease-in-out;
+        }
+
+        /* Vue 过渡 */
+        .fade-enter-active,
+        .fade-leave-active {
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+
+        .fade-enter-from {
+            opacity: 0;
+            transform: translateY(6px);
+        }
+
+        .fade-leave-to {
+            opacity: 0;
+            transform: translateY(-6px);
+        }
+
+        /* 全屏画布 canvas */
+        #confettiCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+        }
+    </style>
+</head>
+
+<body class="flex flex-col h-screen select-none">
+    <!-- Confetti 庆祝画布 -->
+    <canvas id="confettiCanvas"></canvas>
+
+    <div id="app" class="flex h-screen w-screen overflow-hidden p-4 gap-4" v-cloak>
+        <!-- ==========================================
+             1. 左侧：导航与控制中心
+             ========================================== -->
+        <aside
+            class="w-64 glass-panel rounded-2xl p-4 flex flex-col justify-between shrink-0 border border-white/10 shadow-2xl">
+            <div class="space-y-4">
+                <!-- 导航顶部标题 -->
+                <div class="pb-3 border-b border-white/10 flex items-center gap-3">
+                    <div
+                        class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center shadow-md text-white font-black text-xl">
+                        <span>×</span>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-extrabold text-white tracking-wide">小数乘小数</h2>
+                        <p class="text-xs text-sky-400 font-bold">算理透视 · 交互课件</p>
+                    </div>
+                </div>
+
+                <!-- 模块垂直切换 Tab 组 -->
+                <nav class="flex flex-col gap-2.5">
+                    <button v-for="tab in stages" :key="tab.id" @click="setStage(tab.id)" :class="[
+                            'w-full px-4 py-3.5 rounded-xl text-sm md:text-base font-extrabold transition-all duration-200 flex items-center justify-between text-left group cursor-pointer',
+                            currentStage === tab.id 
+                                ? 'bg-gradient-to-r from-sky-600 to-indigo-600 text-white shadow-lg shadow-sky-600/30 ring-2 ring-sky-400/50' 
+                                : 'text-slate-300 hover:text-white hover:bg-white/10'
+                        ]">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <span class="text-lg shrink-0">{{ tab.icon }}</span>
+                            <span class="truncate">{{ tab.name }}</span>
+                        </div>
+                        <span v-if="tab.badge"
+                            class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse shrink-0"></span>
+                    </button>
+                </nav>
+            </div>
+
+            <!-- 底部工具控制区 -->
+            <div class="pt-4 border-t border-white/10 space-y-2.5">
+                <div class="grid grid-cols-2 gap-2">
+                    <!-- 音效切换 -->
+                    <button @click="toggleSound"
+                        class="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 hover:text-white transition-colors border border-white/10 text-sm flex items-center justify-center gap-1.5 font-bold cursor-pointer"
+                        :title="soundEnabled ? '音效已开启' : '音效已静音'">
+                        <svg v-if="soundEnabled" class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                        </svg>
+                        <svg v-else class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+                        </svg>
+                        <span>{{ soundEnabled ? '音效开' : '静音' }}</span>
+                    </button>
+
+                    <!-- 重置当前模块 -->
+                    <button @click="resetCurrentStage"
+                        class="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 hover:text-white transition-colors border border-white/10 text-sm flex items-center justify-center gap-1.5 font-bold cursor-pointer"
+                        title="重置当前阶段">
+                        <svg class="w-5 h-5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        <span>重置</span>
+                    </button>
+                </div>
+
+                <!-- 全屏切换 -->
+                <button @click="toggleFullscreen"
+                    class="w-full p-3 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 hover:text-white transition-colors border border-white/10 text-sm flex items-center justify-center gap-2 font-bold cursor-pointer"
+                    title="切换全屏演示">
+                    <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" />
+                    </svg>
+                    <span>全屏演示</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- ==========================================
+             2. 中间：主体交互探究大屏
+             ========================================== -->
+        <main class="flex-1 flex flex-col min-w-0 overflow-y-auto pr-1">
+            <!-- 模块一：校园试验田情境（例 3 · 仅展示核心方法三：因数与积变化规律） -->
+            <div v-if="currentStage === 'stage_1_field'" class="flex flex-col gap-4 h-full">
+                <!-- 顶部情境 Banner -->
+                <div
+                    class="glass-card p-5 bg-gradient-to-r from-emerald-950/40 via-slate-800/60 to-sky-950/40 border-emerald-500/30 relative overflow-hidden">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
+                            <div
+                                class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-sm font-extrabold">
+                                <span>🌱 例 3 · 校园试验田情境</span>
+                            </div>
+                            <!-- 小机器人引导气泡 (还原课本) -->
+                            <div
+                                class="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-500/20 border border-sky-400/40 text-sky-200 text-xs md:text-sm font-bold shadow-md">
+                                <span class="text-base">🤖</span>
+                                <span>小助手提示：也可以按乘数和积的变化规律来思考。</span>
+                            </div>
+                        </div>
+
+                        <h2 class="text-2xl md:text-3xl font-black text-white tracking-wide">
+                            五（1）班校园试验田的形状是一个长 <span class="text-amber-300 font-mono">4.2 m</span>、宽 <span
+                                class="text-sky-300 font-mono">0.8 m</span> 的长方形，这块试验田的面积是多少平方米？
+                        </h2>
+
+                        <!-- 列出算式（支持开关互动揭晓，适应课堂提问） -->
+                        <div
+                            class="text-slate-100 text-lg md:text-xl flex items-center gap-3 md:gap-4 flex-wrap min-h-[3.5rem]">
+                            <span class="font-extrabold text-white">列出算式：</span>
+
+                            <!-- 状态 A：未揭晓状态（点击按钮开启） -->
+                            <button v-if="!isFormulaRevealed" @click="toggleFormula"
+                                class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-sky-600 hover:from-emerald-500 hover:to-sky-500 text-white font-black text-base md:text-lg flex items-center gap-2.5 shadow-lg shadow-emerald-600/30 transition-all cursor-pointer group ring-2 ring-emerald-400/50 hover:scale-105">
+                                <span>👉 点击揭晓算式</span>
+                            </button>
+
+                            <!-- 状态 B：已揭晓状态（发光呈现并支持收起） -->
+                            <div v-else class="flex items-center gap-3 md:gap-4 flex-wrap anim-card-reveal">
+                                <span
+                                    class="px-5 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-2xl md:text-3xl border border-emerald-500/40 shadow-inner">
+                                    4.2 × 0.8 = ? (m²)
+                                </span>
+                                <span class="text-sm md:text-base text-slate-300 font-medium">（长方形面积 = 长 × 宽）</span>
+                                <button @click="toggleFormula"
+                                    class="px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold border border-white/10 transition-all cursor-pointer flex items-center gap-1"
+                                    title="重新隐藏算式">
+                                    <span>🔒 收起算式</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 核心方法三：因数与积变化规律（全屏重点展示 · 严格对应教材插图） -->
+                <div
+                    class="glass-card flex-1 p-6 md:p-8 flex flex-col justify-between border-emerald-500/50 bg-gradient-to-b from-slate-900/90 to-slate-950 shadow-2xl relative">
+                    <div>
+                        <!-- 模块顶部标题与动画控制工具条 -->
+                        <div
+                            class="flex items-center justify-between flex-wrap gap-3 pb-4 border-b border-white/10 mb-5">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500/20 to-sky-500/20 text-emerald-300 text-sm font-black border border-emerald-500/40 flex items-center gap-2">
+                                    <span>⚡ 核心算理转化</span>
+                                    <span
+                                        class="text-xs bg-emerald-500 text-slate-950 px-2 py-0.5 rounded-full font-extrabold">教材标准方法</span>
+                                </div>
+                                <h3 class="text-base md:text-lg font-black text-white">
+                                    两个因数同时扩大 10 倍 ➔ 积扩大 100 倍（再缩小 100 倍还原）
+                                </h3>
+                            </div>
+
+                            <!-- 步骤控制器组 -->
+                            <div class="flex items-center gap-2">
+                                <button @click="playFieldAnim"
+                                    :class="['px-4 py-2 rounded-xl text-xs md:text-sm font-black transition-all flex items-center gap-1.5 shadow-lg cursor-pointer', fieldIsPlaying ? 'bg-amber-400 text-slate-950 animate-pulse font-black ring-2 ring-amber-300' : 'bg-gradient-to-r from-emerald-600 to-sky-600 hover:from-emerald-500 hover:to-sky-500 text-white shadow-emerald-600/30']">
+                                    <span>{{ fieldIsPlaying ? '⏸ 演示中' : '▶ 动画演示' }}</span>
+                                </button>
+                                <button @click="nextFieldStep" :disabled="fieldAnimStep === 3"
+                                    class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs md:text-sm font-black disabled:opacity-30 cursor-pointer border border-white/10 transition-all"
+                                    title="单步前进">
+                                    单步
+                                </button>
+                                <button @click="resetFieldStep"
+                                    class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-slate-200 text-xs md:text-sm font-bold cursor-pointer border border-white/10 transition-all"
+                                    title="重置动画">
+                                    重置
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 双竖式与中间动态三箭头舞台 (大字号、高对比、课本完全一致排版) -->
+                        <div
+                            class="p-6 rounded-3xl bg-slate-950/90 border border-emerald-500/30 max-w-4xl mx-auto shadow-2xl mb-5">
+                            <div class="grid grid-cols-12 gap-3 items-center">
+                                <!-- 左竖式：小数乘法 (4.2 × 0.8) -->
+                                <div
+                                    class="col-span-5 p-4 rounded-2xl bg-slate-900/90 border-2 border-sky-500/40 text-right font-mono select-none shadow-xl">
+                                    <div
+                                        class="text-xs font-black text-sky-300 text-left mb-2 flex items-center justify-between">
+                                        <span>小数乘法</span>
+                                        <span class="text-[11px] text-slate-400 font-normal">（未知新知）</span>
+                                    </div>
+                                    <div class="inline-block text-right pr-2">
+                                        <!-- 因数 4.2 (Step 1 激活高亮) -->
+                                        <div
+                                            :class="['text-2xl md:text-3xl font-black tracking-wider transition-all rounded-xl px-2 py-0.5', fieldAnimStep >= 1 ? 'bg-amber-500/20 text-amber-300 ring-2 ring-amber-400/60' : 'text-white']">
+                                            4.2 <span
+                                                class="text-xs font-sans text-amber-300/80 font-bold">(1位小数)</span>
+                                        </div>
+                                        <!-- 因数 0.8 (Step 1 激活高亮) -->
+                                        <div
+                                            :class="['text-2xl md:text-3xl font-black tracking-wider transition-all rounded-xl px-2 py-0.5 mt-1 flex items-center justify-end gap-1', fieldAnimStep >= 1 ? 'bg-sky-500/20 text-sky-300 ring-2 ring-sky-400/60' : 'text-white']">
+                                            <span class="text-slate-400 mr-3 text-2xl font-black">×</span>
+                                            <span>0.8</span>
+                                            <span class="text-xs font-sans text-sky-300/80 font-bold ml-1">(1位小数)</span>
+                                        </div>
+                                        <div class="w-full h-1 bg-slate-400 my-2 rounded-full"></div>
+                                        <!-- 最终积 (Step 3 揭晓) -->
+                                        <div class="text-3xl md:text-4xl font-black text-emerald-400 tracking-wider anim-card-reveal py-1"
+                                            v-if="fieldAnimStep >= 3">
+                                            3.36 <span
+                                                class="text-xs font-sans text-emerald-300 font-bold">(2位小数)</span>
+                                        </div>
+                                        <div class="text-lg text-slate-500 font-bold tracking-widest py-2" v-else>
+                                            ? . ? ?
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 中桥：课本三道转换箭头 (2道向右扩大，1道向左缩小) -->
+                                <div
+                                    class="col-span-2 flex flex-col items-center justify-between h-48 py-2 text-center">
+                                    <!-- 箭头 1：4.2 扩大 10 倍 ➔ 42 -->
+                                    <div
+                                        :class="['flex flex-col items-center transition-all duration-300 w-full', fieldAnimStep >= 1 ? 'opacity-100 scale-105' : 'opacity-25 scale-95']">
+                                        <span
+                                            class="text-xs font-mono font-black text-amber-300 bg-amber-500/25 px-2.5 py-0.5 rounded-full border border-amber-400 shadow-md whitespace-nowrap">
+                                            × 10
+                                        </span>
+                                        <svg class="w-16 h-4 text-amber-400 mt-0.5" viewBox="0 0 100 25" fill="none">
+                                            <path d="M5 12.5 H85 M75 3 L90 12.5 L75 22" stroke="currentColor"
+                                                stroke-width="5" stroke-linecap="round" stroke-linejoin="round"
+                                                class="flow-line" />
+                                        </svg>
+                                    </div>
+
+                                    <!-- 箭头 2：0.8 扩大 10 倍 ➔ 8 -->
+                                    <div
+                                        :class="['flex flex-col items-center transition-all duration-300 w-full', fieldAnimStep >= 1 ? 'opacity-100 scale-105' : 'opacity-25 scale-95']">
+                                        <span
+                                            class="text-xs font-mono font-black text-sky-300 bg-sky-500/25 px-2.5 py-0.5 rounded-full border border-sky-400 shadow-md whitespace-nowrap">
+                                            × 10
+                                        </span>
+                                        <svg class="w-16 h-4 text-sky-400 mt-0.5" viewBox="0 0 100 25" fill="none">
+                                            <path d="M5 12.5 H85 M75 3 L90 12.5 L75 22" stroke="currentColor"
+                                                stroke-width="5" stroke-linecap="round" stroke-linejoin="round"
+                                                class="flow-line" />
+                                        </svg>
+                                    </div>
+
+                                    <!-- 箭头 3：336 缩小到 1/100 ➔ 3.36 (向左回退) -->
+                                    <div
+                                        :class="['flex flex-col items-center transition-all duration-300 w-full', fieldAnimStep >= 3 ? 'opacity-100 scale-105' : 'opacity-25 scale-95']">
+                                        <svg class="w-16 h-4 text-emerald-400 mb-0.5" viewBox="0 0 100 25" fill="none">
+                                            <path d="M95 12.5 H15 M25 3 L10 12.5 L25 22" stroke="currentColor"
+                                                stroke-width="5" stroke-linecap="round" stroke-linejoin="round"
+                                                class="flow-line" />
+                                        </svg>
+                                        <span
+                                            class="text-xs font-mono font-black text-emerald-300 bg-emerald-500/25 px-2.5 py-0.5 rounded-full border border-emerald-400 shadow-md whitespace-nowrap">
+                                            ÷ 100
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- 右竖式：整数乘法 (42 × 8) -->
+                                <div
+                                    :class="['col-span-5 p-4 rounded-2xl bg-slate-900/90 border-2 border-amber-500/40 text-right font-mono select-none shadow-xl transition-all duration-300', fieldAnimStep >= 1 ? 'opacity-100' : 'opacity-40']">
+                                    <div
+                                        class="text-xs font-black text-amber-300 text-left mb-2 flex items-center justify-between">
+                                        <span>整数乘法</span>
+                                        <span class="text-[11px] text-slate-400 font-normal">（已知旧知）</span>
+                                    </div>
+                                    <div class="inline-block text-right pr-2">
+                                        <div
+                                            :class="['text-2xl md:text-3xl font-black tracking-wider transition-all rounded-xl px-2 py-0.5', fieldAnimStep >= 1 ? 'text-amber-300' : 'text-slate-500']">
+                                            42
+                                        </div>
+                                        <div
+                                            :class="['text-2xl md:text-3xl font-black tracking-wider transition-all rounded-xl px-2 py-0.5 mt-1 flex items-center justify-end gap-1', fieldAnimStep >= 1 ? 'text-amber-300' : 'text-slate-500']">
+                                            <span class="text-slate-400 mr-4 text-2xl font-black">×</span>
+                                            <span>8</span>
+                                        </div>
+                                        <div class="w-full h-1 bg-slate-400 my-2 rounded-full"></div>
+                                        <div class="text-3xl md:text-4xl font-black text-amber-300 tracking-wider anim-card-reveal py-1"
+                                            v-if="fieldAnimStep >= 2">
+                                            336
+                                        </div>
+                                        <div class="text-lg text-slate-500 font-bold tracking-widest py-2" v-else>
+                                            等待计算...
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 分步推导解析条 (3步流式呈现) -->
+                        <div
+                            class="p-4 md:p-5 rounded-2xl bg-slate-950/90 border border-emerald-500/30 space-y-2.5 shadow-inner max-w-4xl mx-auto min-h-[140px] flex flex-col justify-center">
+                            <div v-if="fieldAnimStep === 0"
+                                class="text-center py-4 text-slate-400 text-xs md:text-sm font-bold">
+                                👉 点击上方【▶ 动画演示】或【单步】按钮，逐步展现变化规律推导过程
+                            </div>
+                            <template v-else>
+                                <!-- 第 ① 步 -->
+                                <div v-if="fieldAnimStep >= 1"
+                                    class="flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-white/10 anim-card-reveal">
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-bold text-white text-xs md:text-sm">① 乘数同时扩大：</span>
+                                        <span class="font-mono font-black text-amber-300 text-xs md:text-sm">4.2 × 10 =
+                                            42，0.8 × 10 = 8</span>
+                                    </div>
+                                    <span class="font-mono font-black text-amber-300 text-xs md:text-sm">乘数共扩大 100
+                                        倍</span>
+                                </div>
+
+                                <!-- 第 ② 步 -->
+                                <div v-if="fieldAnimStep >= 2"
+                                    class="flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-white/10 anim-card-reveal">
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-bold text-white text-xs md:text-sm">② 整数相乘：</span>
+                                        <span class="font-mono font-black text-sky-300 text-xs md:text-sm">42 × 8 =
+                                            336</span>
+                                    </div>
+                                    <span class="font-mono font-black text-sky-300 text-xs md:text-sm">积也扩大了 100
+                                        倍</span>
+                                </div>
+
+                                <!-- 第 ③ 步 -->
+                                <div v-if="fieldAnimStep >= 3"
+                                    class="flex items-center justify-between p-3.5 rounded-xl bg-emerald-950/80 border-2 border-emerald-400/80 shadow-lg shadow-emerald-500/20 anim-card-reveal">
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-bold text-emerald-200 text-xs md:text-sm">③ 积缩小还原：</span>
+                                        <span class="font-mono font-black text-emerald-200 text-xs md:text-sm">336 ÷ 100
+                                            = 3.36</span>
+                                    </div>
+                                    <span class="font-mono font-black text-emerald-300 text-sm md:text-lg">从右数 2
+                                        位点小数点</span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- 底部答语与核心启示 -->
+                    <div
+                        class="mt-4 pt-3 border-t border-emerald-500/30 flex items-center justify-between flex-wrap gap-2 text-xs md:text-sm">
+                        <div class="flex items-center gap-2 text-emerald-300 font-black">
+                            <span class="text-base">📝</span>
+                            <span>答：这块试验田的面积是 <strong class="text-white text-base">3.36</strong> 平方米。</span>
+                        </div>
+                        <span class="text-slate-400">核心启示：把两个小数都化成整数来算，积就扩大了对应的倍数，最后缩小相同倍数还原！</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 模块二：算理透视镜——双竖式联动（例 3 · 4.2 × 0.8 深度推导） -->
+            <div v-else-if="currentStage === 'stage_2_scaling'" class="flex flex-col gap-4 h-full">
+                <!-- 顶部控制条 -->
+                <div
+                    class="glass-card p-4 md:p-5 flex flex-wrap items-center justify-between gap-4 border-slate-700/60 bg-slate-900/80 shadow-xl">
+                    <div class="flex items-center gap-3">
+                        <span
+                            class="px-3.5 py-1.5 rounded-xl bg-sky-500/20 text-sky-300 text-xs md:text-sm font-black border border-sky-500/30">
+                            例 3 · 算理透视
+                        </span>
+                        <h2 class="text-lg md:text-2xl font-black text-white">
+                            目标算式：<span class="font-mono text-emerald-400 text-2xl md:text-3xl font-black ml-1">4.2 × 0.8
+                                = 3.36</span>
+                        </h2>
+                    </div>
+
+                    <!-- 视图模式切换与步骤控制器 -->
+                    <div class="flex items-center gap-4 flex-wrap">
+                        <div class="flex p-1.5 bg-slate-950 rounded-xl border border-white/15 gap-1.5">
+                            <button @click="scalingViewMode = 'dual_vertical'" :class="[
+                                        'px-4 py-2 rounded-lg font-black text-xs md:text-sm transition-all cursor-pointer',
+                                        scalingViewMode === 'dual_vertical' 
+                                            ? 'bg-gradient-to-r from-sky-600 to-indigo-600 text-white shadow-lg shadow-sky-600/30 ring-2 ring-sky-400' 
+                                            : 'bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700'
+                                    ]">
+                                🔍 双竖式联动推导
+                            </button>
+                            <button @click="scalingViewMode = 'unit_view'" :class="[
+                                        'px-4 py-2 rounded-lg font-black text-xs md:text-sm transition-all cursor-pointer',
+                                        scalingViewMode === 'unit_view' 
+                                            ? 'bg-gradient-to-r from-sky-600 to-indigo-600 text-white shadow-lg shadow-sky-600/30 ring-2 ring-sky-400' 
+                                            : 'bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700'
+                                    ]">
+                                🔬 计数单位透视(0.1×0.1=0.01)
+                            </button>
+                        </div>
+
+                        <!-- 步骤控制器 (双竖式模式下 - 4 步推导) -->
+                        <div v-if="scalingViewMode === 'dual_vertical'" class="flex items-center gap-2">
+                            <button @click="prevScalingStep" :disabled="scalingStep === 1"
+                                class="px-4 py-2 rounded-xl bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-700 text-slate-100 text-xs md:text-sm font-black border border-white/15 transition-all cursor-pointer">
+                                ◀ 上一步
+                            </button>
+                            <div
+                                class="px-4 py-2 rounded-xl bg-slate-950 text-xs md:text-sm font-mono font-black text-amber-300 border border-amber-500/40 shadow-inner">
+                                Step {{ scalingStep }} / 4
+                            </div>
+                            <button @click="nextScalingStep" :disabled="scalingStep === 4"
+                                class="px-4 py-2 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 disabled:opacity-30 disabled:cursor-not-allowed hover:from-sky-500 hover:to-blue-500 text-white text-xs md:text-sm font-black shadow-lg shadow-sky-600/30 ring-2 ring-sky-400 transition-all cursor-pointer">
+                                下一步 ▶
+                            </button>
+                            <button @click="toggleAutoPlay" :class="[
+                                        'px-4 py-2 rounded-xl text-xs md:text-sm font-black flex items-center gap-1.5 transition-all shadow-lg cursor-pointer',
+                                        isAutoPlaying 
+                                            ? 'bg-amber-400 text-slate-950 animate-pulse font-black shadow-amber-400/40 ring-2 ring-amber-300' 
+                                            : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/15'
+                                    ]">
+                                <span>{{ isAutoPlaying ? '⏸ 暂停演示' : '▶ 自动播放' }}</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 模式一：双竖式联动推导主体 -->
+                <div v-if="scalingViewMode === 'dual_vertical'"
+                    class="glass-card flex-1 p-6 md:p-8 flex flex-col justify-between relative overflow-hidden">
+                    <!-- 阶段描述气泡 -->
+                    <div
+                        class="mb-4 flex items-center justify-between bg-slate-900/90 p-4 rounded-2xl border border-white/10 shadow-lg">
+                        <div class="flex items-center gap-3">
+                            <span
+                                class="w-8 h-8 rounded-xl bg-sky-500 text-white font-mono font-black text-base flex items-center justify-center shadow-md">
+                                {{ scalingStep }}
+                            </span>
+                            <span class="text-base md:text-lg font-black text-sky-300">
+                                {{ scalingStepTitles[scalingStep - 1] }}
+                            </span>
+                        </div>
+                        <span class="text-xs md:text-sm text-slate-300 font-bold">
+                            {{ scalingStepDesc[scalingStep - 1] }}
+                        </span>
+                    </div>
+
+                    <!-- 双竖式与中间动态双箭头转换区 -->
+                    <div class="grid grid-cols-12 gap-3 items-center flex-1 my-2">
+                        <!-- 左竖式：小数乘法 4.2 × 0.8 -->
+                        <div
+                            class="col-span-5 glass-card p-6 md:p-8 bg-slate-900/90 border-2 border-sky-500/40 flex flex-col items-center justify-center shadow-2xl relative">
+                            <div
+                                class="absolute top-3 left-4 px-3 py-1 rounded-xl bg-sky-500/20 text-sky-300 text-xs md:text-sm font-black border border-sky-500/40">
+                                小数竖式（未知）
+                            </div>
+
+                            <div class="font-mono text-xl select-none mt-6 text-right inline-block w-64">
+                                <!-- 因数 4.2 (Step 1 高亮) -->
+                                <div
+                                    :class="['flex justify-end items-center tracking-widest transition-all duration-300 py-1.5 px-3 rounded-2xl', scalingStep === 1 ? 'bg-amber-500/25 ring-4 ring-amber-400 text-amber-300 font-black shadow-xl scale-105' : 'text-slate-100']">
+                                    <span class="math-digit-lg">4</span>
+                                    <span class="text-rose-400 font-black text-4xl -mx-1">.</span>
+                                    <span class="math-digit-lg">2</span>
+                                </div>
+
+                                <!-- 乘号与因数 0.8 (Step 2 高亮) -->
+                                <div
+                                    :class="['flex justify-end items-center tracking-widest transition-all duration-300 py-1.5 px-3 rounded-2xl', scalingStep === 2 ? 'bg-sky-500/25 ring-4 ring-sky-400 text-sky-300 font-black shadow-xl scale-105' : 'text-slate-100']">
+                                    <span class="text-3xl text-slate-400 mr-4 font-black">×</span>
+                                    <span class="math-digit-lg">0</span>
+                                    <span class="text-rose-400 font-black text-4xl -mx-1">.</span>
+                                    <span class="math-digit-lg">8</span>
+                                </div>
+
+                                <!-- 横线 -->
+                                <div class="w-full h-1 bg-slate-400 my-2 rounded-full"></div>
+
+                                <!-- 结果展示 (Step 4 输出 3.36) -->
+                                <div class="flex justify-end items-center tracking-widest py-1.5 px-3 min-h-[4rem]">
+                                    <template v-if="scalingStep === 4">
+                                        <span class="math-digit-lg text-emerald-400 font-black">3</span>
+                                        <span class="pulse-dot-lg -mx-1"></span>
+                                        <span class="math-digit-lg text-emerald-400 font-black">3</span>
+                                        <span class="math-digit-lg text-emerald-400 font-black">6</span>
+                                    </template>
+                                    <template v-else>
+                                        <span class="text-slate-600 font-mono text-2xl font-bold tracking-widest">? . ?
+                                            ?</span>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 中间：课本三道转换箭头区 -->
+                        <div
+                            class="col-span-2 flex flex-col items-center justify-between h-80 py-4 relative text-center">
+                            <!-- 箭头 1：4.2 扩大 10 倍 ➔ 42 -->
+                            <div
+                                :class="['flex flex-col items-center transition-all duration-300 w-full', scalingStep >= 1 ? 'opacity-100 scale-105' : 'opacity-25 scale-95']">
+                                <span
+                                    class="text-xs md:text-sm font-mono font-black text-amber-300 bg-amber-500/25 px-3 py-1 rounded-full border border-amber-400 shadow-md">
+                                    × 10
+                                </span>
+                                <svg class="w-20 h-5 text-amber-400 mt-1" viewBox="0 0 100 25" fill="none">
+                                    <path d="M5 12.5 H85 M75 3 L90 12.5 L75 22" stroke="currentColor" stroke-width="5"
+                                        stroke-linecap="round" stroke-linejoin="round" class="flow-line" />
+                                </svg>
+                            </div>
+
+                            <!-- 箭头 2：0.8 扩大 10 倍 ➔ 8 -->
+                            <div
+                                :class="['flex flex-col items-center transition-all duration-300 w-full', scalingStep >= 2 ? 'opacity-100 scale-105' : 'opacity-25 scale-95']">
+                                <span
+                                    class="text-xs md:text-sm font-mono font-black text-sky-300 bg-sky-500/25 px-3 py-1 rounded-full border border-sky-400 shadow-md">
+                                    × 10
+                                </span>
+                                <svg class="w-20 h-5 text-sky-400 mt-1" viewBox="0 0 100 25" fill="none">
+                                    <path d="M5 12.5 H85 M75 3 L90 12.5 L75 22" stroke="currentColor" stroke-width="5"
+                                        stroke-linecap="round" stroke-linejoin="round" class="flow-line" />
+                                </svg>
+                            </div>
+
+                            <!-- 积扩大 10×10 = 100 提示标签 -->
+                            <div
+                                class="text-[11px] md:text-xs font-black text-slate-100 text-center px-3 py-1 rounded-xl bg-slate-900 border border-white/20 shadow-md">
+                                积共扩大 100 倍
+                            </div>
+
+                            <!-- 箭头 3：336 缩小到 1/100 ➔ 3.36 -->
+                            <div
+                                :class="['flex flex-col items-center transition-all duration-300 w-full', scalingStep === 4 ? 'opacity-100 scale-105' : 'opacity-25 scale-95']">
+                                <svg class="w-20 h-5 text-emerald-400 mb-1" viewBox="0 0 100 25" fill="none">
+                                    <path d="M95 12.5 H15 M25 3 L10 12.5 L25 22" stroke="currentColor" stroke-width="5"
+                                        stroke-linecap="round" stroke-linejoin="round" class="flow-line" />
+                                </svg>
+                                <span
+                                    class="text-xs md:text-sm font-mono font-black text-emerald-300 bg-emerald-500/25 px-3 py-1 rounded-full border border-emerald-400 shadow-md">
+                                    ÷ 100
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- 右竖式：整数乘法 42 × 8 -->
+                        <div
+                            :class="['col-span-5 glass-card p-6 md:p-8 bg-slate-900/90 border-2 border-amber-500/40 flex flex-col items-center justify-center shadow-2xl relative transition-all duration-500', scalingStep >= 1 ? 'opacity-100' : 'opacity-40']">
+                            <div
+                                class="absolute top-3 left-4 px-3 py-1 rounded-xl bg-amber-500/20 text-amber-300 text-xs md:text-sm font-black border border-amber-500/40">
+                                整数竖式（已知）
+                            </div>
+
+                            <div class="font-mono text-xl select-none mt-6 text-right inline-block w-64">
+                                <!-- 因数 42 -->
+                                <div :class="[
+                                        'flex justify-end items-center tracking-widest font-black py-1.5 px-3 transition-all duration-300 rounded-2xl',
+                                        scalingStep === 1 ? 'bg-amber-500/30 ring-4 ring-amber-400 text-amber-300' : (scalingStep >= 1 ? 'text-amber-300' : 'text-slate-500')
+                                    ]">
+                                    <span class="math-digit-lg">4</span>
+                                    <span class="math-digit-lg">2</span>
+                                </div>
+
+                                <!-- 乘号与因数 8 -->
+                                <div :class="[
+                                        'flex justify-end items-center tracking-widest font-black py-1.5 px-3 transition-all duration-300 rounded-2xl',
+                                        scalingStep === 2 ? 'bg-sky-500/30 ring-4 ring-sky-400 text-sky-300' : (scalingStep >= 2 ? 'text-white' : 'text-slate-500')
+                                    ]">
+                                    <span class="text-3xl text-slate-400 mr-6 font-black">×</span>
+                                    <span class="math-digit-lg">8</span>
+                                </div>
+
+                                <!-- 横线 -->
+                                <div class="w-full h-1 bg-slate-400 my-2 rounded-full"></div>
+
+                                <!-- 整数乘法积 336 (Step 3 及以上计算并展示) -->
+                                <div class="flex justify-end items-center tracking-widest py-1.5 px-3 min-h-[4rem]">
+                                    <template v-if="scalingStep >= 3">
+                                        <span class="math-digit-lg text-amber-300 font-black animate-pulse">3</span>
+                                        <span class="math-digit-lg text-amber-300 font-black animate-pulse">3</span>
+                                        <span class="math-digit-lg text-amber-300 font-black animate-pulse">6</span>
+                                    </template>
+                                    <template v-else>
+                                        <span
+                                            class="text-slate-600 font-mono text-xl font-bold tracking-widest">等待计算...</span>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 text-xs md:text-sm font-bold text-slate-300">
+                                <span>42 × 8 = 336 (按学过的整数乘法计算)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 模式二：计数单位透视 (0.1 × 0.1 = 0.01) -->
+                <div v-else class="glass-card flex-1 p-6 md:p-8 flex flex-col justify-between anim-card-reveal">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between flex-wrap gap-3 pb-3 border-b border-white/10">
+                            <div
+                                class="px-4 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs md:text-sm font-black">
+                                角度二：计数单位本质透视
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button @click="playUnitViewAnim" :class="[
+                                            'px-4 py-1.5 rounded-xl text-xs md:text-sm font-black transition-all cursor-pointer shadow flex items-center gap-1.5',
+                                            unitViewIsPlaying 
+                                                ? 'bg-rose-600 hover:bg-rose-500 text-white animate-pulse' 
+                                                : 'bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold shadow-amber-500/30'
+                                        ]">
+                                    <span>{{ unitViewIsPlaying ? '⏸ 暂停演示' : '▶ 动画演示' }}</span>
+                                </button>
+                                <button @click="nextUnitViewStep" :disabled="unitViewStep === 3"
+                                    class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 disabled:opacity-30 text-slate-200 text-xs md:text-sm font-black transition-all cursor-pointer border border-white/10">
+                                    单步
+                                </button>
+                                <button @click="resetUnitViewStep"
+                                    class="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-slate-200 text-xs md:text-sm font-bold transition-all cursor-pointer border border-white/10">
+                                    重置
+                                </button>
+                            </div>
+                        </div>
+
+                        <h3 class="text-base md:text-xl font-black text-white">
+                            从计数单位角度探究本质：4.2 与 0.8 的相乘
+                        </h3>
+
+                        <!-- 认知拆分双卡片 -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div
+                                class="p-4 rounded-2xl bg-emerald-950/30 border-2 border-emerald-500/40 space-y-1.5 text-center shadow-lg">
+                                <div class="text-xs text-emerald-300 font-bold flex items-center justify-center gap-1">
+                                    <span>🏷️ 因数一计数单位</span>
+                                </div>
+                                <div class="font-mono font-black text-emerald-400 text-lg md:text-2xl tracking-wider">
+                                    4.2 = 42 个 0.1
+                                </div>
+                            </div>
+
+                            <div
+                                class="p-4 rounded-2xl bg-amber-950/30 border-2 border-amber-500/40 space-y-1.5 text-center shadow-lg">
+                                <div class="text-xs text-amber-300 font-bold flex items-center justify-center gap-1">
+                                    <span>🏷️ 因数二计数单位</span>
+                                </div>
+                                <div class="font-mono font-black text-amber-300 text-lg md:text-2xl tracking-wider">
+                                    0.8 = 8 个 0.1
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 多行分步算式区 -->
+                        <div
+                            class="p-4 md:p-5 rounded-2xl bg-slate-950/90 border border-white/10 space-y-3 shadow-inner">
+                            <div v-if="unitViewStep === 0" class="text-center py-6 text-slate-400 text-xs md:text-sm">
+                                👉 点击上方【▶ 动画演示】或【单步】按钮，逐步展现计数单位推导过程
+                            </div>
+
+                            <!-- 第 ① 步 -->
+                            <div v-if="unitViewStep >= 1"
+                                class="flex items-center justify-between p-3 md:p-4 rounded-xl bg-slate-900 border border-white/10 anim-card-reveal">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-bold text-white text-sm md:text-base">① 因数单位化：</span>
+                                    <span class="font-mono font-black text-amber-300 text-sm md:text-base">4.2 ×
+                                        0.8</span>
+                                </div>
+                                <div class="font-mono font-black text-amber-300 text-base md:text-lg">
+                                    = (42 × 0.1) × (8 × 0.1)
+                                </div>
+                            </div>
+
+                            <!-- 第 ② 步 -->
+                            <div v-if="unitViewStep >= 2"
+                                class="flex items-center justify-between p-3 md:p-4 rounded-xl bg-slate-900 border border-white/10 anim-card-reveal">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-bold text-white text-sm md:text-base">② 计数单位相乘：</span>
+                                    <span class="font-mono font-black text-sky-300 text-sm md:text-base">0.1 × 0.1 =
+                                        0.01</span>
+                                </div>
+                                <div class="font-mono font-black text-sky-300 text-base md:text-lg">
+                                    = (42 × 8) 个 0.01 = 336 个 0.01
+                                </div>
+                            </div>
+
+                            <!-- 第 ③ 步 -->
+                            <div v-if="unitViewStep >= 3"
+                                class="flex items-center justify-between p-3.5 md:p-4 rounded-xl bg-emerald-950/70 border-2 border-emerald-400/80 shadow-lg shadow-emerald-500/20 anim-card-reveal">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-bold text-emerald-200 text-sm md:text-base">③ 结果还原：</span>
+                                    <span class="font-mono font-black text-emerald-200 text-sm md:text-base">336 个
+                                        0.01</span>
+                                </div>
+                                <div class="font-mono font-black text-emerald-300 text-lg md:text-2xl">
+                                    = 3.36
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 底部提示 -->
+                    <div
+                        class="p-4 rounded-xl bg-slate-900/90 border border-white/5 flex items-center justify-between mt-4">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold">
+                                💡
+                            </div>
+                            <div class="text-xs text-slate-300">
+                                <strong>计数单位规律：</strong>十分之一 × 十分之一 = 百分之一（0.1 × 0.1 = 0.01），因此两个一位小数相乘，结果是两位小数！
+                            </div>
+                        </div>
+                        <button @click="scalingViewMode = 'dual_vertical'"
+                            class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-sky-300 border border-sky-500/30 cursor-pointer">
+                            返回双竖式
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 模块三：试一试与算法归纳（课本试一试 + 绿框口诀） -->
+            <div v-if="currentStage === 'stage_3_try_and_rule'" class="flex flex-col gap-4 h-full">
+                <!-- 顶部导航切换标签 -->
+                <div class="glass-card p-4 flex items-center justify-between border-slate-700/60 flex-wrap gap-3">
+                    <div class="flex items-center gap-3">
+                        <span
+                            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs md:text-sm font-extrabold">
+                            <span>✏️ 课本「试一试」与算法生成</span>
+                        </span>
+                        <h2 class="text-sm md:text-base font-black text-white">探究不同小数位数的计算与总结四步口诀</h2>
+                    </div>
+
+                    <!-- 子模式切换：试一试1 / 试一试2 / 位数规律与口诀 -->
+                    <div class="flex p-1 bg-slate-950 rounded-xl border border-white/15 text-xs md:text-sm">
+                        <button @click="stage3Tab = 'try1'" :class="[
+                                'px-3.5 py-1.5 rounded-lg font-bold transition-all cursor-pointer',
+                                stage3Tab === 'try1' ? 'bg-sky-600 text-white shadow-md ring-1 ring-sky-300' : 'text-slate-400 hover:text-white'
+                            ]">
+                            试一试① (1.92×0.9)
+                        </button>
+                        <button @click="stage3Tab = 'try2'" :class="[
+                                'px-3.5 py-1.5 rounded-lg font-bold transition-all cursor-pointer',
+                                stage3Tab === 'try2' ? 'bg-sky-600 text-white shadow-md ring-1 ring-sky-300' : 'text-slate-400 hover:text-white'
+                            ]">
+                            试一试② (2.79×0.32)
+                        </button>
+                        <button @click="stage3Tab = 'summary_rule'" :class="[
+                                'px-3.5 py-1.5 rounded-lg font-bold transition-all cursor-pointer',
+                                stage3Tab === 'summary_rule' ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md ring-1 ring-emerald-300' : 'text-slate-400 hover:text-white'
+                            ]">
+                            ★ 位数规律与法则口诀
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 试一试①：1.92 × 0.9 (填空式互动双竖式 · 严格还原课本插图) -->
+                <div v-if="stage3Tab === 'try1'"
+                    class="glass-card flex-1 p-6 flex flex-col justify-between anim-card-reveal">
+                    <div>
+                        <div class="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
+                            <div>
+                                <h3 class="text-lg md:text-xl font-black text-white">
+                                    试一试：<span class="font-mono text-amber-300 text-2xl">1.92 × 0.9 = ?</span>
+                                </h3>
+                                <p class="text-xs text-slate-400 mt-1">
+                                    课本填空互动：请在框内填入扩大的倍数或缩小倍数，并完成小数计算！
+                                </p>
+                            </div>
+                            <button @click="revealTry1All"
+                                class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs md:text-sm font-bold shadow-lg shadow-sky-600/30 cursor-pointer">
+                                {{ try1Answered ? '🔄 重新作答' : '💡 一键揭晓' }}
+                            </button>
+                        </div>
+
+                        <!-- 课本填空双竖式舞台 -->
+                        <div
+                            class="p-6 rounded-3xl bg-slate-950/90 border border-white/15 max-w-2xl mx-auto shadow-2xl">
+                            <div class="grid grid-cols-12 gap-3 items-center">
+                                <!-- 左竖式：小数乘法 -->
+                                <div class="col-span-5 text-right font-mono pr-2">
+                                    <div class="text-2xl font-black text-white">1.92</div>
+                                    <div class="text-2xl font-black text-white flex items-center justify-end gap-1">
+                                        <span class="text-slate-400 mr-2">×</span>
+                                        <span>0.9</span>
+                                    </div>
+                                    <div class="w-full h-0.5 bg-slate-400 my-2"></div>
+                                    <div class="text-2xl font-black">
+                                        <span v-if="try1Answered"
+                                            class="text-emerald-400 anim-card-reveal font-black">1.728</span>
+                                        <span v-else
+                                            class="text-slate-500 bg-slate-900 px-3 py-1 rounded-lg border border-dashed border-slate-600">?.???</span>
+                                    </div>
+                                </div>
+
+                                <!-- 中间：填空箭头桥 (严格还原课本方框) -->
+                                <div
+                                    class="col-span-3 flex flex-col items-center justify-between h-44 py-1 text-center">
+                                    <!-- 因数1扩大框 -->
+                                    <div class="flex items-center gap-1">
+                                        <span class="text-xs font-bold text-amber-300">×</span>
+                                        <span
+                                            :class="['px-2.5 py-1 rounded-lg font-mono font-black text-xs md:text-sm border transition-all', try1Answered ? 'bg-amber-500/20 text-amber-300 border-amber-400' : 'bg-slate-900 border-dashed border-amber-500/50 text-slate-500']">
+                                            {{ try1Answered ? '100' : ' ? ' }}
+                                        </span>
+                                        <svg class="w-8 h-3 text-amber-400" viewBox="0 0 50 15" fill="none">
+                                            <path d="M0 7.5 H45 M38 2 L48 7.5 L38 13" stroke="currentColor"
+                                                stroke-width="3" class="flow-line" />
+                                        </svg>
+                                    </div>
+
+                                    <!-- 因数2扩大框 -->
+                                    <div class="flex items-center gap-1">
+                                        <span class="text-xs font-bold text-sky-300">×</span>
+                                        <span
+                                            :class="['px-2.5 py-1 rounded-lg font-mono font-black text-xs md:text-sm border transition-all', try1Answered ? 'bg-sky-500/20 text-sky-300 border-sky-400' : 'bg-slate-900 border-dashed border-sky-500/50 text-slate-500']">
+                                            {{ try1Answered ? '10' : ' ? ' }}
+                                        </span>
+                                        <svg class="w-8 h-3 text-sky-400" viewBox="0 0 50 15" fill="none">
+                                            <path d="M0 7.5 H45 M38 2 L48 7.5 L38 13" stroke="currentColor"
+                                                stroke-width="3" class="flow-line" />
+                                        </svg>
+                                    </div>
+
+                                    <!-- 积缩小框 -->
+                                    <div class="flex items-center gap-1">
+                                        <svg class="w-8 h-3 text-emerald-400" viewBox="0 0 50 15" fill="none">
+                                            <path d="M50 7.5 H5 M12 2 L2 7.5 L12 13" stroke="currentColor"
+                                                stroke-width="3" class="flow-line" />
+                                        </svg>
+                                        <span class="text-xs font-bold text-emerald-300">÷</span>
+                                        <span
+                                            :class="['px-2.5 py-1 rounded-lg font-mono font-black text-xs md:text-sm border transition-all', try1Answered ? 'bg-emerald-500/20 text-emerald-300 border-emerald-400' : 'bg-slate-900 border-dashed border-emerald-500/50 text-slate-500']">
+                                            {{ try1Answered ? '1000' : ' ? ' }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- 右竖式：整数乘法 -->
+                                <div class="col-span-4 text-right font-mono pl-2">
+                                    <div class="text-2xl font-black text-amber-300">192</div>
+                                    <div class="text-2xl font-black text-white flex items-center justify-end gap-1">
+                                        <span class="text-slate-400 mr-4">×</span>
+                                        <span class="text-amber-300">9</span>
+                                    </div>
+                                    <div class="w-full h-0.5 bg-slate-400 my-2"></div>
+                                    <div class="text-2xl font-black text-amber-300">
+                                        1728
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 推导解析条 -->
+                        <div v-if="try1Answered"
+                            class="mt-4 p-4 rounded-2xl bg-slate-900/90 border border-emerald-500/30 text-sm space-y-1.5 anim-card-reveal">
+                            <div class="font-black text-emerald-300 flex items-center gap-2">
+                                <span>🎉 算理透视：</span>
+                                <span>1.92 是两位小数（×100），0.9 是一位小数（×10）</span>
+                            </div>
+                            <p class="text-slate-300 leading-relaxed">
+                                两个因数一共扩大了 <strong class="text-amber-300 font-mono">100 × 10 = 1000 倍</strong>，算得整数积 1728
+                                后，必须缩小到原来的 1/1000（÷1000），从右边起数出 <strong class="text-emerald-400 font-bold">3
+                                    位小数</strong>，结果是 <strong
+                                    class="text-emerald-400 font-mono text-base">1.728</strong>！
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between text-xs text-slate-400 pt-3 border-t border-white/10">
+                        <span>观察：两位小数 × 一位小数 = 三位小数（2 + 1 = 3 位）</span>
+                        <button @click="stage3Tab = 'try2'"
+                            class="text-sky-400 font-bold hover:underline cursor-pointer">
+                            进入试一试② ▶
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 试一试②：2.79 × 0.32 (两位小数 × 两位小数的标准双层计算竖式) -->
+                <div v-else-if="stage3Tab === 'try2'"
+                    class="glass-card flex-1 p-6 flex flex-col justify-between anim-card-reveal">
+                    <div>
+                        <div class="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
+                            <div>
+                                <h3 class="text-lg md:text-xl font-black text-white">
+                                    试一试：<span class="font-mono text-sky-300 text-2xl">2.79 × 0.32 = ?</span>
+                                </h3>
+                                <p class="text-xs text-slate-400 mt-1">
+                                    两位小数 × 两位小数：标准分步竖式计算演示（因数共 2+2=4 位小数）
+                                </p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button @click="playTry2Anim" :class="[
+                                        'px-3.5 py-1.5 rounded-xl text-xs md:text-sm font-bold shadow transition-all cursor-pointer',
+                                        try2IsPlaying ? 'bg-amber-400 text-slate-950 font-black animate-pulse' : 'bg-sky-600 hover:bg-sky-500 text-white'
+                                    ]">
+                                    {{ try2IsPlaying ? '⏸ 演示中' : '▶ 逐步演示' }}
+                                </button>
+                                <button @click="nextTry2Step" :disabled="try2Step === 3"
+                                    class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 border border-white/10 disabled:opacity-30 cursor-pointer">
+                                    单步
+                                </button>
+                                <button @click="resetTry2Step"
+                                    class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-xs font-bold text-slate-400 cursor-pointer border border-white/10">
+                                    重置
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 标准分层竖式舞台 -->
+                        <div
+                            class="p-6 rounded-3xl bg-slate-950/90 border border-white/15 max-w-lg mx-auto shadow-2xl font-mono text-xl">
+                            <div class="text-right space-y-1 pr-6">
+                                <div class="text-white font-black text-2xl">
+                                    2.79 <span class="text-xs font-sans text-amber-300 font-bold ml-2">(2位小数)</span>
+                                </div>
+                                <div class="text-white font-black text-2xl">
+                                    × <span class="inline-block w-2"></span> 0.32 <span
+                                        class="text-xs font-sans text-sky-300 font-bold ml-2">(2位小数)</span>
+                                </div>
+                                <div class="w-full h-0.5 bg-slate-400 my-1"></div>
+
+                                <!-- 第一层：2.79 × 2 = 558 -->
+                                <div
+                                    :class="['transition-all duration-300 text-2xl font-black py-0.5', try2Step >= 1 ? 'text-amber-300 anim-card-reveal' : 'text-slate-700 opacity-20']">
+                                    5 5 8 <span class="text-xs font-sans text-slate-400 font-normal ml-2">... 279 ×
+                                        2</span>
+                                </div>
+
+                                <!-- 第二层：2.79 × 30 = 837 -->
+                                <div
+                                    :class="['transition-all duration-300 text-2xl font-black py-0.5', try2Step >= 2 ? 'text-sky-300 anim-card-reveal' : 'text-slate-700 opacity-20']">
+                                    8 3 7 <span class="inline-block w-6"></span> <span
+                                        class="text-xs font-sans text-slate-400 font-normal ml-2">... 279 × 3</span>
+                                </div>
+
+                                <div class="w-full h-0.5 bg-slate-400 my-1"></div>
+
+                                <!-- 相加并点小数点：0.8928 -->
+                                <div
+                                    :class="['transition-all duration-300 text-3xl font-black py-1', try2Step >= 3 ? 'text-emerald-400 anim-card-reveal' : 'text-slate-700 opacity-20']">
+                                    0.8 9 2 8 <span
+                                        class="text-xs font-sans text-emerald-300 font-bold ml-2">(共4位小数)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-if="try2Step >= 3"
+                            class="mt-4 p-4 rounded-2xl bg-slate-900/90 border border-emerald-500/30 text-sm space-y-1 anim-card-reveal">
+                            <span class="font-black text-emerald-300">💡 关键点点技巧：</span>
+                            <p class="text-slate-300">
+                                整数部分 279 × 32 = 8928。两个乘数一共有 2 + 2 = 4 位小数，从积的右边起数出 4 位点上小数点，整数部分不够时添 0 占位，得到 <strong
+                                    class="text-emerald-400 font-bold">0.8928</strong>！
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between text-xs text-slate-400 pt-3 border-t border-white/10">
+                        <span>总结：积的小数位数 = 两个因数的小数位数之和！</span>
+                        <button @click="stage3Tab = 'summary_rule'"
+                            class="text-emerald-400 font-bold hover:underline cursor-pointer">
+                            前往生成四步计算口诀 ▶
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 归纳总结：乘数与积小数位数规律 + 四步口诀 (对应课本绿色法则大框) -->
+                <div v-else class="glass-card flex-1 p-6 flex flex-col justify-between anim-card-reveal">
+                    <div class="space-y-4">
+                        <div class="pb-2 border-b border-white/10 flex items-center justify-between">
+                            <div>
+                                <h3 class="text-lg md:text-xl font-black text-white flex items-center gap-2">
+                                    <span>🔍 观察发现：乘数与积的小数位数关系</span>
+                                </h3>
+                                <p class="text-xs text-slate-300 mt-0.5">观察上面各题中乘数与积的小数位数，你能发现什么？</p>
+                            </div>
+                            <span
+                                class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold">
+                                核心规律提炼
+                            </span>
+                        </div>
+
+                        <!-- 3组例题小数位数对比表格 -->
+                        <div class="grid grid-cols-3 gap-3 text-center">
+                            <div class="p-3 rounded-2xl bg-slate-900/90 border border-sky-500/30 space-y-1">
+                                <div class="text-xs text-slate-400 font-bold">例 3</div>
+                                <div class="font-mono text-sm md:text-base font-black text-white">4.2 × 0.8 = 3.36</div>
+                                <div class="text-xs font-black text-sky-300 bg-sky-950/80 py-1 rounded-lg">
+                                    1位 + 1位 = 2位
+                                </div>
+                            </div>
+
+                            <div class="p-3 rounded-2xl bg-slate-900/90 border border-amber-500/30 space-y-1">
+                                <div class="text-xs text-slate-400 font-bold">试一试 ①</div>
+                                <div class="font-mono text-sm md:text-base font-black text-white">1.92 × 0.9 = 1.728
+                                </div>
+                                <div class="text-xs font-black text-amber-300 bg-amber-950/80 py-1 rounded-lg">
+                                    2位 + 1位 = 3位
+                                </div>
+                            </div>
+
+                            <div class="p-3 rounded-2xl bg-slate-900/90 border border-emerald-500/30 space-y-1">
+                                <div class="text-xs text-slate-400 font-bold">试一试 ②</div>
+                                <div class="font-mono text-sm md:text-base font-black text-white">2.79 × 0.32 = 0.8928
+                                </div>
+                                <div class="text-xs font-black text-emerald-300 bg-emerald-950/80 py-1 rounded-lg">
+                                    2位 + 2位 = 4位
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 绿框计算法则口诀 (严格还原课本绿框规范) -->
+                        <div
+                            class="p-5 rounded-2xl bg-emerald-950/60 border-2 border-emerald-400/80 shadow-2xl space-y-3">
+                            <div class="flex items-center gap-2 text-emerald-300 font-black text-base md:text-lg">
+                                <span>📜</span>
+                                <span>小数乘法计算法则（四步口诀）</span>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                                <div class="p-3 rounded-xl bg-slate-900/90 border border-emerald-500/30 space-y-1">
+                                    <div class="font-black text-amber-300 text-base">一「算」：按整数乘法算</div>
+                                    <p class="text-xs text-slate-300">先不看小数点，直接按照学过的整数乘法竖式算出乘积。</p>
+                                </div>
+
+                                <div class="p-3 rounded-xl bg-slate-900/90 border border-emerald-500/30 space-y-1">
+                                    <div class="font-black text-sky-300 text-base">二「数」：数两因数小数位</div>
+                                    <p class="text-xs text-slate-300">看乘数中一共有几位小数（将两个因数的小数位数相加）。</p>
+                                </div>
+
+                                <div class="p-3 rounded-xl bg-slate-900/90 border border-emerald-500/30 space-y-1">
+                                    <div class="font-black text-emerald-300 text-base">三「点」：从右向左点点</div>
+                                    <p class="text-xs text-slate-300">就从积的右边起数出几位，点上小数点；位数不够添 0 补足！</p>
+                                </div>
+
+                                <div class="p-3 rounded-xl bg-slate-900/90 border border-emerald-500/30 space-y-1">
+                                    <div class="font-black text-rose-300 text-base">四「化」：末尾有 0 需化简</div>
+                                    <p class="text-xs text-slate-300">积的小数末尾如果有 0，根据小数的性质通常要把 0 去掉化简。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between text-xs text-slate-300 pt-3 border-t border-white/10">
+                        <span>口诀熟记在心：一算、二数、三点、四化！</span>
+                        <button @click="setStage('stage_4_quiz')"
+                            class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black text-xs md:text-sm shadow cursor-pointer">
+                            进入做一做诊断与实验室 ▶
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 模块四：做一做诊断与自由实验室 -->
+            <div v-else-if="currentStage === 'stage_4_quiz'" class="flex flex-col gap-4 h-full">
+                <!-- 顶部模式切换 -->
+                <div class="glass-card p-4 flex items-center justify-between border-slate-700/60 flex-wrap gap-3">
+                    <div class="flex items-center gap-3">
+                        <span
+                            class="px-3 py-1.5 rounded-full bg-purple-500/20 text-purple-300 text-xs md:text-sm font-bold border border-purple-500/30">
+                            模块四 · 诊断与探究
+                        </span>
+                        <h2 class="text-base md:text-lg font-bold text-white">做一做练习与自由算理透视实验室</h2>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <div class="flex p-1.5 bg-slate-900/90 rounded-2xl border border-white/15 text-sm shadow-xl">
+                            <button @click="quizViewMode = 'quiz_bank'"
+                                :class="['px-4 py-2 rounded-xl font-bold transition-all text-sm md:text-base flex items-center gap-2 cursor-pointer', quizViewMode === 'quiz_bank' ? 'bg-gradient-to-r from-sky-600 to-indigo-600 text-white shadow-lg shadow-sky-600/40 ring-2 ring-sky-300/40' : 'text-slate-400 hover:text-white hover:bg-slate-800/80']">
+                                <span>🎯</span>
+                                <span>成对对比测验题</span>
+                            </button>
+                            <button @click="quizViewMode = 'custom_lab'"
+                                :class="['px-4 py-2 rounded-xl font-bold transition-all text-sm md:text-base flex items-center gap-2 cursor-pointer', quizViewMode === 'custom_lab' ? 'bg-gradient-to-r from-sky-600 to-indigo-600 text-white shadow-lg shadow-sky-600/40 ring-2 ring-sky-300/40' : 'text-slate-400 hover:text-white hover:bg-slate-800/80']">
+                                <span>🧪</span>
+                                <span>小数乘小数透视实验室</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 模式一：成对对比诊断题库 -->
+                <div v-if="quizViewMode === 'quiz_bank'" class="flex-1 flex flex-col gap-4">
+                    <!-- 测验卡片列表 -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">
+                        <div v-for="(quiz, idx) in quizList" :key="quiz.id"
+                            class="glass-card p-5 flex flex-col justify-between border-slate-700/70 hover:border-slate-600 transition-all bg-slate-900/60">
+                            <div>
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center gap-2">
+                                        <span
+                                            class="w-6 h-6 rounded-md bg-sky-500/20 text-sky-300 font-mono font-bold text-xs flex items-center justify-center">
+                                            {{ idx + 1 }}
+                                        </span>
+                                        <span class="text-xs font-bold text-slate-300">{{ quiz.title }}</span>
+                                    </div>
+                                    <span v-if="quiz.isCompleted"
+                                        class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[11px] font-bold">
+                                        ✓ 已完成
+                                    </span>
+                                </div>
+
+                                <!-- 成对算式对比区 -->
+                                <div
+                                    class="p-3.5 rounded-2xl bg-slate-950/90 border border-white/10 space-y-2.5 mb-3 shadow-inner">
+                                    <div class="flex items-center justify-between text-xs md:text-sm text-slate-400">
+                                        <span class="font-bold flex items-center gap-1">
+                                            <span>已知整数算式：</span>
+                                        </span>
+                                        <div class="flex items-center gap-2">
+                                            <template v-if="quiz.isBaseRevealed">
+                                                <span
+                                                    class="font-mono font-black text-slate-200 text-base md:text-lg tracking-wider anim-card-reveal">{{
+                                                    quiz.baseIntFormula }}</span>
+                                                <button @click="toggleBaseFormula(quiz)"
+                                                    class="px-2 py-0.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white text-xs font-bold transition-all cursor-pointer border border-white/10"
+                                                    title="收起已知算式">
+                                                    🔒 隐藏
+                                                </button>
+                                            </template>
+                                            <template v-else>
+                                                <button @click="toggleBaseFormula(quiz)"
+                                                    class="px-3 py-1 rounded-xl bg-gradient-to-r from-sky-600/90 to-indigo-600/90 hover:from-sky-500 hover:to-indigo-500 text-white text-xs font-black shadow-md transition-all cursor-pointer ring-1 ring-sky-400/40 hover:scale-105 flex items-center gap-1.5">
+                                                    <span>💡 揭晓已知算式</span>
+                                                </button>
+                                            </template>
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        class="flex items-center justify-between text-xs md:text-sm pt-2 border-t border-white/10">
+                                        <span class="text-sky-300 font-bold">推导目标算式：</span>
+                                        <span
+                                            class="font-mono font-black text-amber-300 text-lg md:text-xl tracking-wider">{{
+                                            quiz.targetDecFormula }}</span>
+                                    </div>
+                                </div>
+
+                                <!-- 选项按钮组 -->
+                                <div class="space-y-2">
+                                    <div class="text-xs md:text-sm font-black text-slate-200 flex items-center gap-1.5">
+                                        <span>👉</span>
+                                        <span>请选择正确的积：</span>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-2.5">
+                                        <button v-for="opt in quiz.options" :key="opt.value"
+                                            @click="handleAnswerQuiz(quiz, opt)" :disabled="quiz.isCompleted" :class="[
+                                                    'py-2 px-3 rounded-xl font-mono font-bold transition-all text-center border flex items-center justify-center gap-2 cursor-pointer shadow',
+                                                    quiz.userAnswer === opt.value 
+                                                        ? (opt.correct 
+                                                            ? 'bg-emerald-600 text-white border-emerald-400 shadow-lg shadow-emerald-600/40 ring-2 ring-emerald-300/60 scale-[1.02]' 
+                                                            : 'bg-rose-600 text-white border-rose-400 shake-error ring-2 ring-rose-300/60') 
+                                                        : quiz.isCompleted
+                                                            ? (opt.correct ? 'bg-emerald-950/60 border-emerald-500/50 text-emerald-300 ring-2 ring-emerald-400/40' : 'bg-slate-900/60 border-white/5 text-slate-600 opacity-30')
+                                                            : 'bg-slate-800/90 hover:bg-slate-700 text-slate-100 border-white/15 hover:border-sky-400 hover:scale-[1.02]'
+                                                ]">
+                                            <span
+                                                class="text-xs px-1.5 py-0.5 rounded-md bg-white/10 font-sans font-black">{{
+                                                opt.label }}</span>
+                                            <span class="text-sm md:text-base font-black">{{ opt.text }}</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 诊断反馈提示 -->
+                            <div class="mt-4 pt-3 border-t border-white/10 min-h-[3.5rem] flex items-center">
+                                <div v-if="quiz.feedback"
+                                    :class="['w-full p-3 rounded-xl text-xs md:text-sm font-bold leading-relaxed shadow-lg', quiz.isCorrect ? 'bg-emerald-950/80 text-emerald-200 border border-emerald-500/40' : 'bg-rose-950/80 text-rose-200 border border-rose-500/40']">
+                                    {{ quiz.feedback }}
+                                </div>
+                                <div v-else
+                                    class="text-slate-400 text-xs md:text-sm font-medium flex items-center gap-2">
+                                    <span class="text-amber-400 text-base">💡</span>
+                                    <span>数一数两个因数中一共有几位小数，想一想不够时是否要添 0，末尾 0 是否化简。</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 满分庆祝卡 -->
+                    <div v-if="allQuizCompleted"
+                        class="glass-card p-4 bg-gradient-to-r from-emerald-950/60 to-slate-900 border-emerald-500/40 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">🏆</span>
+                            <div>
+                                <h4 class="text-sm font-bold text-emerald-300">恭喜全部通关！你已经完全掌握了小数乘小数的算理与算法！</h4>
+                                <p class="text-xs text-slate-300">牢记法则：先按整数乘法算，再看乘数一共有几位小数，就从右起数出几位点上小数点！</p>
+                            </div>
+                        </div>
+                        <button @click="fireConfetti"
+                            class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-md shadow-emerald-600/30 cursor-pointer">
+                            🎊 再次庆祝
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 模式二：自由算理透视实验室（支持小数 × 小数） -->
+                <div v-else class="glass-card flex-1 p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="space-y-1">
+                                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                                    <span>🧪 小数乘小数「动态算理生成器」</span>
+                                </h3>
+                                <p class="text-xs text-slate-400">
+                                    输入任意两个小数，系统将自动分析小数位数、放大倍数、整数乘法乘积、缩小倍数与最终点点化简！
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- 输入控制面板 -->
+                        <div
+                            class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 rounded-xl bg-slate-900/80 border border-white/10 mb-6">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-300 mb-1.5">因数 1（小数）</label>
+                                <input type="number" step="0.01" v-model.number="customFactor1"
+                                    @input="calculateCustomLab"
+                                    class="w-full bg-slate-800 text-white font-mono font-bold px-3 py-2 rounded-lg border border-slate-600 focus:border-sky-400 focus:outline-none text-base">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-300 mb-1.5">因数 2（小数）</label>
+                                <input type="number" step="0.01" v-model.number="customFactor2"
+                                    @input="calculateCustomLab"
+                                    class="w-full bg-slate-800 text-white font-mono font-bold px-3 py-2 rounded-lg border border-slate-600 focus:border-sky-400 focus:outline-none text-base">
+                            </div>
+                            <div class="flex items-end">
+                                <button @click="calculateCustomLab"
+                                    class="w-full py-2.5 rounded-lg bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-bold text-sm shadow-lg shadow-sky-600/30 flex items-center justify-center gap-2 cursor-pointer">
+                                    <span>⚡ 重新生成算理</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 动态推导结果卡片 -->
+                        <div v-if="customLabResult"
+                            class="space-y-4 p-5 rounded-2xl bg-slate-950/90 border border-white/10 shadow-2xl anim-card-reveal">
+                            <div
+                                class="flex items-center justify-between flex-wrap gap-3 pb-3 border-b border-white/10">
+                                <div
+                                    class="px-3.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs md:text-sm font-black flex items-center gap-1.5">
+                                    <span>✨ 双因数转化算理推导</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button @click="playCustomLabAnim" :class="[
+                                                'px-4 py-1.5 rounded-xl text-xs md:text-sm font-black transition-all cursor-pointer shadow flex items-center gap-1.5',
+                                                customLabIsPlaying 
+                                                    ? 'bg-rose-600 hover:bg-rose-500 text-white animate-pulse' 
+                                                    : 'bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold shadow-amber-500/30'
+                                            ]">
+                                        <span>{{ customLabIsPlaying ? '⏸ 暂停演示' : '▶ 动画演示' }}</span>
+                                    </button>
+                                    <button @click="nextCustomLabStep" :disabled="customLabStep === 3"
+                                        class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 disabled:opacity-30 text-slate-200 text-xs md:text-sm font-black transition-all cursor-pointer border border-white/10">
+                                        单步
+                                    </button>
+                                    <button @click="resetCustomLabStep"
+                                        class="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-slate-200 text-xs md:text-sm font-bold transition-all cursor-pointer border border-white/10">
+                                        重置
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 上半部分：认知双卡片 -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div
+                                    class="p-3.5 rounded-2xl bg-emerald-950/30 border-2 border-emerald-500/40 space-y-1 text-center shadow-lg">
+                                    <div class="text-xs text-emerald-300 font-bold">🏷️ 目标小数乘法</div>
+                                    <div
+                                        class="font-mono font-black text-emerald-400 text-base md:text-xl tracking-wider">
+                                        {{ customFactor1 }} × {{ customFactor2 }} = ?
+                                    </div>
+                                </div>
+
+                                <div
+                                    class="p-3.5 rounded-2xl bg-amber-950/30 border-2 border-amber-500/40 space-y-1 text-center shadow-lg">
+                                    <div class="text-xs text-amber-300 font-bold">🏷️ 小数位数与倍数规律</div>
+                                    <div
+                                        class="font-mono font-black text-amber-300 text-base md:text-xl tracking-wider">
+                                        {{ customLabResult.dec1Len }}位 + {{ customLabResult.dec2Len }}位 = {{
+                                        customLabResult.totalDecLen }}位 (÷{{ customLabResult.totalScale }})
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 下半部分：多行分步算式区 -->
+                            <div class="p-4 rounded-2xl bg-slate-900/90 border border-white/10 space-y-3 shadow-inner">
+                                <div v-if="customLabStep === 0"
+                                    class="text-center py-6 text-slate-400 text-xs md:text-sm">
+                                    👉 点击上方【▶ 动画演示】或【单步】按钮，逐步展现转化推导过程
+                                </div>
+
+                                <!-- 第 ① 步 -->
+                                <div v-if="customLabStep >= 1"
+                                    class="flex items-center justify-between p-3 md:p-3.5 rounded-xl bg-slate-950 border border-white/10 anim-card-reveal">
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-bold text-white text-xs md:text-sm">① 因数同时扩大为整数：</span>
+                                        <span class="font-mono font-black text-amber-300 text-xs md:text-sm">{{
+                                            customFactor1 }}×{{ customLabResult.scale1 }} = {{
+                                            customLabResult.intFactor1 }}，{{ customFactor2 }}×{{ customLabResult.scale2
+                                            }} = {{ customLabResult.intFactor2 }}</span>
+                                    </div>
+                                    <div class="font-mono font-black text-amber-300 text-sm md:text-base">
+                                        共扩大 {{ customLabResult.totalScale }} 倍
+                                    </div>
+                                </div>
+
+                                <!-- 第 ② 步 -->
+                                <div v-if="customLabStep >= 2"
+                                    class="flex items-center justify-between p-3 md:p-3.5 rounded-xl bg-slate-950 border border-white/10 anim-card-reveal">
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-bold text-white text-xs md:text-sm">② 整数乘法：</span>
+                                        <span class="font-mono font-black text-sky-300 text-xs md:text-sm">{{
+                                            customLabResult.intFactor1 }} × {{ customLabResult.intFactor2 }}</span>
+                                    </div>
+                                    <div class="font-mono font-black text-sky-300 text-sm md:text-base">
+                                        = {{ customLabResult.intProduct }}
+                                    </div>
+                                </div>
+
+                                <!-- 第 ③ 步 -->
+                                <div v-if="customLabStep >= 3"
+                                    class="flex items-center justify-between p-3.5 rounded-xl bg-emerald-950/80 border-2 border-emerald-400/80 shadow-lg shadow-emerald-500/20 anim-card-reveal">
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-bold text-emerald-200 text-xs md:text-sm">③ 缩小还原与点小数点：</span>
+                                        <span class="font-mono font-black text-emerald-200 text-xs md:text-sm">{{
+                                            customLabResult.intProduct }} ÷ {{ customLabResult.totalScale }}（点{{
+                                            customLabResult.totalDecLen }}位）</span>
+                                    </div>
+                                    <div class="font-mono font-black text-emerald-300 text-base md:text-xl">
+                                        = {{ customLabResult.finalResult }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div
+                        class="mt-4 p-3 rounded-xl bg-slate-900/60 text-xs text-slate-400 flex items-center justify-between">
+                        <span>提示：你可以尝试输入 0.25 × 0.08 或 1.05 × 0.24 来检验补 0 和化简规则！</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- ==========================================
+             3. 右侧：核心算理提炼与前进导航
+             ========================================== -->
+        <aside v-if="currentStage"
+            class="w-80 glass-panel rounded-2xl p-5 flex flex-col justify-between shrink-0 border border-white/10 shadow-2xl">
+            <div class="space-y-4">
+                <!-- 顶部标题与收起/展开控制 -->
+                <div class="flex items-center justify-between pb-3 border-b border-white/10">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center font-black text-xl border border-amber-500/30 shrink-0">
+                            💡
+                        </div>
+                        <div>
+                            <h3 class="text-base font-black text-amber-300 tracking-wide">核心算理提炼</h3>
+                            <span class="text-xs text-slate-300 font-semibold">数学思想与精要</span>
+                        </div>
+                    </div>
+
+                    <!-- 状态标签 / 收起按钮 -->
+                    <button v-if="isSummaryRevealed[currentStage]" @click="toggleSummary()"
+                        class="px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white text-xs font-bold transition-all cursor-pointer border border-white/10"
+                        title="收起提炼总结">
+                        🔒 隐藏
+                    </button>
+                </div>
+
+                <!-- 状态 A：未揭晓状态卡片 -->
+                <div v-if="!isSummaryRevealed[currentStage]"
+                    class="p-6 rounded-2xl bg-gradient-to-b from-slate-900/90 to-slate-950 border border-dashed border-amber-500/30 text-center space-y-4 shadow-xl">
+                    <div
+                        class="w-16 h-16 mx-auto rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-3xl shadow-lg shadow-amber-500/20 animate-pulse">
+                        🧠
+                    </div>
+                    <div>
+                        <h4 class="text-base font-black text-white mb-1">数学思想待提炼</h4>
+                    </div>
+
+                    <button @click="toggleSummary()"
+                        class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-sm shadow-lg shadow-amber-500/30 transition-all transform hover:scale-[1.02] cursor-pointer flex items-center justify-center gap-2">
+                        <span>✨ 揭晓算理提炼</span>
+                    </button>
+                </div>
+
+                <!-- 状态 B：已揭晓状态（展示各阶段专属提炼） -->
+                <div v-else class="space-y-4 anim-card-reveal">
+                    <!-- 阶段 1：转化思想 (例3) -->
+                    <div v-if="currentStage === 'stage_1_field'" class="space-y-4">
+                        <div
+                            class="p-4 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-200 space-y-2 shadow-lg">
+                            <div class="text-sm font-black text-amber-300 flex items-center gap-1.5">
+                                <span>★</span>
+                                <span>双乘数转化思想</span>
+                            </div>
+                            <p class="text-sm leading-relaxed text-slate-100">
+                                两个乘数都是小数时，可以通过把两个乘数同时扩大成整数（<strong class="font-mono text-amber-300">42 × 8 =
+                                    336</strong>），再把乘得的积缩小到原来的 <strong class="text-emerald-400">1/100</strong>（÷100）得到
+                                <strong class="text-emerald-400 font-bold">3.36</strong>！
+                            </p>
+                        </div>
+
+                        <div
+                            class="p-4 rounded-xl bg-slate-900/90 border border-white/10 space-y-2 text-sm shadow-inner">
+                            <div class="font-black text-sky-300 flex items-center gap-1.5">
+                                <span class="text-base">🤔</span>
+                                <span>思考启发：</span>
+                            </div>
+                            <p class="leading-relaxed text-slate-300">
+                                如果一个是两位小数，另一个是一位小数，积要缩小多少倍呢？
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 阶段 2：积的变化规律 (例3) -->
+                    <div v-else-if="currentStage === 'stage_2_scaling'" class="space-y-4">
+                        <div
+                            class="p-4 rounded-xl bg-sky-500/15 border border-sky-500/40 text-sky-200 space-y-2 shadow-lg">
+                            <div class="text-sm font-black text-sky-300 flex items-center gap-1.5">
+                                <span>★</span>
+                                <span>积的变化规律本质</span>
+                            </div>
+                            <p class="text-sm leading-relaxed text-slate-100">
+                                因数 4.2 扩大 10 倍，因数 0.8 扩大 10 倍，积一共扩大了 <strong class="text-amber-300 font-bold">10 × 10 =
+                                    100 倍</strong>。要得到原来的积，必须缩小到原来的 <strong
+                                    class="text-emerald-400 font-bold">1/100</strong>！
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 阶段 3：试一试与四步法则口诀 -->
+                    <div v-else-if="currentStage === 'stage_3_try_and_rule'" class="space-y-4">
+                        <div
+                            class="p-4 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-200 space-y-2.5 shadow-lg">
+                            <div class="text-sm font-black text-emerald-300 flex items-center gap-1.5">
+                                <span>★</span>
+                                <span>小数乘法四步口诀</span>
+                            </div>
+                            <div class="space-y-2 text-sm text-slate-100 font-bold leading-relaxed">
+                                <div><strong class="text-amber-300">一算：</strong>先按整数乘法算出积；</div>
+                                <div><strong class="text-sky-300">二数：</strong>看两因数共有几位小数；</div>
+                                <div><strong class="text-emerald-300">三点：</strong>从积右起数位点小数点；</div>
+                                <div><strong class="text-rose-300">四化：</strong>不够添0占位，末尾0化简！</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 阶段 4：诊断与探究 (练习) -->
+                    <div v-else class="space-y-4">
+                        <div
+                            class="p-4 rounded-xl bg-purple-500/15 border border-purple-500/40 text-purple-200 space-y-2 shadow-lg">
+                            <div class="text-sm font-black text-purple-300 flex items-center gap-1.5">
+                                <span>★</span>
+                                <span>巩固与探究</span>
+                            </div>
+                            <p class="text-sm leading-relaxed text-slate-200">
+                                重点强化：因数小数位数相加确定积的小数位数，注意易错点：位数不够要补 0，末尾 0 要化简！
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 下一步跳转大按钮 -->
+            <div class="pt-4 border-t border-white/10">
+                <button v-if="currentStage === 'stage_1_field'" @click="setStage('stage_2_scaling')"
+                    class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-black text-sm md:text-base shadow-xl shadow-sky-500/30 flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] cursor-pointer">
+                    <span>进入例3：双竖式算理透视</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                            d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                </button>
+
+                <button v-else-if="currentStage === 'stage_2_scaling'" @click="setStage('stage_3_try_and_rule')"
+                    class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-black text-sm md:text-base shadow-xl shadow-sky-500/30 flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] cursor-pointer">
+                    <span>进入「试一试」与法则生成</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                            d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                </button>
+
+                <button v-else-if="currentStage === 'stage_3_try_and_rule'" @click="setStage('stage_4_quiz')"
+                    class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-black text-sm md:text-base shadow-xl shadow-emerald-500/30 flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] cursor-pointer">
+                    <span>进入做一做诊断</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                            d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                </button>
+
+                <button v-else @click="fireConfetti"
+                    class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-400 hover:to-pink-500 text-white font-black text-sm md:text-base shadow-xl shadow-purple-500/30 flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] cursor-pointer">
+                    <span>🎊 庆祝全课通关</span>
+                </button>
+            </div>
+        </aside>
+    </div>
+
+    <!-- ==========================================
+         3. Vue 3 业务逻辑与 Web Audio 系统
+         ========================================== -->
+    <script>
+        const { createApp, ref, reactive, computed, onMounted } = Vue;
+
+        createApp({
+            setup() {
+                // 音效系统 (Web Audio API 合成音效)
+                const soundEnabled = ref(true);
+                let audioCtx = null;
+
+                const initAudio = () => {
+                    if (!audioCtx) {
+                        const AudioContext = window.AudioContext || window.webkitAudioContext;
+                        if (AudioContext) {
+                            audioCtx = new AudioContext();
+                        }
+                    }
+                    if (audioCtx && audioCtx.state === 'suspended') {
+                        audioCtx.resume();
+                    }
+                };
+
+                const playTone = (freq = 440, type = 'sine', duration = 0.15, gainVal = 0.1) => {
+                    if (!soundEnabled.value) return;
+                    try {
+                        initAudio();
+                        if (!audioCtx) return;
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.type = type;
+                        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                        gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.start();
+                        osc.stop(audioCtx.currentTime + duration);
+                    } catch (e) {
+                        console.warn('Audio play error', e);
+                    }
+                };
+
+                const playChime = () => {
+                    playTone(523.25, 'triangle', 0.1, 0.08);
+                    setTimeout(() => playTone(659.25, 'triangle', 0.15, 0.08), 80);
+                    setTimeout(() => playTone(783.99, 'triangle', 0.25, 0.1), 160);
+                };
+
+                const playSuccess = () => {
+                    playTone(523.25, 'sine', 0.1, 0.1);
+                    setTimeout(() => playTone(659.25, 'sine', 0.1, 0.1), 90);
+                    setTimeout(() => playTone(783.99, 'sine', 0.1, 0.1), 180);
+                    setTimeout(() => playTone(1046.50, 'sine', 0.35, 0.15), 270);
+                };
+
+                const playCut = () => {
+                    playTone(800, 'sawtooth', 0.08, 0.08);
+                    setTimeout(() => playTone(400, 'square', 0.12, 0.06), 40);
+                };
+
+                const playError = () => {
+                    playTone(220, 'sawtooth', 0.18, 0.12);
+                    setTimeout(() => playTone(180, 'sawtooth', 0.22, 0.12), 100);
+                };
+
+                const toggleSound = () => {
+                    soundEnabled.value = !soundEnabled.value;
+                    if (soundEnabled.value) {
+                        initAudio();
+                        playTone(587.33, 'sine', 0.15);
+                    }
+                };
+
+                // Confetti 纸屑动画系统
+                const fireConfetti = () => {
+                    const canvas = document.getElementById('confettiCanvas');
+                    if (!canvas) return;
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight;
+
+                    const particles = [];
+                    const colors = ['#38bdf8', '#fbbf24', '#34d399', '#f43f5e', '#a855f7', '#f8fafc'];
+
+                    for (let i = 0; i < 80; i++) {
+                        particles.push({
+                            x: canvas.width / 2,
+                            y: canvas.height / 2,
+                            vx: (Math.random() - 0.5) * 16,
+                            vy: (Math.random() - 0.7) * 16,
+                            size: Math.random() * 8 + 4,
+                            color: colors[Math.floor(Math.random() * colors.length)],
+                            rotation: Math.random() * 360,
+                            rotationSpeed: (Math.random() - 0.5) * 10,
+                            alpha: 1,
+                            gravity: 0.35
+                        });
+                    }
+
+                    let animFrame;
+                    const render = () => {
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        let alive = false;
+
+                        particles.forEach(p => {
+                            p.x += p.vx;
+                            p.y += p.vy;
+                            p.vy += p.gravity;
+                            p.rotation += p.rotationSpeed;
+                            p.alpha -= 0.015;
+
+                            if (p.alpha > 0) {
+                                alive = true;
+                                ctx.save();
+                                ctx.globalAlpha = Math.max(0, p.alpha);
+                                ctx.translate(p.x, p.y);
+                                ctx.rotate((p.rotation * Math.PI) / 180);
+                                ctx.fillStyle = p.color;
+                                ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                                ctx.restore();
+                            }
+                        });
+
+                        if (alive) {
+                            animFrame = requestAnimationFrame(render);
+                        } else {
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        }
+                    };
+                    render();
+                };
+
+                // 全屏控制
+                const toggleFullscreen = () => {
+                    if (!document.fullscreenElement) {
+                        document.documentElement.requestFullscreen().catch(err => {
+                            console.warn('Fullscreen error', err);
+                        });
+                    } else {
+                        if (document.exitFullscreen) {
+                            document.exitFullscreen();
+                        }
+                    }
+                };
+
+                // 阶段与导航 (小数乘小数专属 4 阶段)
+                const stages = [
+                    { id: 'stage_1_field', name: '校园试验田 (例3)', icon: '🌱', badge: false },
+                    { id: 'stage_2_scaling', name: '算理透视镜 (例3)', icon: '🔍', badge: true },
+                    { id: 'stage_3_try_and_rule', name: '试一试与口诀 (归纳)', icon: '⚡', badge: false },
+                    { id: 'stage_4_quiz', name: '做一做诊断 (练习)', icon: '🎯', badge: false }
+                ];
+
+                const currentStage = ref('stage_1_field');
+
+                const setStage = (stageId) => {
+                    currentStage.value = stageId;
+                    playTone(493.88, 'sine', 0.1);
+                };
+
+                const currentStageTitle = computed(() => {
+                    const found = stages.find(s => s.id === currentStage.value);
+                    return found ? found.name : '';
+                });
+
+                // 全局右侧算理总结揭晓状态
+                const isSummaryRevealed = reactive({
+                    stage_1_field: false,
+                    stage_2_scaling: false,
+                    stage_3_try_and_rule: false,
+                    stage_4_quiz: false
+                });
+
+                const toggleSummary = (stageKey) => {
+                    const key = stageKey || currentStage.value;
+                    isSummaryRevealed[key] = !isSummaryRevealed[key];
+                    if (isSummaryRevealed[key]) {
+                        playChime();
+                        fireConfetti();
+                    } else {
+                        playTone(330, 'sine', 0.1);
+                    }
+                };
+
+                // ------------------------------------------
+                // 模块一：例 3 校园试验田（仅展示核心方法三）
+                // ------------------------------------------
+                const isFormulaRevealed = ref(false);
+                const toggleFormula = () => {
+                    isFormulaRevealed.value = !isFormulaRevealed.value;
+                    if (isFormulaRevealed.value) {
+                        playChime();
+                    } else {
+                        playTone(330, 'sine', 0.1);
+                    }
+                };
+
+                // 核心方法三动画控制（因数与积变化规律）
+                const fieldAnimStep = ref(0);
+                const fieldIsPlaying = ref(false);
+                let fieldTimer = null;
+
+                const playFieldAnim = () => {
+                    if (fieldIsPlaying.value) {
+                        if (fieldTimer) clearInterval(fieldTimer);
+                        fieldIsPlaying.value = false;
+                        return;
+                    }
+                    fieldAnimStep.value = 0;
+                    fieldIsPlaying.value = true;
+                    playChime();
+
+                    let s = 0;
+                    fieldTimer = setInterval(() => {
+                        s++;
+                        fieldAnimStep.value = s;
+                        if (s === 1) {
+                            playTone(523.25, 'triangle', 0.18);
+                        } else if (s === 2) {
+                            playTone(659.25, 'triangle', 0.18);
+                        } else if (s === 3) {
+                            playSuccess();
+                            fireConfetti();
+                            clearInterval(fieldTimer);
+                            fieldIsPlaying.value = false;
+                        }
+                    }, 1200);
+                };
+
+                const nextFieldStep = () => {
+                    if (fieldAnimStep.value < 3) {
+                        fieldAnimStep.value++;
+                        playTone(520 + fieldAnimStep.value * 100, 'triangle', 0.18);
+                        if (fieldAnimStep.value === 3) {
+                            playSuccess();
+                            fireConfetti();
+                        }
+                    }
+                };
+
+                const resetFieldStep = () => {
+                    fieldAnimStep.value = 0;
+                    if (fieldTimer) clearInterval(fieldTimer);
+                    fieldIsPlaying.value = false;
+                    playTone(330, 'sine', 0.1);
+                };
+
+                // ------------------------------------------
+                // 模块二：双竖式联动状态 (例 3 · 4.2 × 0.8)
+                // ------------------------------------------
+                const scalingViewMode = ref('dual_vertical');
+                const scalingStep = ref(1); // 1..4
+                const isAutoPlaying = ref(false);
+                let autoPlayTimer = null;
+
+                const scalingStepTitles = [
+                    '第一步：因数一扩大（4.2 扩大到原来的 10 倍为 42）',
+                    '第二步：因数二扩大（0.8 扩大到原来的 10 倍为 8）',
+                    '第三步：整数相乘（42 × 8 = 336，积一共扩大 100 倍）',
+                    '第四步：积缩小还原（336 缩小到原来的 1/100 变为 3.36）'
+                ];
+
+                const scalingStepDesc = [
+                    '因数 4.2 乘 10 转化为整数 42',
+                    '因数 0.8 乘 10 转化为整数 8',
+                    '按学过的整数乘法竖式算出 42 × 8 = 336，此时积是原积的 100 倍',
+                    '将算出的积 336 缩小 100 倍（÷100），从右向左点出 2 位小数得 3.36'
+                ];
+
+                const nextScalingStep = () => {
+                    if (scalingStep.value < 4) {
+                        scalingStep.value++;
+                        playChime();
+                        if (scalingStep.value === 4) {
+                            playSuccess();
+                            fireConfetti();
+                        }
+                    }
+                };
+
+                const prevScalingStep = () => {
+                    if (scalingStep.value > 1) {
+                        scalingStep.value--;
+                        playTone(392.00, 'sine', 0.1);
+                    }
+                };
+
+                const toggleAutoPlay = () => {
+                    isAutoPlaying.value = !isAutoPlaying.value;
+                    if (isAutoPlaying.value) {
+                        scalingStep.value = 1;
+                        playChime();
+                        autoPlayTimer = setInterval(() => {
+                            if (scalingStep.value < 4) {
+                                scalingStep.value++;
+                                playChime();
+                                if (scalingStep.value === 4) {
+                                    playSuccess();
+                                    fireConfetti();
+                                    clearInterval(autoPlayTimer);
+                                    isAutoPlaying.value = false;
+                                }
+                            } else {
+                                clearInterval(autoPlayTimer);
+                                isAutoPlaying.value = false;
+                            }
+                        }, 2200);
+                    } else {
+                        if (autoPlayTimer) clearInterval(autoPlayTimer);
+                    }
+                };
+
+                // 模块二：计数单位透视分步控制
+                const unitViewStep = ref(1);
+                const unitViewIsPlaying = ref(false);
+                let unitViewTimer = null;
+
+                const playUnitViewAnim = () => {
+                    if (unitViewIsPlaying.value) {
+                        if (unitViewTimer) clearInterval(unitViewTimer);
+                        unitViewIsPlaying.value = false;
+                        return;
+                    }
+                    unitViewStep.value = 0;
+                    unitViewIsPlaying.value = true;
+                    playChime();
+
+                    let s = 0;
+                    unitViewTimer = setInterval(() => {
+                        s++;
+                        unitViewStep.value = s;
+                        if (s === 1) {
+                            playTone(523.25, 'triangle', 0.15);
+                        } else if (s === 2) {
+                            playTone(659.25, 'triangle', 0.15);
+                        } else if (s === 3) {
+                            playSuccess();
+                            fireConfetti();
+                            clearInterval(unitViewTimer);
+                            unitViewIsPlaying.value = false;
+                        }
+                    }, 1200);
+                };
+
+                const nextUnitViewStep = () => {
+                    if (unitViewStep.value < 3) {
+                        unitViewStep.value++;
+                        playTone(520 + unitViewStep.value * 80, 'triangle', 0.15);
+                        if (unitViewStep.value === 3) {
+                            playSuccess();
+                            fireConfetti();
+                        }
+                    }
+                };
+
+                const resetUnitViewStep = () => {
+                    unitViewStep.value = 1;
+                    if (unitViewTimer) clearInterval(unitViewTimer);
+                    unitViewIsPlaying.value = false;
+                    playTone(330, 'sine', 0.1);
+                };
+
+                // ------------------------------------------
+                // 模块三：试一试与算法口诀生成
+                // ------------------------------------------
+                const stage3Tab = ref('try1');
+
+                // 试一试 1: 1.92 × 0.9
+                const try1Answered = ref(false);
+                const revealTry1All = () => {
+                    try1Answered.value = !try1Answered.value;
+                    if (try1Answered.value) {
+                        playSuccess();
+                        fireConfetti();
+                    } else {
+                        playTone(330, 'sine', 0.1);
+                    }
+                };
+
+                // 试一试 2: 2.79 × 0.32
+                const try2Step = ref(1);
+                const try2IsPlaying = ref(false);
+                let try2Timer = null;
+
+                const playTry2Anim = () => {
+                    if (try2IsPlaying.value) {
+                        if (try2Timer) clearInterval(try2Timer);
+                        try2IsPlaying.value = false;
+                        return;
+                    }
+                    try2Step.value = 0;
+                    try2IsPlaying.value = true;
+                    playChime();
+
+                    let s = 0;
+                    try2Timer = setInterval(() => {
+                        s++;
+                        try2Step.value = s;
+                        if (s === 1) {
+                            playTone(493.88, 'sine', 0.15);
+                        } else if (s === 2) {
+                            playTone(587.33, 'sine', 0.15);
+                        } else if (s === 3) {
+                            playSuccess();
+                            fireConfetti();
+                            clearInterval(try2Timer);
+                            try2IsPlaying.value = false;
+                        }
+                    }, 1200);
+                };
+
+                const nextTry2Step = () => {
+                    if (try2Step.value < 3) {
+                        try2Step.value++;
+                        playTone(500 + try2Step.value * 90, 'sine', 0.15);
+                        if (try2Step.value === 3) {
+                            playSuccess();
+                            fireConfetti();
+                        }
+                    }
+                };
+
+                const resetTry2Step = () => {
+                    try2Step.value = 1;
+                    if (try2Timer) clearInterval(try2Timer);
+                    try2IsPlaying.value = false;
+                    playTone(330, 'sine', 0.1);
+                };
+
+                // ------------------------------------------
+                // 模块四：做一做成对对比诊断题库与自由探究实验室
+                // ------------------------------------------
+                const quizViewMode = ref('quiz_bank');
+
+                const quizList = reactive([
+                    {
+                        id: 1,
+                        title: '第一组：一位小数 × 一位小数',
+                        baseIntFormula: '56 × 4 = 224',
+                        targetDecFormula: '5.6 × 0.4 = ?',
+                        isBaseRevealed: false,
+                        options: [
+                            { label: 'A', value: '22.4', text: '22.4' },
+                            { label: 'B', value: '2.24', text: '2.24', correct: true },
+                            { label: 'C', value: '0.224', text: '0.224' },
+                            { label: 'D', value: '224', text: '224' }
+                        ],
+                        userAnswer: null,
+                        isCorrect: false,
+                        isCompleted: false,
+                        explanation: '因数 5.6 是一位小数，0.4 是一位小数，共有 1+1=2 位小数，积从右往左数 2 位得 2.24。',
+                        feedback: ''
+                    },
+                    {
+                        id: 2,
+                        title: '第二组：两位小数 × 一位小数（添0占位）',
+                        baseIntFormula: '37 × 4 = 148',
+                        targetDecFormula: '0.37 × 0.4 = ?',
+                        isBaseRevealed: false,
+                        options: [
+                            { label: 'A', value: '1.48', text: '1.48' },
+                            { label: 'B', value: '0.148', text: '0.148', correct: true },
+                            { label: 'C', value: '0.0148', text: '0.0148' },
+                            { label: 'D', value: '14.8', text: '14.8' }
+                        ],
+                        userAnswer: null,
+                        isCorrect: false,
+                        isCompleted: false,
+                        explanation: '因数 0.37 是两位小数，0.4 是一位小数，共有 2+1=3 位小数，从 148 右边数 3 位得 0.148。',
+                        feedback: ''
+                    },
+                    {
+                        id: 3,
+                        title: '第三组：添0占位与末尾0化简',
+                        baseIntFormula: '25 × 8 = 200',
+                        targetDecFormula: '0.25 × 0.08 = ?',
+                        isBaseRevealed: false,
+                        options: [
+                            { label: 'A', value: '0.2', text: '0.2' },
+                            { label: 'B', value: '0.02', text: '0.02', correct: true },
+                            { label: 'C', value: '0.002', text: '0.002' },
+                            { label: 'D', value: '0.0200', text: '0.0200' }
+                        ],
+                        userAnswer: null,
+                        isCorrect: false,
+                        isCompleted: false,
+                        explanation: '因数共有 2+2=4 位小数，200 数 4 位得 0.0200，化简去掉末尾 0 得到 0.02。',
+                        feedback: ''
+                    },
+                    {
+                        id: 4,
+                        title: '第四组：两位小数 × 两位小数（末尾化简）',
+                        baseIntFormula: '105 × 24 = 2520',
+                        targetDecFormula: '1.05 × 0.24 = ?',
+                        isBaseRevealed: false,
+                        options: [
+                            { label: 'A', value: '2.52', text: '2.52' },
+                            { label: 'B', value: '0.252', text: '0.252', correct: true },
+                            { label: 'C', value: '0.2520', text: '0.2520' },
+                            { label: 'D', value: '0.0252', text: '0.0252' }
+                        ],
+                        userAnswer: null,
+                        isCorrect: false,
+                        isCompleted: false,
+                        explanation: '因数共有 2+2=4 位小数，2520 数 4 位得 0.2520，化简后为 0.252。',
+                        feedback: ''
+                    }
+                ]);
+
+                const toggleBaseFormula = (quiz) => {
+                    quiz.isBaseRevealed = !quiz.isBaseRevealed;
+                    if (quiz.isBaseRevealed) {
+                        playChime();
+                    } else {
+                        playTone(330, 'sine', 0.1);
+                    }
+                };
+
+                const handleAnswerQuiz = (quiz, opt) => {
+                    if (quiz.isCompleted) return;
+                    quiz.userAnswer = opt.value;
+                    quiz.isCompleted = true;
+                    if (opt.correct) {
+                        quiz.isCorrect = true;
+                        quiz.feedback = '🎉 回答完全正确！' + quiz.explanation;
+                        playSuccess();
+                        fireConfetti();
+                    } else {
+                        quiz.isCorrect = false;
+                        quiz.feedback = '⚠️ 选错了哦！' + quiz.explanation;
+                        playError();
+                    }
+                };
+
+                const allQuizCompleted = computed(() => {
+                    return quizList.every(q => q.isCompleted);
+                });
+
+                // 自由算理探究实验室（小数 × 小数）
+                const customFactor1 = ref(4.2);
+                const customFactor2 = ref(0.8);
+                const customLabResult = ref(null);
+                const customLabStep = ref(1);
+                const customLabIsPlaying = ref(false);
+                let customLabTimer = null;
+
+                const playCustomLabAnim = () => {
+                    if (customLabIsPlaying.value) {
+                        if (customLabTimer) clearInterval(customLabTimer);
+                        customLabIsPlaying.value = false;
+                        return;
+                    }
+                    customLabStep.value = 0;
+                    customLabIsPlaying.value = true;
+                    playChime();
+
+                    let s = 0;
+                    customLabTimer = setInterval(() => {
+                        s++;
+                        customLabStep.value = s;
+                        if (s === 1) {
+                            playTone(523.25, 'triangle', 0.15);
+                        } else if (s === 2) {
+                            playTone(659.25, 'triangle', 0.15);
+                        } else if (s === 3) {
+                            playSuccess();
+                            fireConfetti();
+                            clearInterval(customLabTimer);
+                            customLabIsPlaying.value = false;
+                        }
+                    }, 1200);
+                };
+
+                const nextCustomLabStep = () => {
+                    if (customLabStep.value < 3) {
+                        customLabStep.value++;
+                        playTone(520 + customLabStep.value * 80, 'triangle', 0.15);
+                        if (customLabStep.value === 3) {
+                            playSuccess();
+                            fireConfetti();
+                        }
+                    }
+                };
+
+                const resetCustomLabStep = () => {
+                    customLabStep.value = 1;
+                    if (customLabTimer) clearInterval(customLabTimer);
+                    customLabIsPlaying.value = false;
+                    playTone(330, 'sine', 0.1);
+                };
+
+                const calculateCustomLab = () => {
+                    const f1 = Number(customFactor1.value) || 0;
+                    const f2 = Number(customFactor2.value) || 0;
+
+                    const f1Str = f1.toString();
+                    const f2Str = f2.toString();
+
+                    const dec1Len = f1Str.includes('.') ? f1Str.split('.')[1].length : 0;
+                    const dec2Len = f2Str.includes('.') ? f2Str.split('.')[1].length : 0;
+                    const totalDecLen = dec1Len + dec2Len;
+
+                    const scale1 = Math.pow(10, dec1Len);
+                    const scale2 = Math.pow(10, dec2Len);
+                    const totalScale = scale1 * scale2;
+
+                    const intFactor1 = Math.round(f1 * scale1);
+                    const intFactor2 = Math.round(f2 * scale2);
+                    const intProduct = intFactor1 * intFactor2;
+                    const finalResult = (intProduct / totalScale).toString();
+
+                    customLabResult.value = {
+                        dec1Len,
+                        dec2Len,
+                        totalDecLen,
+                        scale1,
+                        scale2,
+                        totalScale,
+                        intFactor1,
+                        intFactor2,
+                        intProduct,
+                        finalResult
+                    };
+                    customLabStep.value = 1;
+                    if (customLabTimer) clearInterval(customLabTimer);
+                    customLabIsPlaying.value = false;
+                };
+
+                calculateCustomLab();
+
+                // 重置当前阶段
+                const resetCurrentStage = () => {
+                    if (!currentStage.value) return;
+                    playTone(330, 'sine', 0.15);
+                    isSummaryRevealed[currentStage.value] = false;
+                    if (currentStage.value === 'stage_1_field') {
+                        isFormulaRevealed.value = false;
+                        resetFieldStep();
+                    } else if (currentStage.value === 'stage_2_scaling') {
+                        scalingStep.value = 1;
+                        unitViewStep.value = 1;
+                        if (autoPlayTimer) clearInterval(autoPlayTimer);
+                        isAutoPlaying.value = false;
+                    } else if (currentStage.value === 'stage_3_try_and_rule') {
+                        try1Answered.value = false;
+                        resetTry2Step();
+                        stage3Tab.value = 'try1';
+                    } else if (currentStage.value === 'stage_4_quiz') {
+                        resetCustomLabStep();
+                        quizList.forEach(q => {
+                            q.isBaseRevealed = false;
+                            q.userAnswer = null;
+                            q.isCorrect = false;
+                            q.isCompleted = false;
+                            q.feedback = '';
+                        });
+                    }
+                };
+
+                return {
+                    soundEnabled,
+                    toggleSound,
+                    toggleFullscreen,
+                    stages,
+                    currentStage,
+                    currentStageTitle,
+                    setStage,
+                    resetCurrentStage,
+                    // 全局算理总结与提炼
+                    isSummaryRevealed,
+                    toggleSummary,
+                    // 模块一
+                    isFormulaRevealed,
+                    toggleFormula,
+                    fieldAnimStep,
+                    fieldIsPlaying,
+                    playFieldAnim,
+                    nextFieldStep,
+                    resetFieldStep,
+                    // 模块二
+                    scalingViewMode,
+                    scalingStep,
+                    scalingStepTitles,
+                    scalingStepDesc,
+                    nextScalingStep,
+                    prevScalingStep,
+                    isAutoPlaying,
+                    toggleAutoPlay,
+                    unitViewStep,
+                    unitViewIsPlaying,
+                    playUnitViewAnim,
+                    nextUnitViewStep,
+                    resetUnitViewStep,
+                    // 模块三
+                    stage3Tab,
+                    try1Answered,
+                    revealTry1All,
+                    try2Step,
+                    try2IsPlaying,
+                    playTry2Anim,
+                    nextTry2Step,
+                    resetTry2Step,
+                    // 模块四
+                    quizViewMode,
+                    quizList,
+                    toggleBaseFormula,
+                    handleAnswerQuiz,
+                    allQuizCompleted,
+                    fireConfetti,
+                    customFactor1,
+                    customFactor2,
+                    customLabResult,
+                    customLabStep,
+                    customLabIsPlaying,
+                    playCustomLabAnim,
+                    nextCustomLabStep,
+                    resetCustomLabStep,
+                    calculateCustomLab
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

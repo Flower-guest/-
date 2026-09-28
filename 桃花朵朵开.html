@@ -1,0 +1,1741 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>桃花朵朵开 - 趣味除法与余数互动游戏</title>
+    <!-- 高品质现代字体 -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+SC:wght@400;700;900&display=swap"
+        rel="stylesheet">
+    <!-- UnoCSS Tailwind 重置样式 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@unocss/reset/tailwind.min.css" />
+    <style>
+        /* 避免在 UnoCSS 加载前闪烁 */
+        [un-cloak] {
+            display: none;
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, #fff1f2 0%, #fff7ed 50%, #fafaf9 100%);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* 桃林草地渐变背景纹理 */
+        .playground-bg {
+            background-color: #f0fdf4;
+            background-image:
+                radial-gradient(circle at 20% 30%, rgba(244, 63, 94, 0.04) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(52, 211, 153, 0.05) 0%, transparent 40%),
+                radial-gradient(16px 16px at 40px 40px, rgba(251, 113, 133, 0.03) 50%, transparent 0),
+                radial-gradient(12px 12px at 150px 180px, rgba(52, 211, 153, 0.03) 50%, transparent 0);
+            background-size: 100% 100%, 100% 100%, 200px 200px, 150px 150px;
+        }
+
+        /* 呼吸气泡样式 */
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 24px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid white;
+        }
+
+        /* 教师眼睛与翅膀动画 */
+        @keyframes wings-flap {
+
+            0%,
+            100% {
+                transform: scaleX(1) rotate(0deg);
+            }
+
+            50% {
+                transform: scaleX(0.8) rotate(6deg);
+            }
+        }
+
+        .animate-wings-flap {
+            animation: wings-flap 2s infinite ease-in-out;
+            transform-origin: center;
+        }
+
+        @keyframes teacher-wave {
+
+            0%,
+            100% {
+                transform: rotate(0deg);
+            }
+
+            50% {
+                transform: rotate(-22deg);
+            }
+        }
+
+        .animate-teacher-wave {
+            animation: teacher-wave 1.5s infinite ease-in-out;
+            transform-origin: 30px 65px;
+        }
+
+        @keyframes teacher-eyes {
+
+            0%,
+            90%,
+            100% {
+                transform: scaleY(1);
+            }
+
+            95% {
+                transform: scaleY(0.1);
+            }
+        }
+
+        .animate-teacher-eyes {
+            animation: teacher-eyes 3.5s infinite;
+            transform-origin: 50px 52px;
+        }
+
+        @keyframes float-gentle {
+
+            0%,
+            100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-6px) rotate(1deg);
+            }
+        }
+
+        .animate-float {
+            animation: float-gentle 4s infinite ease-in-out;
+        }
+
+        /* 木纹黑板式样阴影与花纹 */
+        .blackboard-wood {
+            border: 8px solid #b45309;
+            box-shadow:
+                inset 0 0 20px rgba(0, 0, 0, 0.4),
+                0 10px 25px -5px rgba(0, 0, 0, 0.15),
+                0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 卡哇伊闪光点 */
+        .sparkle {
+            background: radial-gradient(circle, #fff 20%, transparent 60%);
+        }
+
+        /* 隐藏滚动条 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+
+<body class="h-screen max-h-screen text-slate-800 flex flex-col items-center justify-between p-3 md:p-4 overflow-hidden"
+    un-cloak>
+
+    <!-- 背景花瓣画布 -->
+    <canvas id="petals-canvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
+
+    <!-- 顶部导航 / 统计条 -->
+    <header class="w-full max-w-[1600px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4 mb-4 z-10">
+        <div class="flex items-center gap-3">
+            <div
+                class="w-12 h-12 bg-pink-400 rounded-2xl flex items-center justify-center shadow-md animate-bounce shadow-pink-200">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" class="w-7 h-7">
+                    <path
+                        d="M12 2a3 3 0 0 0-3 3c0 2 3 6 3 6s3-4 3-6a3 3 0 0 0-3-3Zm0 11.5c-2.2 0-4 1.8-4 4v1h8v-1c0-2.2-1.8-4-4-4ZM5.2 6.8c-.8 0-1.5.7-1.5 1.5 0 1.2 1.8 3.7 1.5 4.7 0 0 .8-.5 1-.8A1.5 1.5 0 0 0 7 10.7a1.5 1.5 0 0 0-1.8-3.9Zm13.6 0A1.5 1.5 0 0 0 17 10.7c0 .6.4 1.1 1 1.4.2.3 1 .8 1 .8-.3-1 1.5-3.5 1.5-4.7 0-.8-.7-1.4-1.5-1.4Z" />
+                </svg>
+            </div>
+            <div>
+                <h1
+                    class="text-2xl md:text-3xl font-black tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-rose-500 to-amber-500 flex items-center gap-2">
+                    桃花朵朵开
+                </h1>
+                <p class="text-xs md:text-sm text-slate-500 font-semibold tracking-wider">趣味除法与余数互动游乐场</p>
+            </div>
+        </div>
+
+        <!-- 音效 & 玩法控制 -->
+        <div
+            class="flex items-center gap-3 bg-white/70 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/60 shadow-sm">
+            <button id="btn-bgm"
+                class="p-2 rounded-xl bg-pink-50 text-pink-500 hover:bg-pink-100 transition-colors flex items-center justify-center"
+                title="背景音乐开关">
+                <i data-lucide="music-4" class="w-5 h-5"></i>
+            </button>
+            <button id="btn-voice"
+                class="p-2 rounded-xl bg-amber-50 text-amber-500 hover:bg-amber-100 transition-colors flex items-center justify-center"
+                title="老师配音开关">
+                <i data-lucide="volume-2" class="w-5 h-5"></i>
+            </button>
+            <div class="h-6 w-px bg-slate-200"></div>
+            <div class="text-xs font-bold text-slate-500 flex gap-4">
+                <div>小朋友总数: <span id="stat-total" class="text-pink-500 text-sm">20</span> 人</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主体区 -->
+    <main
+        class="w-full max-w-[1600px] mx-auto flex flex-col lg:flex-row gap-4 items-stretch flex-1 min-h-0 overflow-hidden z-10">
+
+        <!-- 操场区域 (左侧) -->
+        <section
+            class="flex-1 min-h-0 bg-white/70 backdrop-blur-md border border-white/60 shadow-2xl rounded-3xl p-4 flex flex-col relative overflow-hidden">
+            <!-- 操场上方信息条 -->
+            <div class="flex justify-between items-center px-2 py-1 mb-2 z-10">
+                <span class="text-sm font-bold text-slate-600 flex items-center gap-1.5">
+                    <span class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></span>桃林小操场
+                </span>
+                <span id="playground-mode"
+                    class="text-xs font-semibold text-pink-500 bg-pink-50 px-2.5 py-1 rounded-full border border-pink-100">
+                    等待开始...
+                </span>
+            </div>
+
+            <!-- 操场画布框 (内部居中放置保持3:2比例的容器) -->
+            <div class="flex-1 w-full relative playground-bg rounded-2xl border border-emerald-100 overflow-hidden flex items-center justify-center"
+                id="canvas-wrapper">
+                <div id="game-container-3-2" class="relative overflow-hidden shadow-inner rounded-xl"
+                    style="width: 100%; height: 100%;">
+                    <canvas id="game-canvas" class="w-full h-full block cursor-pointer"></canvas>
+
+                    <!-- 浮动老师 (SVG Overlay) -->
+                    <div id="teacher-container"
+                        class="absolute bottom-4 left-6 z-10 pointer-events-none flex flex-col items-center">
+                        <!-- 气泡对话框 -->
+                        <div id="speech-bubble"
+                            class="speech-bubble bg-white text-slate-700 px-4 py-2.5 rounded-2xl shadow-lg border border-pink-100 mb-3 max-w-[200px] text-sm font-bold text-center leading-relaxed transition-all duration-300 opacity-0 transform translate-y-2 scale-95 select-none relative">
+                            小朋友们，快来和我一起玩“桃花朵朵开”吧！🌸
+                        </div>
+
+                        <!-- 老师 SVG -->
+                        <svg id="teacher-svg" viewBox="0 0 100 120" class="w-24 h-28 select-none drop-shadow-md">
+                            <!-- 树枝背景装饰 -->
+                            <path d="M10,80 Q25,85 30,110" stroke="#854d0e" stroke-width="4" fill="none"
+                                stroke-linecap="round" />
+                            <circle cx="15" cy="81" r="5" fill="#f472b6" opacity="0.8" />
+                            <!-- 翅膀 -->
+                            <g class="animate-wings-flap">
+                                <path d="M15,40 Q28,15 42,45 Q28,70 15,40 Z" fill="#6ee7b7" opacity="0.75" />
+                                <path d="M85,40 Q72,15 58,45 Q72,70 85,40 Z" fill="#6ee7b7" opacity="0.75" />
+                            </g>
+                            <!-- 卡哇伊长裙 -->
+                            <path d="M32,75 L68,75 L60,115 L40,115 Z" fill="#fb7185" />
+                            <path d="M40,75 L45,115 M60,75 L55,115" stroke="#f43f5e" stroke-width="2" />
+                            <!-- 身体与头 -->
+                            <circle cx="50" cy="55" r="18" fill="#ffedd5" />
+                            <!-- 眼睛 -->
+                            <g class="animate-teacher-eyes">
+                                <ellipse cx="43" cy="52" rx="2" ry="3" fill="#1e293b" />
+                                <ellipse cx="57" cy="52" rx="2" ry="3" fill="#1e293b" />
+                                <circle cx="44" cy="50" r="0.8" fill="white" />
+                                <circle cx="58" cy="50" r="0.8" fill="white" />
+                            </g>
+                            <!-- 腮红与笑脸 -->
+                            <circle cx="39" cy="61" r="2.5" fill="#fda4af" />
+                            <circle cx="61" cy="61" r="2.5" fill="#fda4af" />
+                            <path d="M47,60 Q50,64 53,60" stroke="#881337" stroke-width="1.8" fill="none"
+                                stroke-linecap="round" />
+                            <!-- 桃子头饰与头发 -->
+                            <path d="M30,55 Q50,15 70,55" stroke="#78350f" stroke-width="9" fill="none"
+                                stroke-linecap="round" />
+                            <path d="M42,32 Q50,22 58,32" stroke="#4ade80" stroke-width="3" fill="none"
+                                stroke-linecap="round" />
+                            <circle cx="50" cy="30" r="6" fill="#f43f5e" />
+                            <circle cx="48" cy="28" r="1.5" fill="#fff" />
+                            <!-- 挥舞的仙女棒手臂 -->
+                            <g class="animate-teacher-wave">
+                                <path d="M32,65 Q12,50 8,36" stroke="#ffedd5" stroke-width="6" fill="none"
+                                    stroke-linecap="round" />
+                                <!-- 魔法棒 -->
+                                <path d="M8,36 L1.5,24" stroke="#d97706" stroke-width="2.5" />
+                                <polygon points="1.5,20 4.5,26 -1.5,26" fill="#fbbf24" stroke="#f59e0b"
+                                    stroke-width="1" />
+                            </g>
+                        </svg>
+                    </div>
+
+                    <!-- 浮动的点击水波纹桃花特效容器 -->
+                    <div id="click-effect-container" class="absolute inset-0 pointer-events-none"></div>
+                </div> <!-- 闭合 game-container-3-2 -->
+            </div>
+        </section>
+
+        <!-- 控制及面板区域 (右侧) -->
+        <section class="w-full lg:w-[380px] flex flex-col gap-4 items-stretch h-full min-h-0 overflow-hidden pb-2">
+
+            <!-- 模式切换与操作卡片 -->
+            <div
+                class="bg-white/80 backdrop-blur-md border border-white/50 shadow-xl rounded-3xl p-6 flex flex-col gap-5 relative overflow-hidden shrink-0">
+                <!-- 饰物圆点 -->
+                <div class="absolute -top-10 -right-10 w-24 h-24 bg-pink-100/30 rounded-full blur-xl"></div>
+                <div class="absolute -bottom-8 -left-8 w-20 h-20 bg-emerald-100/30 rounded-full blur-xl"></div>
+
+                <!-- 顶部页签模式 -->
+                <div class="flex bg-slate-100 p-1 rounded-2xl">
+                    <button id="mode-game"
+                        class="flex-1 py-2 text-sm font-bold rounded-xl bg-white shadow-sm text-pink-600 transition-all">
+                        🎮 游戏模式
+                    </button>
+                    <button id="mode-explore"
+                        class="flex-1 py-2 text-sm font-bold text-slate-500 rounded-xl hover:text-slate-700 transition-all">
+                        🔍 探索沙盒
+                    </button>
+                </div>
+
+                <!-- 游戏模式下的动态指令控制台 -->
+                <div id="game-controls" class="flex flex-col gap-4">
+                    <!-- IDLE 状态：开始游戏 -->
+                    <div id="ctrl-idle" class="flex flex-col gap-4">
+                        <div
+                            class="text-center py-6 px-4 bg-gradient-to-br from-pink-50 to-orange-50 rounded-2xl border border-pink-100/40">
+                            <span class="text-4xl">🌸</span>
+                            <h3 class="text-lg font-black text-slate-700 mt-2">点击开始，开跑结对！</h3>
+                            <p class="text-xs text-slate-500 mt-1 font-semibold">让小朋友们听到歌声并在操场跳舞吧！</p>
+                        </div>
+                        <button id="btn-start"
+                            class="w-full py-4 bg-gradient-to-r from-pink-400 to-rose-400 hover:from-pink-500 hover:to-rose-500 text-white font-black text-lg rounded-2xl shadow-md hover:shadow-lg transform active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                            <i data-lucide="play" class="w-6 h-6 fill-white"></i>开始活动
+                        </button>
+                    </div>
+
+                    <!-- ACTIVE / WAITING_INPUT 状态：教师提问，选择开几朵 -->
+                    <div id="ctrl-waiting" class="hidden flex-col gap-4">
+                        <div
+                            class="bg-gradient-to-br from-indigo-50 via-pink-50 to-orange-50 p-4 rounded-2xl border border-indigo-100/40 relative">
+                            <div class="absolute top-2 right-2 text-indigo-400">
+                                <i data-lucide="sparkles" class="w-5 h-5"></i>
+                            </div>
+                            <h4 class="text-xs font-black text-indigo-500 uppercase tracking-wider mb-1">老师发出口令</h4>
+                            <p class="text-base font-bold text-slate-700">“桃花桃花朵朵开，开几朵？”</p>
+                            <p class="text-xs text-slate-400 mt-1 font-semibold">请在下方点选或输入桃花开的朵数：</p>
+                        </div>
+
+                        <!-- 快捷大按钮区 -->
+                        <div class="grid grid-cols-4 gap-2.5" id="number-pad">
+                            <button
+                                class="num-btn py-3 text-base font-black rounded-xl bg-orange-100 text-orange-600 hover:bg-orange-200 border-b-4 border-orange-300 hover:border-orange-400 transform active:translate-y-0.5 active:border-b-0 transition-all"
+                                data-val="2">2朵</button>
+                            <button
+                                class="num-btn py-3 text-base font-black rounded-xl bg-sky-100 text-sky-600 hover:bg-sky-200 border-b-4 border-sky-300 hover:border-sky-400 transform active:translate-y-0.5 active:border-b-0 transition-all"
+                                data-val="3">3朵</button>
+                            <button
+                                class="num-btn py-3 text-base font-black rounded-xl bg-emerald-100 text-emerald-600 hover:bg-emerald-200 border-b-4 border-emerald-300 hover:border-emerald-400 transform active:translate-y-0.5 active:border-b-0 transition-all"
+                                data-val="4">4朵</button>
+                            <button
+                                class="num-btn py-3 text-base font-black rounded-xl bg-amber-100 text-amber-600 hover:bg-amber-200 border-b-4 border-amber-300 hover:border-amber-400 transform active:translate-y-0.5 active:border-b-0 transition-all"
+                                data-val="5">5朵</button>
+                            <button
+                                class="num-btn py-3 text-base font-black rounded-xl bg-purple-100 text-purple-600 hover:bg-purple-200 border-b-4 border-purple-300 hover:border-purple-400 transform active:translate-y-0.5 active:border-b-0 transition-all"
+                                data-val="6">6朵</button>
+                            <button
+                                class="num-btn py-3 text-base font-black rounded-xl bg-pink-100 text-pink-600 hover:bg-pink-200 border-b-4 border-pink-300 hover:border-pink-400 transform active:translate-y-0.5 active:border-b-0 transition-all"
+                                data-val="7">7朵</button>
+                            <button
+                                class="num-btn py-3 text-base font-black rounded-xl bg-rose-100 text-rose-600 hover:bg-rose-200 border-b-4 border-rose-300 hover:border-rose-400 transform active:translate-y-0.5 active:border-b-0 transition-all"
+                                data-val="8">8朵</button>
+                        </div>
+
+                        <!-- 自定义滑块 -->
+                        <!-- <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 mt-1">
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="text-xs font-black text-slate-500">自定义开花朵数 N</label>
+                                <span id="lbl-custom-n"
+                                    class="text-sm font-black text-indigo-600 bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-100">5
+                                    朵</span>
+                            </div>
+                            <input type="range" id="slider-n" min="2" max="8" value="5"
+                                class="w-full accent-indigo-500 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                            <div class="flex justify-between text-[10px] text-slate-400 font-bold mt-1">
+                                <span>2人成组</span>
+                                <span>8人成组</span>
+                            </div>
+                            <button id="btn-custom-go"
+                                class="w-full mt-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl transition-all shadow-sm flex items-center justify-center gap-1.5">
+                                <i data-lucide="check-circle" class="w-4 h-4"></i> 确定成组
+                            </button>
+                        </div> -->
+                    </div>
+
+                    <!-- GROUPING / RESULTS 状态：展示结算与数学公式 -->
+                    <div id="ctrl-results" class="hidden flex-col gap-4">
+                        <!-- 回合动作 -->
+                        <div class="flex gap-2">
+                            <button id="btn-restart"
+                                class="flex-1 py-3 bg-gradient-to-r from-pink-400 to-rose-400 hover:from-pink-500 hover:to-rose-500 text-white font-black text-base rounded-2xl shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-1.5">
+                                <i data-lucide="rotate-ccw" class="w-5 h-5"></i>再玩一轮
+                            </button>
+                            <button id="btn-lineup"
+                                class="py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-sm rounded-2xl transition-all flex items-center justify-center gap-1"
+                                title="小朋友在操场排排队">
+                                <i data-lucide="align-justify" class="w-4 h-4"></i>排排队
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 探索沙盒模式下的操作盘 -->
+                <div id="explore-controls" class="hidden flex-col gap-4">
+                    <div
+                        class="bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100/30 text-xs font-semibold text-slate-600">
+                        <p class="mb-1 text-indigo-600 font-bold">💡 自由探索沙盒：</p>
+                        <ul class="list-disc pl-4 flex flex-col gap-1">
+                            <li>点击操场空白处可**召唤新小朋友**。</li>
+                            <li>鼠标**按住并拖动**操场上的小朋友调整位置。</li>
+                            <li>修改下方分组人数，小朋友将立即重组！</li>
+                        </ul>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button id="btn-add-student"
+                            class="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm rounded-xl transition-all flex items-center justify-center gap-1 shadow-sm">
+                            <i data-lucide="plus-circle" class="w-4 h-4"></i>新增学生
+                        </button>
+                        <button id="btn-clear-students"
+                            class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-sm rounded-xl transition-all flex items-center justify-center gap-1">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>清空重置
+                        </button>
+                    </div>
+                    <!-- 即时分组人数选择 -->
+                    <!-- <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="text-xs font-black text-slate-500">设置分组大小 N</label>
+                            <span id="lbl-explore-n" class="text-sm font-black text-indigo-500 bg-indigo-50 px-2 rounded">5 人</span>
+                        </div>
+                        <input type="range" id="slider-explore-n" min="2" max="20" value="5" class="w-full accent-indigo-500 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                    </div> -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 页脚已移除 -->
+
+    <!-- 引用 Lucide 图标库 -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- UnoCSS 运行环境 -->
+    <script>
+        window.__unocss = {
+            theme: {
+                colors: {
+                    peach: {
+                        50: '#fff5f6',
+                        100: '#ffebe2',
+                        200: '#ffd0d8',
+                        300: '#ffb5c3',
+                        400: '#ff85a2',
+                        500: '#f43f5e',
+                        600: '#e11d48',
+                        700: '#be123c',
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@unocss/runtime"></script>
+
+    <!-- 游戏逻辑 JS -->
+    <script>
+        // ------------------ Web Audio API 声音合成 ------------------
+        class SoundSynth {
+            constructor() {
+                this.ctx = null;
+                this.bgmTimer = null;
+                this.isMuted = false;
+                this.isVoiceEnabled = true;
+                this.bgmIndex = 0;
+            }
+
+            init() {
+                if (this.ctx) return;
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (AudioContext) {
+                    this.ctx = new AudioContext();
+                }
+            }
+
+            playTone(frequency, type, duration, sweepTarget = null, volume = 0.12) {
+                this.init();
+                if (!this.ctx || this.isMuted) return;
+
+                try {
+                    if (this.ctx.state === 'suspended') {
+                        this.ctx.resume();
+                    }
+
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(frequency, this.ctx.currentTime);
+
+                    if (sweepTarget) {
+                        osc.frequency.exponentialRampToValueAtTime(sweepTarget, this.ctx.currentTime + duration);
+                    }
+
+                    gain.gain.setValueAtTime(volume, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch (e) {
+                    console.warn('Audio play failed', e);
+                }
+            }
+
+            playBloop() {
+                this.playTone(280, 'triangle', 0.15, 600, 0.15);
+            }
+
+            playSad() {
+                this.playTone(320, 'sine', 0.45, 90, 0.2);
+            }
+
+            playSuccess() {
+                const now = this.ctx ? this.ctx.currentTime : 0;
+                this.playTone(523.25, 'sine', 0.1, null, 0.15); // C5
+                setTimeout(() => this.playTone(659.25, 'sine', 0.1, null, 0.15), 100); // E5
+                setTimeout(() => this.playTone(783.99, 'sine', 0.25, 950, 0.15), 200); // G5
+            }
+
+            playPop() {
+                this.playTone(800, 'triangle', 0.08, 1200, 0.1);
+            }
+
+            startBGM() {
+                this.init();
+                if (this.bgmTimer) return;
+
+                // 欢乐五声音阶
+                const notes = [
+                    261.63, 293.66, 329.63, 392.00, 440.00, // C4 D4 E4 G4 A4
+                    523.25, 587.33, 659.25, 783.99, 880.00  // C5 D5 E5 G5 A5
+                ];
+
+                // 简单的五声音阶和弦琶音，为儿童设计
+                const melody = [
+                    0, 2, 4, 7, 4, 2, 0, 2,
+                    4, 6, 7, 9, 7, 6, 4, 6,
+                    3, 5, 7, 8, 7, 5, 3, 5,
+                    5, 7, 9, 10, 9, 7, 5, 7
+                ];
+
+                this.bgmTimer = setInterval(() => {
+                    if (this.isMuted || !this.ctx || this.ctx.state === 'suspended') return;
+                    try {
+                        const noteIndex = melody[this.bgmIndex % melody.length];
+                        const freq = notes[noteIndex % notes.length];
+                        // 播放柔和的 sine 音符
+                        this.playTone(freq, 'sine', 0.35, null, 0.04);
+                        this.bgmIndex++;
+                    } catch (e) { }
+                }, 380);
+            }
+
+            stopBGM() {
+                if (this.bgmTimer) {
+                    clearInterval(this.bgmTimer);
+                    this.bgmTimer = null;
+                }
+            }
+
+            speak(text) {
+                if (!this.isVoiceEnabled) return;
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'zh-CN';
+                    utterance.rate = 1.05;
+                    utterance.pitch = 1.35; // 甜美童趣高音调
+
+                    const voices = window.speechSynthesis.getVoices();
+                    const zhVoice = voices.find(v => v.lang.includes('zh') || v.lang.includes('ZH'));
+                    if (zhVoice) {
+                        utterance.voice = zhVoice;
+                    }
+                    window.speechSynthesis.speak(utterance);
+                }
+            }
+        }
+
+        const sound = new SoundSynth();
+
+        // ------------------ Canvas 背景花瓣漂落 ------------------
+        const petalsCanvas = document.getElementById('petals-canvas');
+        const pCtx = petalsCanvas.getContext('2d');
+        let bgPetals = [];
+
+        function resizeBackgroundCanvas() {
+            petalsCanvas.width = window.innerWidth;
+            petalsCanvas.height = window.innerHeight;
+        }
+
+        function resizeGameContainer() {
+            const wrapper = document.getElementById('canvas-wrapper');
+            const container = document.getElementById('game-container-3-2');
+            if (!wrapper || !container) return;
+
+            const w = wrapper.clientWidth;
+            const h = wrapper.clientHeight;
+
+            let targetW = w;
+            let targetH = w * (600 / 900); // 3:2比例
+
+            if (targetH > h) {
+                targetH = h;
+                targetW = h * (900 / 600);
+            }
+
+            container.style.width = `${targetW}px`;
+            container.style.height = `${targetH}px`;
+        }
+
+        window.addEventListener('resize', () => {
+            resizeBackgroundCanvas();
+            resizeGameContainer();
+        });
+        resizeBackgroundCanvas();
+        setTimeout(resizeGameContainer, 50);
+
+        class Petal {
+            constructor(isSplash = false, x = 0, y = 0) {
+                this.isSplash = isSplash;
+                this.x = isSplash ? x : Math.random() * petalsCanvas.width;
+                this.y = isSplash ? y : -20 - Math.random() * 50;
+                this.size = Math.random() * 8 + (isSplash ? 4 : 6);
+                this.speedY = isSplash ? (Math.random() * 4 - 2) : Math.random() * 1.5 + 0.8;
+                this.speedX = isSplash ? (Math.random() * 4 - 2) : Math.random() * 1.2 - 0.6;
+                this.angle = Math.random() * Math.PI * 2;
+                this.spinSpeed = Math.random() * 0.03 - 0.015;
+                this.opacity = Math.random() * 0.4 + 0.4;
+                this.color = ['#ffa6c9', '#ffccd5', '#ffccd5', '#ff85a2'][Math.floor(Math.random() * 4)];
+            }
+
+            update() {
+                if (this.isSplash) {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+                    this.speedY += 0.05; // 重力
+                    this.opacity -= 0.015;
+                } else {
+                    this.y += this.speedY;
+                    this.x += this.speedX + Math.sin(this.angle) * 0.2;
+                    this.angle += this.spinSpeed;
+                    if (this.y > petalsCanvas.height + 20) {
+                        this.y = -20;
+                        this.x = Math.random() * petalsCanvas.width;
+                    }
+                }
+            }
+
+            draw() {
+                pCtx.save();
+                pCtx.translate(this.x, this.y);
+                pCtx.rotate(this.angle);
+                pCtx.globalAlpha = this.opacity;
+                pCtx.fillStyle = this.color;
+
+                // 绘制桃花瓣形状 (心型/椭圆)
+                pCtx.beginPath();
+                pCtx.ellipse(0, 0, this.size * 0.7, this.size, 0, 0, Math.PI * 2);
+                pCtx.fill();
+
+                // 花瓣中线
+                pCtx.strokeStyle = 'rgba(255,255,255,0.4)';
+                pCtx.lineWidth = 1;
+                pCtx.beginPath();
+                pCtx.moveTo(0, -this.size);
+                pCtx.lineTo(0, this.size * 0.3);
+                pCtx.stroke();
+
+                pCtx.restore();
+            }
+        }
+
+        // 初始化背景飘落花瓣
+        for (let i = 0; i < 35; i++) {
+            bgPetals.push(new Petal(false));
+        }
+
+        function createSplash(x, y) {
+            for (let i = 0; i < 15; i++) {
+                bgPetals.push(new Petal(true, x, y));
+            }
+        }
+
+        // ------------------ 操场小人 (学生) 逻辑 ------------------
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        const playWidth = 1050;
+        const playHeight = 700;
+        canvas.width = playWidth;
+        canvas.height = playHeight;
+
+        let students = [];
+        let hoveredStudent = null;
+        let hoveredPart = null; // 'dividend' | 'divisor' | 'quotient' | 'remainder'
+        let currentMode = 'GAME'; // 'GAME' | 'EXPLORE'
+        let currentN = 5;
+        let activeGroups = []; // 保存当前各组中心点、半径及学生列表
+        let remainderStudents = []; // 落单学生列表
+
+        // 配色方案（马卡龙糖果色，适合儿童）
+        const studentColors = [
+            { main: '#ff85a2', light: '#ffd0d8' }, // 粉桃红
+            { main: '#60a5fa', light: '#dbeafe' }, // 天空蓝
+            { main: '#34d399', light: '#d1fae5' }, // 嫩草绿
+            { main: '#fbbf24', light: '#fef3c7' }, // 芒果黄
+            { main: '#a78bfa', light: '#ede9fe' }, // 熏衣紫
+            { main: '#fb923c', light: '#ffedd5' }, // 鲜橙橘
+            { main: '#2dd4bf', light: '#ccfbf1' }, // 薄荷绿
+        ];
+
+        class Student {
+            constructor(id, x, y) {
+                this.id = id;
+                this.x = x || Math.random() * (playWidth - 120) + 60;
+                this.y = y || Math.random() * (playHeight - 160) + 60;
+                this.tx = this.x;
+                this.ty = this.y;
+                this.vx = 0;
+                this.vy = 0;
+                this.size = 20; // 身体半径
+                this.colorObj = studentColors[id % studentColors.length];
+                this.accessory = id % 4; // 0: 叶子, 1: 小花, 2: 蝴蝶结, 3: 小黄帽
+                this.floatOffset = Math.random() * Math.PI * 2;
+                this.wanderAngle = Math.random() * Math.PI * 2;
+                this.isDragging = false;
+
+                // 表情状态
+                this.state = 'idle'; // 'idle' | 'jumping' | 'grouped' | 'leftout'
+                this.expression = 'smile'; // 'smile' | 'laugh' | 'sad' | 'wink'
+            }
+
+            update(time) {
+                if (this.isDragging) return;
+
+                // 物理趋向目标点 TX, TY (使用带有一些弹性的插值)
+                const dx = this.tx - this.x;
+                const dy = this.ty - this.y;
+
+                this.x += dx * 0.08;
+                this.y += dy * 0.08;
+
+                // 根据状态附加动态扰动
+                if (this.state === 'idle') {
+                    this.expression = 'smile';
+                    // 慢速自由漂移
+                    this.wanderAngle += (Math.random() - 0.5) * 0.15;
+                    const speed = 0.25;
+                    this.tx += Math.cos(this.wanderAngle) * speed;
+                    this.ty += Math.sin(this.wanderAngle) * speed;
+
+                    // 边界碰撞反弹
+                    const margin = 50;
+                    if (this.tx < margin || this.tx > playWidth - margin || this.ty < margin || this.ty > playHeight - 120) {
+                        this.wanderAngle += Math.PI;
+                        this.tx = Math.max(margin, Math.min(playWidth - margin, this.tx));
+                        this.ty = Math.max(margin, Math.min(playHeight - 120, this.ty));
+                    }
+
+                    // 呼吸浮动
+                    this.floatY = Math.sin(time * 0.003 + this.floatOffset) * 2;
+                }
+                else if (this.state === 'jumping') {
+                    this.expression = 'laugh';
+                    // 快速原地弹跳
+                    this.floatY = -Math.abs(Math.sin(time * 0.01 + this.floatOffset)) * 14;
+                }
+                else if (this.state === 'grouped') {
+                    this.expression = Math.sin(time * 0.001 + this.floatOffset) > 0.6 ? 'wink' : 'smile';
+                    this.floatY = Math.sin(time * 0.005 + this.floatOffset) * 1.5;
+                }
+                else if (this.state === 'leftout') {
+                    this.expression = 'sad';
+                    // 左右慢速失望晃动
+                    this.x += Math.sin(time * 0.004 + this.floatOffset) * 0.15;
+                    this.floatY = Math.abs(Math.sin(time * 0.002 + this.floatOffset)) * 1;
+                }
+            }
+
+            draw(time) {
+                const drawY = this.y + (this.floatY || 0);
+
+                ctx.save();
+
+                // 1. 悬停或结算高亮光晕
+                let drawHighlight = false;
+                let highlightColor = 'rgba(251, 113, 133, 0.4)'; // 默认粉色
+
+                if (hoveredStudent === this) {
+                    drawHighlight = true;
+                    highlightColor = 'rgba(56, 189, 248, 0.5)';
+                } else if (hoveredPart === 'dividend') {
+                    drawHighlight = true;
+                    highlightColor = 'rgba(251, 191, 36, 0.4)';
+                } else if (hoveredPart === 'divisor') {
+                    drawHighlight = true;
+                    highlightColor = 'rgba(129, 140, 248, 0.3)';
+                } else if (hoveredPart === 'quotient' && this.state === 'grouped') {
+                    drawHighlight = true;
+                    highlightColor = 'rgba(52, 211, 153, 0.45)';
+                } else if (hoveredPart === 'remainder' && this.state === 'leftout') {
+                    drawHighlight = true;
+                    highlightColor = 'rgba(244, 63, 94, 0.5)';
+                }
+
+                if (drawHighlight) {
+                    ctx.shadowColor = highlightColor.replace(/[\d\.]+\)$/, '1)');
+                    ctx.shadowBlur = 15;
+                    ctx.beginPath();
+                    ctx.arc(this.x, drawY, this.size + 6, 0, Math.PI * 2);
+                    ctx.fillStyle = highlightColor;
+                    ctx.fill();
+                    ctx.shadowBlur = 0; // 重置
+                }
+
+                // 2. 绘制小人脚丫
+                ctx.fillStyle = '#64748b';
+                ctx.beginPath();
+                ctx.ellipse(this.x - 7, drawY + this.size - 2, 4, 6, Math.PI / 6, 0, Math.PI * 2);
+                ctx.ellipse(this.x + 7, drawY + this.size - 2, 4, 6, -Math.PI / 6, 0, Math.PI * 2);
+                ctx.fill();
+
+                // 3. 绘制桃子主体
+                const grad = ctx.createRadialGradient(
+                    this.x - this.size / 3, drawY - this.size / 3, 2,
+                    this.x, drawY, this.size
+                );
+                grad.addColorStop(0, '#ffffff');
+                grad.addColorStop(0.3, this.colorObj.light);
+                grad.addColorStop(1, this.colorObj.main);
+
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                // 绘制桃尖圆顶形状
+                ctx.moveTo(this.x, drawY + this.size);
+                // 左下及左上
+                ctx.quadraticCurveTo(this.x - this.size * 1.1, drawY + this.size * 0.9, this.x - this.size * 1.1, drawY);
+                ctx.bezierCurveTo(this.x - this.size * 1.1, drawY - this.size * 1.1, this.x - this.size * 0.3, drawY - this.size * 1.2, this.x, drawY - this.size * 0.8);
+                // 右上及右下
+                ctx.bezierCurveTo(this.x + this.size * 0.3, drawY - this.size * 1.2, this.x + this.size * 1.1, drawY - this.size * 1.1, this.x + this.size * 1.1, drawY);
+                ctx.quadraticCurveTo(this.x + this.size * 1.1, drawY + this.size * 0.9, this.x, drawY + this.size);
+                ctx.closePath();
+                ctx.fill();
+
+                // 给桃子加上柔和边线
+                ctx.strokeStyle = 'rgba(0,0,0,0.06)';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+
+                // 4. 绘制桃子腮红
+                ctx.fillStyle = '#ff8fa3';
+                ctx.globalAlpha = 0.55;
+                ctx.beginPath();
+                ctx.arc(this.x - 9, drawY + 2, 3.5, 0, Math.PI * 2);
+                ctx.arc(this.x + 9, drawY + 2, 3.5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1.0;
+
+                // 5. 绘制眼睛与嘴巴 (表情系统)
+                ctx.strokeStyle = '#1e293b';
+                ctx.fillStyle = '#1e293b';
+                ctx.lineWidth = 2;
+                ctx.lineCap = 'round';
+
+                if (this.expression === 'smile') {
+                    // 圆眼睛
+                    ctx.beginPath();
+                    ctx.arc(this.x - 7, drawY - 3, 2, 0, Math.PI * 2);
+                    ctx.arc(this.x + 7, drawY - 3, 2, 0, Math.PI * 2);
+                    ctx.fill();
+                    // 微笑嘴
+                    ctx.beginPath();
+                    ctx.arc(this.x, drawY + 1, 3, 0, Math.PI);
+                    ctx.stroke();
+                }
+                else if (this.expression === 'laugh') {
+                    // 弯弯眼 ^ ^
+                    ctx.beginPath();
+                    ctx.arc(this.x - 7, drawY - 2, 3, Math.PI, 0);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.arc(this.x + 7, drawY - 2, 3, Math.PI, 0);
+                    ctx.stroke();
+                    // 哈哈大笑嘴
+                    ctx.beginPath();
+                    ctx.arc(this.x, drawY + 1, 4.5, 0, Math.PI);
+                    ctx.fill();
+                }
+                else if (this.expression === 'wink') {
+                    // 一个圆眼，一个弯眼
+                    ctx.beginPath();
+                    ctx.arc(this.x - 7, drawY - 3, 2, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(this.x + 7, drawY - 2, 3, Math.PI, 0);
+                    ctx.stroke();
+                    // 吐舌头或快乐小嘴
+                    ctx.beginPath();
+                    ctx.arc(this.x, drawY + 1, 3, 0, Math.PI);
+                    ctx.stroke();
+                }
+                else if (this.expression === 'sad') {
+                    // 伤心下垂眼
+                    ctx.beginPath();
+                    ctx.moveTo(this.x - 10, drawY - 4);
+                    ctx.lineTo(this.x - 5, drawY - 1);
+                    ctx.moveTo(this.x + 10, drawY - 4);
+                    ctx.lineTo(this.x + 5, drawY - 1);
+                    ctx.stroke();
+                    // 难过哭泣嘴
+                    ctx.beginPath();
+                    ctx.arc(this.x, drawY + 4, 3, Math.PI, 0);
+                    ctx.stroke();
+
+                    // 泪水粒子动画效果 (随时间交替出现)
+                    if (Math.sin(time * 0.008 + this.floatOffset) > 0.4) {
+                        ctx.fillStyle = '#60a5fa';
+                        ctx.beginPath();
+                        ctx.arc(this.x - 7, drawY + 3, 1.5, 0, Math.PI * 2);
+                        ctx.arc(this.x + 7, drawY + 3, 1.5, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+
+                // 6. 绘制手臂
+                ctx.strokeStyle = this.colorObj.main;
+                ctx.lineWidth = 4.5;
+                if (this.state === 'jumping') {
+                    // 挥手向上
+                    ctx.beginPath();
+                    ctx.moveTo(this.x - this.size + 2, drawY + 5);
+                    ctx.lineTo(this.x - this.size - 4, drawY - 6);
+                    ctx.moveTo(this.x + this.size - 2, drawY + 5);
+                    ctx.lineTo(this.x + this.size + 4, drawY - 6);
+                    ctx.stroke();
+                }
+                else if (this.state === 'grouped') {
+                    // 向两侧水平伸臂 (牵手状)
+                    ctx.beginPath();
+                    ctx.moveTo(this.x - this.size + 2, drawY + 4);
+                    ctx.lineTo(this.x - this.size - 4, drawY + 4);
+                    ctx.moveTo(this.x + this.size - 2, drawY + 4);
+                    ctx.lineTo(this.x + this.size + 4, drawY + 4);
+                    ctx.stroke();
+                }
+                else {
+                    // 垂下或自然放着
+                    ctx.beginPath();
+                    ctx.moveTo(this.x - this.size + 2, drawY + 2);
+                    ctx.lineTo(this.x - this.size - 2, drawY + 8);
+                    ctx.moveTo(this.x + this.size - 2, drawY + 2);
+                    ctx.lineTo(this.x + this.size + 2, drawY + 8);
+                    ctx.stroke();
+                }
+
+                // 7. 绘制头顶饰品 (Accessory)
+                if (this.accessory === 0) {
+                    // 绿色小嫩叶
+                    ctx.fillStyle = '#34d399';
+                    ctx.beginPath();
+                    ctx.ellipse(this.x + 2, drawY - this.size + 2, 4, 8, Math.PI / 4, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.strokeStyle = '#059669';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.ellipse(this.x + 2, drawY - this.size + 2, 4, 8, Math.PI / 4, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+                else if (this.accessory === 1) {
+                    // 黄色五瓣花
+                    const fx = this.x;
+                    const fy = drawY - this.size - 1;
+                    ctx.fillStyle = '#ffedd5';
+                    // 绘制花瓣
+                    for (let i = 0; i < 5; i++) {
+                        let ang = i * Math.PI * 2 / 5;
+                        ctx.beginPath();
+                        ctx.arc(fx + Math.cos(ang) * 4, fy + Math.sin(ang) * 4, 3, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    ctx.fillStyle = '#fbbf24';
+                    ctx.beginPath();
+                    ctx.arc(fx, fy, 2.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                else if (this.accessory === 2) {
+                    // 红色蝴蝶结
+                    const bx = this.x;
+                    const by = drawY - this.size + 1;
+                    ctx.fillStyle = '#ef4444';
+                    ctx.beginPath();
+                    ctx.moveTo(bx, by);
+                    ctx.lineTo(bx - 6, by - 4);
+                    ctx.lineTo(bx - 6, by + 4);
+                    ctx.closePath();
+                    ctx.moveTo(bx, by);
+                    ctx.lineTo(bx + 6, by - 4);
+                    ctx.lineTo(bx + 6, by + 4);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.fillStyle = '#fecdd3';
+                    ctx.beginPath();
+                    ctx.arc(bx, by, 2.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                else if (this.accessory === 3) {
+                    // 小黄圆帽
+                    const hx = this.x;
+                    const hy = drawY - this.size + 2;
+                    ctx.fillStyle = '#f59e0b';
+                    ctx.beginPath();
+                    ctx.ellipse(hx, hy, 9, 3, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(hx, hy - 2, 5, Math.PI, 0);
+                    ctx.fill();
+                }
+
+                // 8. 绘制编号 (小帽子上或者头顶，方便数数)
+                ctx.fillStyle = 'rgba(30, 41, 59, 0.45)';
+                ctx.font = 'bold 9px Outfit, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(this.id, this.x, drawY + this.size + 10);
+
+                ctx.restore();
+            }
+        }
+
+        // ------------------ 操场环境绘制 ( bench & background ) ------------------
+        function drawPlaygroundDecoration(time) {
+            // A. 绘制落单小朋友专属“桃花长椅”
+            ctx.save();
+            const benchX = playWidth - 280;
+            const benchY = playHeight - 65;
+            const benchW = 240;
+            const benchH = 14;
+
+            // 阴影
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.08)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetY = 6;
+
+            // 椅子横梁
+            ctx.fillStyle = '#b45309'; // 棕色木质
+            ctx.beginPath();
+            ctx.roundRect(benchX, benchY, benchW, benchH, 4);
+            ctx.fill();
+
+            // 靠背条
+            ctx.fillStyle = '#d97706';
+            ctx.beginPath();
+            ctx.roundRect(benchX + 10, benchY - 18, benchW - 20, 8, 3);
+            ctx.fill();
+
+            // 靠背支架
+            ctx.strokeStyle = '#78350f';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(benchX + 30, benchY);
+            ctx.lineTo(benchX + 30, benchY - 18);
+            ctx.moveTo(benchX + benchW - 30, benchY);
+            ctx.lineTo(benchX + benchW - 30, benchY - 18);
+            ctx.stroke();
+
+            // 椅脚
+            ctx.fillStyle = '#78350f';
+            ctx.beginPath();
+            ctx.roundRect(benchX + 20, benchY + benchH, 8, 18, 2);
+            ctx.roundRect(benchX + benchW - 28, benchY + benchH, 8, 18, 2);
+            ctx.fill();
+
+            ctx.restore();
+
+            // 标记字样
+            ctx.fillStyle = 'rgba(30, 41, 59, 0.4)';
+            ctx.font = 'bold 11px Noto Sans SC, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('落单长椅 🌸', benchX + benchW / 2, benchY + benchH + 34);
+
+            // B. 老师讲台标识
+            ctx.fillStyle = 'rgba(30, 41, 59, 0.2)';
+            ctx.beginPath();
+            ctx.ellipse(100, playHeight - 50, 60, 20, 0, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // ------------------ 状态机流程控制 ------------------
+
+        // 显示/隐藏元素的辅助函数，避免 Tailwind flex 和 hidden 类冲突
+        function showEl(el) {
+            el.classList.remove('hidden');
+            el.classList.add('flex');
+        }
+        function hideEl(el) {
+            el.classList.add('hidden');
+            el.classList.remove('flex');
+        }
+
+        function setGameState(state) {
+            console.log("State Transition:", window.gameState, "->", state);
+            window.gameState = state;
+
+            const bubble = document.getElementById('speech-bubble');
+            const ctrlIdle = document.getElementById('ctrl-idle');
+            const ctrlWaiting = document.getElementById('ctrl-waiting');
+            const ctrlResults = document.getElementById('ctrl-results');
+            const modeBadge = document.getElementById('playground-mode');
+
+            // 隐藏所有面板
+            hideEl(ctrlIdle);
+            hideEl(ctrlWaiting);
+            hideEl(ctrlResults);
+
+            if (state === 'IDLE') {
+                modeBadge.textContent = '等待开始...';
+                modeBadge.className = 'text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full';
+
+                bubble.style.opacity = '1';
+                bubble.style.transform = 'translateY(0) scale(1)';
+                bubble.textContent = '小朋友们，快来和我一起玩“桃花朵朵开”吧！🌸';
+
+                showEl(ctrlIdle);
+
+                // 让所有人还原 idle 状态
+                students.forEach(s => {
+                    s.state = 'idle';
+                });
+            }
+            else if (state === 'ACTIVE') {
+                modeBadge.textContent = '音乐响起 🎵';
+                modeBadge.className = 'text-xs font-semibold text-pink-500 bg-pink-50 px-2.5 py-1 rounded-full animate-pulse border border-pink-100';
+
+                // 学生全员起舞
+                students.forEach(s => {
+                    s.state = 'jumping';
+                });
+
+                // 老师大喊口令
+                bubble.style.opacity = '1';
+                bubble.textContent = '桃花桃花朵朵开！🌸';
+                sound.speak('桃花桃花朵朵开！');
+
+                // 播放 BGM
+                sound.startBGM();
+
+                // 1.5 秒后小人齐声问：“开几朵？”，并显示输入数字面板
+                setTimeout(() => {
+                    if (window.gameState === 'ACTIVE') {
+                        setGameState('WAITING_INPUT');
+                    }
+                }, 1600);
+            }
+            else if (state === 'WAITING_INPUT') {
+                modeBadge.textContent = '等待指令 💭';
+                modeBadge.className = 'text-xs font-semibold text-indigo-500 bg-indigo-50 px-2.5 py-1 rounded-full border border-indigo-100';
+
+                bubble.textContent = '开几朵？';
+                sound.speak('开几朵？');
+
+                showEl(ctrlWaiting);
+            }
+            else if (state === 'GROUPING') {
+                modeBadge.textContent = '正在结对奔跑...';
+                modeBadge.className = 'text-xs font-semibold text-emerald-500 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100';
+
+                bubble.textContent = `开 ${currentN} 朵！🌸`;
+                sound.speak(`开 ${currentN} 朵！`);
+
+                // 开始寻路定位
+                executeGrouping(currentN);
+            }
+            else if (state === 'RESULTS') {
+                modeBadge.textContent = '分组完毕 🎉';
+                modeBadge.className = 'text-xs font-semibold text-amber-500 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-100';
+
+                showEl(ctrlResults);
+
+                // 停止跳跃，全部归位
+                sound.stopBGM();
+            }
+        }
+
+        // ------------------ 聚类与对齐算法 (核心数学公式展示) ------------------
+        function executeGrouping(n) {
+            currentN = n;
+            const total = students.length;
+            const groupCount = Math.floor(total / n);
+            const remainder = total % n;
+
+            // 播放啵啵群组音效
+            sound.playBloop();
+
+            // 1. 小人洗牌归入组和落单数组
+            // 复制一个数组用于分配，保证平滑移动对应
+            let pool = [...students];
+
+            // 计算各个组的圆心
+            // 将操场作更宽的网格划分，并配合力学松弛算法防止重叠，充分利用空间
+            const gridX = 120;
+            const gridY = 80;
+            const gridW = playWidth - gridX - 80; // 利用了右侧上方空间
+            const gridH = playHeight - gridY - 180; // 避开底部的长椅和老师
+
+            activeGroups = [];
+
+            if (groupCount > 0) {
+                // 动态计算最佳的行与列分布，以最大化单元格的最小尺寸
+                let cols = 1;
+                let rows = groupCount;
+                let maxMinSize = 0;
+                for (let c = 1; c <= groupCount; c++) {
+                    const r = Math.ceil(groupCount / c);
+                    const cellW = gridW / c;
+                    const cellH = gridH / r;
+                    const minSize = Math.min(cellW, cellH);
+                    if (minSize > maxMinSize) {
+                        maxMinSize = minSize;
+                        cols = c;
+                        rows = r;
+                    }
+                }
+
+                const cellW = gridW / cols;
+                const cellH = gridH / rows;
+
+                for (let g = 0; g < groupCount; g++) {
+                    const r = Math.floor(g / cols);
+                    const c = g % cols;
+                    // 圆心初始坐标
+                    const cx = gridX + c * cellW + cellW / 2;
+                    const cy = gridY + r * cellH + cellH / 2;
+                    
+                    // 根据组内人数 n 动态计算半径，防止小人身体重叠
+                    let radius = n > 2 ? (26 / Math.sin(Math.PI / n)) : 35;
+                    radius = Math.max(35, Math.min(65, radius));
+
+                    activeGroups.push({
+                        cx: cx,
+                        cy: cy,
+                        radius: radius,
+                        members: []
+                    });
+                }
+
+                // 物理碰撞松弛迭代，使各分组圆圈自动散开，避免重叠或覆盖老师和长椅
+                const iterations = 50;
+                const minGap = 35; // 外圈 dotted circle 之间的最小间隙，增加间隙使圈圈隔远一点
+
+                for (let iter = 0; iter < iterations; iter++) {
+                    // A. 分组之间互相排斥
+                    for (let i = 0; i < activeGroups.length; i++) {
+                        for (let j = i + 1; j < activeGroups.length; j++) {
+                            const g1 = activeGroups[i];
+                            const g2 = activeGroups[j];
+                            const dx = g2.cx - g1.cx;
+                            const dy = g2.cy - g1.cy;
+                            const dist = Math.hypot(dx, dy) || 1;
+                            
+                            // 每个分组的实际绘制外圈半径是 radius + 20
+                            const r1 = g1.radius + 20;
+                            const r2 = g2.radius + 20;
+                            const minDist = r1 + r2 + minGap;
+
+                            if (dist < minDist) {
+                                const overlap = minDist - dist;
+                                // 轻轻推开
+                                const pushX = (dx / dist) * overlap * 0.5;
+                                const pushY = (dy / dist) * overlap * 0.5;
+                                g1.cx -= pushX;
+                                g1.cy -= pushY;
+                                g2.cx += pushX;
+                                g2.cy += pushY;
+                            }
+                        }
+                    }
+
+                    // B. 与老师讲台区域避让 (老师大约在左下角，避让半径约 110)
+                    const teachX = 100;
+                    const teachY = playHeight - 120;
+                    const teachR = 110;
+                    activeGroups.forEach(g => {
+                        const dx = g.cx - teachX;
+                        const dy = g.cy - teachY;
+                        const dist = Math.hypot(dx, dy) || 1;
+                        const minDist = (g.radius + 20) + teachR;
+                        if (dist < minDist) {
+                            const overlap = minDist - dist;
+                            g.cx += (dx / dist) * overlap * 0.5;
+                            g.cy += (dy / dist) * overlap * 0.5;
+                        }
+                    });
+
+                    // C. 与落单长椅区域避让
+                    const rectLeft = playWidth - 300;
+                    const rectTop = playHeight - 120;
+                    activeGroups.forEach(g => {
+                        const r = g.radius + 20;
+                        // 寻找矩形上距离圆心最近的点
+                        const closestX = Math.max(rectLeft, Math.min(g.cx, playWidth));
+                        const closestY = Math.max(rectTop, Math.min(g.cy, playHeight));
+                        const dx = g.cx - closestX;
+                        const dy = g.cy - closestY;
+                        const dist = Math.hypot(dx, dy) || 1;
+                        if (dist < r) {
+                            const overlap = r - dist;
+                            g.cx += (dx / dist) * overlap * 0.5;
+                            g.cy += (dy / dist) * overlap * 0.5;
+                        }
+                    });
+
+                    // D. 限制在操场合理边界内
+                    activeGroups.forEach(g => {
+                        const r = g.radius + 20;
+                        const marginL = 60;
+                        const marginR = playWidth - 60;
+                        const marginT = 60;
+                        const marginB = playHeight - 110; // 留出底部控件和长椅高度
+
+                        if (g.cx - r < marginL) g.cx = marginL + r;
+                        if (g.cx + r > marginR) g.cx = marginR - r;
+                        if (g.cy - r < marginT) g.cy = marginT + r;
+                        if (g.cy + r > marginB) g.cy = marginB - r;
+                    });
+                }
+            }
+
+            // 分配小人到组
+            for (let g = 0; g < groupCount; g++) {
+                for (let i = 0; i < n; i++) {
+                    const student = pool.shift();
+                    student.state = 'grouped';
+                    activeGroups[g].members.push(student);
+                }
+            }
+
+            // 余下的进入落单组
+            remainderStudents = [...pool];
+            remainderStudents.forEach(student => {
+                student.state = 'leftout';
+            });
+
+            // 2. 为每个小组的小人计算目标坐标 TX, TY
+            activeGroups.forEach((group, gIndex) => {
+                group.members.forEach((student, sIndex) => {
+                    const angle = (sIndex * Math.PI * 2) / n;
+                    student.tx = group.cx + group.radius * Math.cos(angle);
+                    student.ty = group.cy + group.radius * Math.sin(angle);
+                });
+            });
+
+            // 3. 落单的小朋友走向“桃花长椅”
+            const benchX = playWidth - 280;
+            const benchY = playHeight - 65;
+            const benchW = 240;
+            remainderStudents.forEach((student, index) => {
+                // 并排站在长椅上方
+                const count = remainderStudents.length;
+                const gap = Math.min(35, benchW / (count + 1));
+                student.tx = benchX + (index + 1) * gap;
+                student.ty = benchY - 8;
+            });
+
+            // 4. 等待 1.5 秒动画结束后，转换为结算界面，并播报声音
+            setTimeout(() => {
+                if (window.gameState === 'GROUPING') {
+                    setGameState('RESULTS');
+
+                    // 语音播报结算
+                    const text = `${total}人，每 ${n}人一组，分成了${groupCount}组，还剩 ${remainder}人。`;
+                    sound.speak(text);
+
+                    // 播报成功音效或微带哀伤的音效
+                    if (remainder === 0) {
+                        sound.playSuccess();
+                    } else {
+                        sound.playSad();
+                    }
+
+                    // 问答板块已移除
+                }
+            }, 1600);
+        }
+
+
+
+        // ------------------ 自由探索沙盒模式行为 ------------------
+        function setupExploreMode() {
+            students.forEach(s => {
+                s.state = 'idle';
+            });
+            activeGroups = [];
+            remainderStudents = [];
+
+            calculateExploreDivision();
+        }
+
+        function calculateExploreDivision() {
+            if (currentMode !== 'EXPLORE') return;
+            const total = students.length;
+            const n = currentN;
+            const groups = Math.floor(total / n);
+            const rem = total % n;
+        }
+
+        // ------------------ 操场人手拖拽与点击添加 ------------------
+        let dragTarget = null;
+        let offset = { x: 0, y: 0 };
+
+        canvas.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mx = ((e.clientX - rect.left) / rect.width) * canvas.width;
+            const my = ((e.clientY - rect.top) / rect.height) * canvas.height;
+
+            createSplash(e.clientX, e.clientY);
+            sound.playPop();
+
+            let clicked = null;
+            for (let i = students.length - 1; i >= 0; i--) {
+                const s = students[i];
+                const dist = Math.hypot(mx - s.x, my - s.y);
+                if (dist < s.size + 5) {
+                    clicked = s;
+                    break;
+                }
+            }
+
+            if (clicked) {
+                dragTarget = clicked;
+                dragTarget.isDragging = true;
+                offset.x = mx - clicked.x;
+                offset.y = my - clicked.y;
+            }
+            else {
+                if (currentMode === 'EXPLORE') {
+                    if (students.length < 100) {
+                        const newId = students.length + 1;
+                        const newS = new Student(newId, mx, my);
+                        students.push(newS);
+
+                        document.getElementById('stat-total').textContent = students.length;
+                        calculateExploreDivision();
+                    }
+                }
+            }
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mx = ((e.clientX - rect.left) / rect.width) * canvas.width;
+            const my = ((e.clientY - rect.top) / rect.height) * canvas.height;
+
+            let foundHover = null;
+            for (const s of students) {
+                const dist = Math.hypot(mx - s.x, my - s.y);
+                if (dist < s.size + 5) {
+                    foundHover = s;
+                    break;
+                }
+            }
+            hoveredStudent = foundHover;
+
+            if (dragTarget) {
+                dragTarget.x = mx - offset.x;
+                dragTarget.y = my - offset.y;
+                dragTarget.tx = dragTarget.x;
+                dragTarget.ty = dragTarget.y;
+
+                if (currentMode === 'EXPLORE') {
+                    calculateExploreDivision();
+                }
+            }
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            if (dragTarget) {
+                dragTarget.isDragging = false;
+                dragTarget = null;
+            }
+        });
+
+        // ------------------ 渲染主循环 ------------------
+        function animate(time) {
+            ctx.clearRect(0, 0, playWidth, playHeight);
+
+            drawPlaygroundDecoration(time);
+
+            if (gameState === 'RESULTS' || gameState === 'GROUPING') {
+                activeGroups.forEach((group, gIndex) => {
+                    const count = group.members.length;
+                    if (count > 0) {
+                        ctx.save();
+
+                        // 1. 绘制温润半透明的底圈和虚线外圈
+                        ctx.fillStyle = 'rgba(251, 113, 133, 0.04)'; // 浅粉暖色调
+                        ctx.strokeStyle = 'rgba(251, 113, 133, 0.25)'; // 浅粉虚线外圈
+                        ctx.lineWidth = 2;
+                        ctx.setLineDash([6, 5]);
+
+                        if (hoveredPart === 'quotient') {
+                            ctx.fillStyle = 'rgba(52, 211, 153, 0.08)'; // 绿色高亮
+                            ctx.strokeStyle = 'rgba(16, 185, 129, 0.6)';
+                            ctx.lineWidth = 3;
+                        }
+
+                        ctx.beginPath();
+                        ctx.arc(group.cx, group.cy, group.radius + 20, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.stroke();
+
+                        // 2. 绘制组内同学之间的连接多边形
+                        if (count > 1) {
+                            ctx.beginPath();
+                            ctx.strokeStyle = hoveredPart === 'quotient' ? 'rgba(16, 185, 129, 0.4)' : 'rgba(251, 113, 133, 0.35)';
+                            ctx.lineWidth = 2;
+                            ctx.setLineDash([4, 4]);
+                            group.members.forEach((m, idx) => {
+                                if (idx === 0) ctx.moveTo(m.x, m.y);
+                                else ctx.lineTo(m.x, m.y);
+                            });
+                            ctx.closePath();
+                            ctx.stroke();
+
+                            // 绘制连接线中点的小桃花
+                            group.members.forEach((m, idx) => {
+                                const next = group.members[(idx + 1) % count];
+                                const midX = (m.x + next.x) / 2;
+                                const midY = (m.y + next.y) / 2;
+                                drawTinyFlower(ctx, midX, midY, 5);
+                            });
+                        }
+
+                        // 3. 在每组正中心绘制精美的人数提示胶囊标签
+                        ctx.shadowColor = 'rgba(0, 0, 0, 0.04)';
+                        ctx.shadowBlur = 4;
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                        ctx.setLineDash([]); // 实线
+
+                        const badgeW = 56;
+                        const badgeH = 22;
+                        ctx.beginPath();
+                        ctx.roundRect(group.cx - badgeW / 2, group.cy - badgeH / 2, badgeW, badgeH, 6);
+                        ctx.fill();
+
+                        ctx.shadowBlur = 0; // 重置阴影
+                        ctx.strokeStyle = hoveredPart === 'quotient' ? 'rgba(16, 185, 129, 0.4)' : 'rgba(244, 63, 94, 0.3)';
+                        ctx.lineWidth = 1.2;
+                        ctx.stroke();
+
+                        // 胶囊文字
+                        ctx.fillStyle = hoveredPart === 'quotient' ? '#059669' : '#be123c';
+                        ctx.font = 'bold 11px Outfit, Noto Sans SC, sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(`${count}人组`, group.cx, group.cy);
+
+                        // 悬停在商数（Quotient）上时显示组号
+                        if (hoveredPart === 'quotient') {
+                            ctx.fillStyle = '#059669';
+                            ctx.font = 'bold 11px Noto Sans SC, sans-serif';
+                            // 稍微上移避开胶囊
+                            ctx.fillText(`第 ${gIndex + 1} 组`, group.cx, group.cy - 16);
+                        }
+
+                        ctx.restore();
+                    }
+                });
+            }
+
+            students.forEach(student => {
+                student.update(time);
+                student.draw(time);
+            });
+
+            pCtx.clearRect(0, 0, petalsCanvas.width, petalsCanvas.height);
+            for (let i = bgPetals.length - 1; i >= 0; i--) {
+                const petal = bgPetals[i];
+                petal.update();
+                petal.draw();
+                if (petal.isSplash && petal.opacity <= 0) {
+                    bgPetals.splice(i, 1);
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        function drawTinyFlower(ctx, x, y, size = 6) {
+            ctx.save();
+            ctx.fillStyle = '#fda4af';
+            ctx.beginPath();
+            for (let i = 0; i < 5; i++) {
+                let angle = (i * 2 * Math.PI) / 5;
+                ctx.arc(x + Math.cos(angle) * size * 0.6, y + Math.sin(angle) * size * 0.6, size * 0.5, 0, 2 * Math.PI);
+            }
+            ctx.fill();
+            ctx.fillStyle = '#fef08a';
+            ctx.beginPath();
+            ctx.arc(x, y, size * 0.35, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        // ------------------ 页面交互控制绑定 ------------------
+
+        function resetStudentsCount(count) {
+            students = [];
+            for (let i = 1; i <= count; i++) {
+                students.push(new Student(i));
+            }
+        }
+
+        const btnModeGame = document.getElementById('mode-game');
+        const btnModeExplore = document.getElementById('mode-explore');
+        const gameCtrls = document.getElementById('game-controls');
+        const exploreCtrls = document.getElementById('explore-controls');
+
+        btnModeGame.addEventListener('click', () => {
+            currentMode = 'GAME';
+            btnModeGame.className = 'flex-1 py-2 text-sm font-bold rounded-xl bg-white shadow-sm text-pink-600';
+            btnModeExplore.className = 'flex-1 py-2 text-sm font-bold text-slate-500 rounded-xl hover:text-slate-700';
+            showEl(gameCtrls);
+            hideEl(exploreCtrls);
+
+            setGameState('IDLE');
+        });
+
+        btnModeExplore.addEventListener('click', () => {
+            currentMode = 'EXPLORE';
+            btnModeExplore.className = 'flex-1 py-2 text-sm font-bold rounded-xl bg-white shadow-sm text-pink-600';
+            btnModeGame.className = 'flex-1 py-2 text-sm font-bold text-slate-500 rounded-xl hover:text-slate-700';
+            showEl(exploreCtrls);
+            hideEl(gameCtrls);
+
+            sound.stopBGM();
+            setupExploreMode();
+        });
+
+        document.getElementById('btn-start').addEventListener('click', () => {
+            setGameState('ACTIVE');
+        });
+
+        document.getElementById('btn-restart').addEventListener('click', () => {
+            setGameState('IDLE');
+        });
+
+        document.getElementById('btn-lineup').addEventListener('click', () => {
+            sound.playPop();
+            const cols = 10;
+            const startX = 120;
+            const startY = 80;
+            const spacingX = (playWidth - startX - 250) / 9;
+            const spacingY = 55;
+
+            students.forEach((s, idx) => {
+                const r = Math.floor(idx / cols);
+                const c = idx % cols;
+                s.tx = startX + c * spacingX;
+                s.ty = startY + r * spacingY;
+                s.state = 'idle';
+            });
+            activeGroups = [];
+            remainderStudents = [];
+        });
+
+        // const sliderN = document.getElementById('slider-n');
+        // const lblCustomN = document.getElementById('lbl-custom-n');
+        // sliderN.addEventListener('input', (e) => {
+        //     lblCustomN.textContent = `${e.target.value} 朵`;
+        // });
+
+        // document.getElementById('btn-custom-go').addEventListener('click', () => {
+        //     currentN = parseInt(sliderN.value);
+        //     setGameState('GROUPING');
+        // });
+
+        document.querySelectorAll('.num-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const val = parseInt(e.target.getAttribute('data-val'));
+                currentN = val;
+                setGameState('GROUPING');
+            });
+        });
+
+        document.getElementById('btn-add-student').addEventListener('click', () => {
+            if (students.length < 100) {
+                const newId = students.length + 1;
+                students.push(new Student(newId));
+                document.getElementById('stat-total').textContent = students.length;
+                calculateExploreDivision();
+            }
+        });
+
+        document.getElementById('btn-clear-students').addEventListener('click', () => {
+            students = [];
+            document.getElementById('stat-total').textContent = 0;
+            calculateExploreDivision();
+        });
+
+        const btnBgm = document.getElementById('btn-bgm');
+        btnBgm.addEventListener('click', () => {
+            sound.isMuted = !sound.isMuted;
+            btnBgm.className = sound.isMuted
+                ? 'p-2 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center'
+                : 'p-2 rounded-xl bg-pink-50 text-pink-500 hover:bg-pink-100 flex items-center justify-center';
+            if (sound.isMuted) {
+                sound.stopBGM();
+            } else if (window.gameState === 'ACTIVE') {
+                sound.startBGM();
+            }
+        });
+
+        const btnVoice = document.getElementById('btn-voice');
+        btnVoice.addEventListener('click', () => {
+            sound.isVoiceEnabled = !sound.isVoiceEnabled;
+            btnVoice.className = sound.isVoiceEnabled
+                ? 'p-2 rounded-xl bg-amber-50 text-amber-500 hover:bg-amber-100 flex items-center justify-center'
+                : 'p-2 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center';
+        });
+
+        const bindHover = (elementId, partName) => {
+            const el = document.getElementById(elementId);
+            el.addEventListener('mouseenter', () => {
+                hoveredPart = partName;
+            });
+            el.addEventListener('mouseleave', () => {
+                if (hoveredPart === partName) hoveredPart = null;
+            });
+        };
+
+        lucide.createIcons();
+
+        resetStudentsCount(20);
+        window.gameState = 'IDLE';
+        setGameState('IDLE');
+
+        setTimeout(resizeGameContainer, 100);
+        requestAnimationFrame(animate);
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>观察物体与组合体 - 3D 互动投影教学</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap"
+        rel="stylesheet">
+   <!-- Three.js & OrbitControls (jsDelivr CDN) -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --bg-main: #0c1322;
+            --bg-sidebar: #131d31;
+            --bg-card: rgba(26, 38, 64, 0.7);
+            --border-card: rgba(255, 255, 255, 0.1);
+            --color-primary: #38bdf8;
+            --color-primary-hover: #0ea5e9;
+            --color-accent: #f59e0b;
+            --color-cube: #7dd3fc;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans SC', 'Outfit', sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+        }
+
+        #app-container {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #canvas-container {
+            flex-grow: 1;
+            height: 100%;
+            position: relative;
+            background: radial-gradient(circle at 50% 40%, #1e293b 0%, #090d16 100%);
+        }
+
+        #three-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* 悬浮提示区 */
+        .overlay-card {
+            position: absolute;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-card);
+            border-radius: 12px;
+            padding: 12px 16px;
+            z-index: 10;
+        }
+
+        #mode-hint-overlay {
+            top: 20px;
+            left: 20px;
+            max-width: 320px;
+            pointer-events: none;
+        }
+
+        #mode-hint-overlay h3 {
+            font-size: 15px;
+            color: var(--color-primary);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        #mode-hint-overlay p {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        #view-indicator {
+            bottom: 24px;
+            left: 24px;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--color-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 侧边操作面板 */
+        #sidebar {
+            width: 380px;
+            background-color: var(--bg-sidebar);
+            border-left: 1px solid var(--border-card);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+            z-index: 20;
+        }
+
+        .app-title-container {
+            border-bottom: 1px solid var(--border-card);
+            padding-bottom: 14px;
+        }
+
+        .app-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .app-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .sidebar-section {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 14px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .sidebar-section h2 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tab-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .btn-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        button {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-card);
+            color: var(--text-main);
+            padding: 10px 8px;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background-color: rgba(255, 255, 255, 0.12);
+            border-color: var(--color-primary);
+        }
+
+        button.btn-active {
+            background-color: rgba(56, 189, 248, 0.2);
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+            font-weight: 700;
+        }
+
+        .conclusion-card {
+            background: rgba(56, 189, 248, 0.05);
+            border: 1px dashed rgba(56, 189, 248, 0.25);
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .conclusion-card strong {
+            color: var(--color-primary);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app-container">
+        <!-- 3D 画布区域 -->
+        <div id="canvas-container">
+            <div id="mode-hint-overlay" class="overlay-card">
+                <h3 id="hint-title"><i data-lucide="sparkles" class="w-4 h-4"></i> 例题一：摆一摆</h3>
+                <p id="hint-desc">用4个正方体任意拼搭。鼠标可拖动积木移动与堆叠，点击下方视角按钮观察光束投影！</p>
+            </div>
+
+            <div id="view-indicator" class="overlay-card">
+                <i data-lucide="orbit" class="w-4 h-4"></i>
+                <span id="current-view-text">自由 3D 视角</span>
+            </div>
+
+            <canvas id="three-canvas"></canvas>
+        </div>
+
+        <!-- 侧边控制栏 -->
+        <div id="sidebar">
+            <div class="app-title-container">
+                <h1 class="app-title">观察简单组合体</h1>
+                <p class="app-subtitle">人教版数学五年级下册 · 3D投影空间认知</p>
+            </div>
+
+            <!-- 模式切换 -->
+            <div class="sidebar-section">
+                <h2><i data-lucide="book-open"></i> 课程例题选择</h2>
+                <div class="tab-group">
+                    <button id="tab-mode1" class="btn-active" onclick="switchMode(1)"><i data-lucide="box"></i> 例题 1
+                        (自主拼搭)</button>
+                    <button id="tab-mode2" onclick="switchMode(2)"><i data-lucide="boxes"></i> 例题 2 (三组对比)</button>
+                </div>
+            </div>
+
+            <!-- 视角与投影控制 -->
+            <div class="sidebar-section">
+                <h2><i data-lucide="eye"></i> 观察视角与光束投影</h2>
+                <div class="btn-grid">
+                    <button id="btn-front" onclick="animateToView('front')">从前面看</button>
+                    <button id="btn-left" onclick="animateToView('left')">从左边看</button>
+                    <button id="btn-top" onclick="animateToView('top')">从上面看</button>
+                </div>
+                <button onclick="animateToFreeView()"><i data-lucide="compass"></i> 返回 3D 自由观察</button>
+                <button id="btn-reset" onclick="resetCurrentMode()"><i data-lucide="refresh-cw"></i> 重置方块位置</button>
+            </div>
+
+            <!-- 空间思维结论 -->
+            <div class="conclusion-card" id="conclusion-box">
+                <strong>💡 观察与发现：</strong><br>
+                从不同的角度观察物体，看到的形状可能不同。<br>
+                投影板模拟的是平行光照射下形成的二维轮廓。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // 核心变量
+        let currentMode = 1; // 1: 例题1, 2: 例题2
+        let scene, camera, renderer, controls;
+        let blocks = []; // 例题1 方块
+        let groupsEx2 = []; // 例题2 的三组数据
+        let projectionGroup; // 投影板与光束模型组
+
+        // 交互与拖拽变量
+        let raycaster = new THREE.Raycaster();
+        let mouse = new THREE.Vector2();
+        let draggedBlock = null;
+        let groundPlane;
+        let isDragging = false;
+
+        // 相机动画
+        let isAnimatingCamera = false;
+        let animStartTime = 0;
+        let animDuration = 900;
+        let startCamPos = new THREE.Vector3(), targetCamPos = new THREE.Vector3();
+        let currentView = null; // 'front', 'left', 'top', null
+
+        // 材质定义
+        const cubeMat = new THREE.MeshStandardMaterial({
+            color: 0x7dd3fc, // 教材浅青蓝色
+            roughness: 0.3,
+            metalness: 0.1
+        });
+        const borderMat = new THREE.LineBasicMaterial({ color: 0x0284c7, linewidth: 2 });
+        const screenMat = new THREE.MeshBasicMaterial({
+            color: 0x1e293b,
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 0.85
+        });
+        const shadowMat = new THREE.MeshBasicMaterial({
+            color: 0x38bdf8,
+            transparent: true,
+            opacity: 0.8
+        });
+        const rayLineMat = new THREE.LineDashedMaterial({
+            color: 0xf59e0b,
+            dashSize: 0.15,
+            gapSize: 0.08,
+            transparent: true,
+            opacity: 0.4
+        });
+
+        function init() {
+            const container = document.getElementById('canvas-container');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x0c1322, 0.03);
+
+            camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
+            camera.position.set(5, 4.5, 7.5);
+
+            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('three-canvas'), antialias: true });
+            renderer.setSize(width, height);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.maxPolarAngle = Math.PI / 2 + 0.05;
+            controls.target.set(0, 0.5, 0);
+
+            groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0.5);
+
+            // 灯光
+            const ambient = new THREE.AmbientLight(0xffffff, 0.7);
+            scene.add(ambient);
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
+            dirLight.position.set(8, 12, 6);
+            dirLight.castShadow = true;
+            scene.add(dirLight);
+
+            // 投影板与光束组
+            projectionGroup = new THREE.Group();
+            scene.add(projectionGroup);
+
+            // 桌面底盘
+            const tableGeo = new THREE.CylinderGeometry(6, 6, 0.1, 64);
+            const tableMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.8 });
+            const table = new THREE.Mesh(tableGeo, tableMat);
+            table.position.y = -0.55;
+            table.receiveShadow = true;
+            scene.add(table);
+
+            const grid = new THREE.GridHelper(10, 10, 0x38bdf8, 0x334155);
+            grid.position.y = -0.49;
+            scene.add(grid);
+
+            // 初始化例题一
+            setupMode1();
+
+            // 事件绑定
+            container.addEventListener('mousedown', onMouseDown);
+            container.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('mouseup', onMouseUp);
+            window.addEventListener('resize', onWindowResize);
+
+            animate();
+        }
+
+        // 创建带边框的标准立方体
+        function createCubeMesh() {
+            const geo = new THREE.BoxGeometry(0.96, 0.96, 0.96);
+            const mesh = new THREE.Mesh(geo, cubeMat);
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+
+            const edges = new THREE.EdgesGeometry(geo);
+            const line = new THREE.LineSegments(edges, borderMat);
+            mesh.add(line);
+            return mesh;
+        }
+
+        // 清理场景中的方块
+        function clearSceneObjects() {
+            blocks.forEach(b => scene.remove(b.mesh));
+            blocks = [];
+            groupsEx2.forEach(g => scene.remove(g.group));
+            groupsEx2 = [];
+            clearProjections();
+        }
+
+        // 清空投影板与光路
+        function clearProjections() {
+            while (projectionGroup.children.length > 0) {
+                projectionGroup.remove(projectionGroup.children[0]);
+            }
+        }
+
+        // 切换例题模式
+        function switchMode(mode) {
+            currentMode = mode;
+            document.getElementById('tab-mode1').classList.toggle('btn-active', mode === 1);
+            document.getElementById('tab-mode2').classList.toggle('btn-active', mode === 2);
+
+            const hintTitle = document.getElementById('hint-title');
+            const hintDesc = document.getElementById('hint-desc');
+            const conclusionBox = document.getElementById('conclusion-box');
+
+            if (mode === 1) {
+                hintTitle.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4"></i> 例题一：摆一摆`;
+                hintDesc.textContent = '用4个正方体任意拼搭。鼠标可拖动积木移动与堆叠，点击下方视角按钮观察光束投影！';
+                conclusionBox.innerHTML = `<strong>💡 例题 1 探究：</strong><br>用4个小正方体摆出不同的组合体，从正面、左面、上面观察，记录下看到的形状。`;
+                setupMode1();
+            } else {
+                hintTitle.innerHTML = `<i data-lucide="boxes" class="w-4 h-4"></i> 例题二：三组同屏对比`;
+                hintDesc.textContent = '同屏出示教材中的 3 组组合体。可以自由 3D 旋转，点击视角按钮查看三组物体的同步投影！';
+                conclusionBox.innerHTML = `<strong>💡 例题 2 发现：</strong><br>• <strong>从上面看</strong>：图形完全相同（都是 3 格）。<br>• <strong>从左面看</strong>：图形完全相同（都是 2 格竖排）。<br>• <strong>从前面看</strong>：图形各不相同（上层方块位置不同）。`;
+                setupMode2();
+            }
+            lucide.createIcons();
+            animateToFreeView();
+        }
+
+        // 重置当前模式方块
+        function resetCurrentMode() {
+            if (currentMode === 1) setupMode1();
+            else setupMode2();
+            animateToFreeView();
+        }
+
+        // ====== 例题 1：4个正方体自由拼搭 ======
+        function setupMode1() {
+            clearSceneObjects();
+            // 初始在桌面上排开 4 个方块
+            const initCoords = [
+                { x: -1.5, y: 0, z: 0 },
+                { x: -0.5, y: 0, z: 0 },
+                { x: 0.5, y: 0, z: 0 },
+                { x: 1.5, y: 0, z: 0 }
+            ];
+
+            initCoords.forEach(c => {
+                const mesh = createCubeMesh();
+                mesh.position.set(c.x, c.y, c.z);
+                scene.add(mesh);
+                blocks.push({ x: c.x, y: c.y, z: c.z, mesh });
+            });
+        }
+
+        // ====== 例题 2：同屏出示 3 个组合体 ======
+        function setupMode2() {
+            clearSceneObjects();
+
+            // 组合体配置 (中心偏移 X: -3.2, 0, 3.2)
+            const configs = [
+                // 图1：左侧上突
+                { offset: -3.2, cubes: [{ x: -1, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, { x: 1, y: 0, z: 0 }, { x: -1, y: 1, z: 0 }] },
+                // 图2：中间上突
+                { offset: 0, cubes: [{ x: -1, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, { x: 1, y: 0, z: 0 }, { x: 0, y: 1, z: 0 }] },
+                // 图3：右侧上突 (稍靠后或右凸)
+                { offset: 3.2, cubes: [{ x: -1, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, { x: 1, y: 0, z: 0 }, { x: 1, y: 1, z: 0 }] }
+            ];
+
+            configs.forEach(cfg => {
+                const group = new THREE.Group();
+                cfg.cubes.forEach(c => {
+                    const mesh = createCubeMesh();
+                    mesh.position.set(c.x + cfg.offset, c.y, c.z);
+                    group.add(mesh);
+                });
+                scene.add(group);
+                groupsEx2.push({ offset: cfg.offset, cubes: cfg.cubes, group });
+            });
+        }
+
+        // ====== 构建 3D 投影板与光路投射效果 ======
+        function buildProjectionVisuals(view) {
+            clearProjections();
+
+            if (currentMode === 1) {
+                buildSingleProjection(blocks.map(b => ({ x: b.x, y: b.y, z: b.z })), 0, view);
+            } else {
+                // 例题2：同时为 3 组组合体生成 3 块投影背板
+                groupsEx2.forEach(g => {
+                    const cubes = g.cubes.map(c => ({ x: c.x + g.offset, y: c.y, z: c.z }));
+                    buildSingleProjection(cubes, g.offset, view);
+                });
+            }
+        }
+
+        function buildSingleProjection(cubeCoords, centerOffsetX, view) {
+            let boardMesh, shadowPlane;
+            const uniqueShadowCells = new Set();
+
+            cubeCoords.forEach(c => {
+                if (view === 'front') uniqueShadowCells.add(`${c.x},${c.y}`);
+                else if (view === 'left') uniqueShadowCells.add(`${c.z},${c.y}`);
+                else if (view === 'top') uniqueShadowCells.add(`${c.x},${c.z}`);
+            });
+
+            // 背板尺寸与位置
+            const boardGeo = new THREE.PlaneGeometry(3.6, 2.8);
+            boardMesh = new THREE.Mesh(boardGeo, screenMat);
+
+            if (view === 'front') {
+                boardMesh.position.set(centerOffsetX, 0.6, -2.2);
+            } else if (view === 'left') {
+                boardMesh.position.set(centerOffsetX + 2.2, 0.6, 0);
+                boardMesh.rotation.y = -Math.PI / 2;
+            } else if (view === 'top') {
+                boardMesh.position.set(centerOffsetX, -0.48, 0);
+                boardMesh.rotation.x = -Math.PI / 2;
+            }
+
+            projectionGroup.add(boardMesh);
+
+            // 在背板上生成 2D 投影阴影块 + 光束线
+            uniqueShadowCells.forEach(key => {
+                const parts = key.split(',').map(Number);
+                const shadowGeo = new THREE.PlaneGeometry(0.96, 0.96);
+                const sMesh = new THREE.Mesh(shadowGeo, shadowMat);
+
+                let startRay = new THREE.Vector3();
+                let endRay = new THREE.Vector3();
+
+                if (view === 'front') {
+                    sMesh.position.set(parts[0], parts[1], -2.18);
+                    startRay.set(parts[0], parts[1], 2.2);
+                    endRay.set(parts[0], parts[1], -2.18);
+                } else if (view === 'left') {
+                    sMesh.position.set(centerOffsetX + 2.18, parts[1], parts[0]);
+                    sMesh.rotation.y = -Math.PI / 2;
+                    startRay.set(centerOffsetX - 2.2, parts[1], parts[0]);
+                    endRay.set(centerOffsetX + 2.18, parts[1], parts[0]);
+                } else if (view === 'top') {
+                    sMesh.position.set(parts[0], -0.47, parts[1]);
+                    sMesh.rotation.x = -Math.PI / 2;
+                    startRay.set(parts[0], 2.5, parts[1]);
+                    endRay.set(parts[0], -0.47, parts[1]);
+                }
+
+                projectionGroup.add(sMesh);
+
+                // 投射平行虚线光束
+                const rayGeo = new THREE.BufferGeometry().setFromPoints([startRay, endRay]);
+                const rayLine = new THREE.Line(rayGeo, rayLineMat);
+                rayLine.computeLineDistances();
+                projectionGroup.add(rayLine);
+            });
+        }
+
+        // ====== 视角切换与平滑相机推镜 ======
+        function animateToView(view) {
+            if (isAnimatingCamera) return;
+            currentView = view;
+            updateButtonsUI();
+
+            startCamPos.copy(camera.position);
+
+            if (currentMode === 1) {
+                if (view === 'front') targetCamPos.set(0, 0.5, 6.2);
+                else if (view === 'left') targetCamPos.set(-6.2, 0.5, 0);
+                else if (view === 'top') targetCamPos.set(0, 6.5, 0.001);
+            } else {
+                // 例题2广角视距
+                if (view === 'front') targetCamPos.set(0, 0.5, 8.5);
+                else if (view === 'left') targetCamPos.set(-8.5, 0.5, 0);
+                else if (view === 'top') targetCamPos.set(0, 8.8, 0.001);
+            }
+
+            animStartTime = performance.now();
+            isAnimatingCamera = true;
+            controls.enabled = false;
+
+            // 相机运动到位后，显现投影背板与光路
+            setTimeout(() => {
+                buildProjectionVisuals(view);
+            }, animDuration * 0.6);
+        }
+
+        function animateToFreeView() {
+            clearProjections();
+            currentView = null;
+            updateButtonsUI();
+
+            startCamPos.copy(camera.position);
+            targetCamPos.set(currentMode === 1 ? 5 : 7, 4.5, currentMode === 1 ? 7.5 : 9.5);
+
+            animStartTime = performance.now();
+            isAnimatingCamera = true;
+            controls.enabled = false;
+        }
+
+        function updateButtonsUI() {
+            document.getElementById('btn-front').classList.toggle('btn-active', currentView === 'front');
+            document.getElementById('btn-left').classList.toggle('btn-active', currentView === 'left');
+            document.getElementById('btn-top').classList.toggle('btn-active', currentView === 'top');
+
+            const viewText = document.getElementById('current-view-text');
+            if (currentView === 'front') viewText.textContent = '视角：从前面看 (主视图投影)';
+            else if (currentView === 'left') viewText.textContent = '视角：从左面看 (左视图投影)';
+            else if (currentView === 'top') viewText.textContent = '视角：从上面看 (俯视图投影)';
+            else viewText.textContent = '自由 3D 视角';
+        }
+
+        // ====== 鼠标拖拽积木交互 (例题一) ======
+        function onMouseDown(e) {
+            if (currentMode !== 1 || currentView !== null) return;
+            const container = document.getElementById('canvas-container');
+            const rect = container.getBoundingClientRect();
+            mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(blocks.map(b => b.mesh));
+
+            if (intersects.length > 0) {
+                controls.enabled = false;
+                isDragging = true;
+                draggedBlock = blocks.find(b => b.mesh === intersects[0].object);
+            }
+        }
+
+        function onMouseMove(e) {
+            if (!isDragging || !draggedBlock) return;
+            const container = document.getElementById('canvas-container');
+            const rect = container.getBoundingClientRect();
+            mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+
+            // 与其他方块或地面碰撞检测
+            const otherMeshes = blocks.filter(b => b !== draggedBlock).map(b => b.mesh);
+            const intersects = raycaster.intersectObjects(otherMeshes);
+
+            let targetX, targetY, targetZ;
+
+            if (intersects.length > 0) {
+                const hit = intersects[0];
+                const hitBlock = blocks.find(b => b.mesh === hit.object);
+                const normal = hit.face.normal;
+                targetX = hitBlock.x + Math.round(normal.x);
+                targetY = hitBlock.y + Math.round(normal.y);
+                targetZ = hitBlock.z + Math.round(normal.z);
+            } else {
+                const hitPoint = new THREE.Vector3();
+                raycaster.ray.intersectPlane(groundPlane, hitPoint);
+                targetX = Math.round(hitPoint.x);
+                targetY = 0;
+                targetZ = Math.round(hitPoint.z);
+            }
+
+            // 限制摆放范围
+            draggedBlock.x = Math.max(-2, Math.min(2, targetX));
+            draggedBlock.y = Math.max(0, Math.min(3, targetY));
+            draggedBlock.z = Math.max(-2, Math.min(2, targetZ));
+
+            draggedBlock.mesh.position.set(draggedBlock.x, draggedBlock.y, draggedBlock.z);
+        }
+
+        function onMouseUp() {
+            if (isDragging) {
+                isDragging = false;
+                draggedBlock = null;
+                controls.enabled = true;
+            }
+        }
+
+        function onWindowResize() {
+            const container = document.getElementById('canvas-container');
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+
+        // 动画渲染循环
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (isAnimatingCamera) {
+                const elapsed = performance.now() - animStartTime;
+                const progress = Math.min(1, elapsed / animDuration);
+                // 平滑缓动
+                const t = 0.5 - 0.5 * Math.cos(progress * Math.PI);
+                camera.position.lerpVectors(startCamPos, targetCamPos, t);
+                controls.target.lerp(new THREE.Vector3(0, 0.5, 0), t);
+                controls.update();
+
+                if (progress >= 1) {
+                    isAnimatingCamera = false;
+                    controls.enabled = true;
+                }
+            }
+
+            if (controls.enabled) controls.update();
+            renderer.render(scene, camera);
+        }
+
+        window.onload = init;
+    </script>
+</body>
+
+</html>

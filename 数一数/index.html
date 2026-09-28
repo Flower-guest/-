@@ -1,0 +1,1779 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>一年级数学上册互动课件 - 在校园里找一找</title>
+  <!-- 引入适合儿童及现代设计的谷歌字体 -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Quicksand:wght@500;700&family=Noto+Sans+SC:wght@400;700&display=swap"
+    rel="stylesheet">
+
+  <style>
+    /* ==========================================
+       一、 设计系统与全局样式 (Premium UI/UX)
+       ========================================== */
+    :root {
+      --primary: #ff6b6b;
+      --primary-hover: #ff5252;
+      --success: #51cd89;
+      --warning: #ffbe1a;
+      --text-dark: #2c3e50;
+      --text-muted: #7f8c8d;
+      --bg-cream: #fdfbf7;
+      --bg-gradient: radial-gradient(circle at top, #fdfcf7 0%, #f4f3ea 100%);
+      --glass-bg: rgba(255, 255, 255, 0.85);
+      --glass-border: rgba(255, 255, 255, 0.4);
+      --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.04);
+      --shadow-premium: 0 20px 50px rgba(44, 62, 80, 0.12);
+      --tianzige-color: #ff6b6b;
+      --tianzige-bg: #fffdf2;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Quicksand', 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-dark);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow: hidden;
+      padding: 12px;
+      box-sizing: border-box;
+    }
+
+    /* 滚动条美化 */
+    ::-webkit-scrollbar {
+      height: 10px;
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.02);
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.15);
+      border-radius: 10px;
+      border: 2px solid transparent;
+      background-clip: padding-box;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 10px;
+      border: 2px solid transparent;
+      background-clip: padding-box;
+    }
+
+    /* ==========================================
+       二、 头部导航与控制栏
+       ========================================== */
+    .app-header {
+      width: 100%;
+      max-width: 1500px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding: 8px 16px;
+      flex-shrink: 0;
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 20px;
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .app-title-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text-dark);
+      background: linear-gradient(135deg, #2c3e50 0%, #ff6b6b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 1px;
+    }
+
+    .app-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      font-weight: 500;
+    }
+
+    .control-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    /* 按钮基础样式 */
+    .btn {
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      border: 1px solid transparent;
+      user-select: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, #ff8587 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(255, 107, 107, 0.2);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(255, 107, 107, 0.3);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--text-dark);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    }
+
+    .btn-secondary:hover {
+      background: #fafaf9;
+      border-color: rgba(0, 0, 0, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary.active {
+      background: rgba(255, 190, 26, 0.1);
+      border-color: var(--warning);
+      color: #d49500;
+    }
+
+    /* ==========================================
+       三、 全景大图展示区 (Panorama Grid)
+       ========================================== */
+    .panorama-viewport {
+      width: 100%;
+      max-width: 1500px;
+      flex: 1;
+      min-height: 0;
+      border-radius: 24px;
+      box-shadow: var(--shadow-premium);
+      background: #ffffff;
+      border: 4px solid white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .panorama-container {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      height: 100%;
+      max-width: 100%;
+      max-height: 100%;
+      aspect-ratio: 1.5;
+      position: relative;
+    }
+
+    .page-wrapper {
+      position: relative;
+      flex: 1;
+      height: 100%;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    /* 原图展示 */
+    .page-img {
+      width: 100%;
+      height: 100%;
+      object-fit: fill;
+      display: block;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    /* 矢量备用背景 (插画风格) */
+    .page-svg-bg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      background: linear-gradient(to bottom, #dff9fb 0%, #ffffff 100%);
+    }
+
+    /* 拖拽上传提示效果 */
+    .page-wrapper.drag-hover {
+      box-shadow: inset 0 0 0 4px var(--primary);
+    }
+
+    .page-wrapper.drag-hover::after {
+      content: '请在此处松开鼠标以导入插图';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 107, 107, 0.9);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 700;
+      z-index: 50;
+      backdrop-filter: blur(4px);
+    }
+
+    /* ==========================================
+       四、 高亮热区 (CSS Hotspots)
+       ========================================== */
+    .hotspot {
+      position: absolute;
+      cursor: pointer;
+      border: 2px solid transparent;
+      border-radius: 12px;
+      z-index: 10;
+      transition: all 0.3s ease;
+    }
+
+    /* 金色呼吸高亮边框提示 */
+    .hotspot:hover {
+      background-color: rgba(255, 215, 0, 0.12);
+      animation: breathe 1.5s infinite ease-in-out;
+    }
+
+    @keyframes breathe {
+      0% {
+        box-shadow: 0 0 4px rgba(255, 215, 0, 0.4), inset 0 0 4px rgba(255, 215, 0, 0.2);
+        border-color: rgba(255, 215, 0, 0.6);
+      }
+
+      50% {
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.9), inset 0 0 10px rgba(255, 215, 0, 0.4);
+        border-color: rgba(255, 215, 0, 1);
+      }
+
+      100% {
+        box-shadow: 0 0 4px rgba(255, 215, 0, 0.4), inset 0 0 4px rgba(255, 215, 0, 0.2);
+        border-color: rgba(255, 215, 0, 0.6);
+      }
+    }
+
+    /* 显示提示时的辅助虚线和发光点 */
+    .panorama-viewport.show-hints .hotspot {
+      border: 2px dashed rgba(255, 190, 26, 0.8);
+      background-color: rgba(255, 215, 0, 0.03);
+    }
+
+    .hotspot-dot {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 14px;
+      height: 14px;
+      background-color: var(--warning);
+      border-radius: 50%;
+      box-shadow: 0 0 8px rgba(255, 190, 26, 0.8);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .panorama-viewport.show-hints .hotspot-dot {
+      opacity: 1;
+    }
+
+    .hotspot-dot::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background-color: inherit;
+      animation: ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+    }
+
+    @keyframes ping {
+
+      75%,
+      100% {
+        transform: scale(3);
+        opacity: 0;
+      }
+    }
+
+    /* ==========================================
+       五、 磨砂玻璃弹窗对话框 (Anthropic Style Glassmorphism)
+       ========================================== */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(44, 62, 80, 0.35);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      background: var(--glass-bg);
+      border-radius: 28px;
+      width: 90%;
+      max-width: 600px;
+      box-shadow: var(--shadow-premium), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+      border: 1px solid var(--glass-border);
+      padding: 40px;
+      position: relative;
+      transform: translateY(30px) scale(0.95);
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      text-align: center;
+    }
+
+    .modal-overlay.active .modal-card {
+      transform: translateY(0) scale(1);
+    }
+
+    /* 右上角关闭按钮 */
+    .modal-close-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.04);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      color: var(--text-dark);
+    }
+
+    .modal-close-btn:hover {
+      background: rgba(255, 107, 107, 0.1);
+      color: var(--primary);
+      transform: rotate(90deg);
+    }
+
+    /* 徽章标题 */
+    .modal-badge {
+      display: inline-block;
+      padding: 6px 14px;
+      background: rgba(255, 107, 107, 0.08);
+      color: var(--primary);
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      letter-spacing: 1px;
+    }
+
+    /* 内容文字 */
+    .modal-text {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-dark);
+      line-height: 1.6;
+      margin-bottom: 35px;
+      font-family: 'Noto Sans SC', sans-serif;
+    }
+
+    /* 高亮数字 */
+    .modal-text .highlight-num {
+      color: var(--primary);
+      font-size: 38px;
+      font-family: 'Outfit', sans-serif;
+      margin: 0 8px;
+      display: inline-block;
+      font-weight: 800;
+      vertical-align: middle;
+      line-height: 1;
+    }
+
+    /* ==========================================
+       六、 田字格与播放控制 (Grid & Audio Player)
+       ========================================== */
+    .interactive-section {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 30px;
+      min-height: 160px;
+    }
+
+    /* 田字格容器 */
+    .tianzige-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      transform: scale(0);
+      opacity: 0;
+      transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* 田字格显示时的类 */
+    .tianzige-wrapper.visible {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    /* 四线实虚田字格 */
+    .tianzige {
+      width: 130px;
+      height: 130px;
+      border: 3px solid var(--tianzige-color);
+      background-color: var(--tianzige-bg);
+      position: relative;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(255, 107, 107, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 田字格中心十字虚线 */
+    .tianzige::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      border-top: 2px dashed rgba(255, 107, 107, 0.45);
+    }
+
+    .tianzige::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      border-left: 2px dashed rgba(255, 107, 107, 0.45);
+    }
+
+    /* 里面的大数字 */
+    .tianzige-number {
+      font-size: 92px;
+      font-weight: 800;
+      color: var(--text-dark);
+      z-index: 2;
+      font-family: 'Outfit', sans-serif;
+      user-select: none;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .tianzige-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+    }
+
+    /* 常驻小播放器按钮 */
+    .audio-replay-btn {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary) 0%, #ff8587 100%);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 20px rgba(255, 107, 107, 0.25);
+      color: white;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .audio-replay-btn:hover {
+      transform: scale(1.1) rotate(-5deg);
+      box-shadow: 0 12px 25px rgba(255, 107, 107, 0.35);
+    }
+
+    .audio-replay-btn:active {
+      transform: scale(0.95);
+    }
+
+    .audio-replay-btn svg {
+      width: 26px;
+      height: 26px;
+      fill: currentColor;
+    }
+
+    /* 播报时的动态脉冲效果 */
+    .audio-replay-btn.speaking {
+      animation: audio-pulse 1.2s infinite ease-in-out;
+      background: linear-gradient(135deg, var(--success) 0%, #75e2a6 100%);
+      box-shadow: 0 8px 20px rgba(81, 205, 137, 0.25);
+    }
+
+    @keyframes audio-pulse {
+      0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(81, 205, 137, 0.7);
+      }
+
+      50% {
+        transform: scale(1.08);
+        box-shadow: 0 0 0 10px rgba(81, 205, 137, 0);
+      }
+
+      100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(81, 205, 137, 0);
+      }
+    }
+
+    /* ==========================================
+       七、 底部探索进度收集板 (Progress Panel)
+       ========================================== */
+    .app-body-layout {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      max-width: 1500px;
+      flex: 1;
+      min-height: 0;
+      gap: 16px;
+      box-sizing: border-box;
+    }
+
+    .progress-panel {
+      width: 300px;
+      height: 100%;
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 24px;
+      border: 1px solid var(--glass-border);
+      padding: 16px;
+      box-shadow: var(--shadow-soft);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex-shrink: 0;
+      box-sizing: border-box;
+    }
+
+    .progress-header {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+    }
+
+    .progress-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .progress-count {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--primary);
+      background: rgba(255, 107, 107, 0.08);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    /* 收集进度条 */
+    .progress-bar-container {
+      width: 100%;
+      height: 10px;
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 5px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ff9f43 0%, var(--primary) 50%, var(--success) 100%);
+      border-radius: 5px;
+      transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* 1-9 卡片网格 */
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      overflow-y: auto;
+      flex: 1;
+      min-height: 0;
+      padding-right: 4px;
+    }
+
+    @media (max-width: 850px) {
+      .app-body-layout {
+        flex-direction: column;
+        height: auto;
+        overflow-y: auto;
+      }
+
+      body {
+        height: auto;
+        overflow: auto;
+      }
+
+      .panorama-viewport {
+        aspect-ratio: 1.5;
+        flex: none;
+        width: 100%;
+      }
+
+      .progress-panel {
+        width: 100%;
+        height: auto;
+      }
+
+      .progress-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .grid-container {
+        grid-template-columns: repeat(5, 1fr);
+        overflow-y: visible;
+        flex: none;
+      }
+    }
+
+    .number-card {
+      background: white;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      border-radius: 12px;
+      padding: 6px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      user-select: none;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+    }
+
+    .number-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.06);
+    }
+
+    .card-badge {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #eaeded;
+      color: #95a5a6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 13px;
+      font-family: 'Outfit', sans-serif;
+      transition: all 0.3s ease;
+    }
+
+    .card-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      transition: all 0.3s ease;
+    }
+
+    /* 收集满后的高亮点亮状态 */
+    .number-card.collected {
+      border-color: rgba(255, 190, 26, 0.4);
+      background: linear-gradient(135deg, #ffffff 0%, #fffdf0 100%);
+    }
+
+    .number-card.collected .card-badge {
+      background: linear-gradient(135deg, var(--warning) 0%, #ffa500 100%);
+      color: white;
+      box-shadow: 0 4px 10px rgba(255, 190, 26, 0.5);
+      animation: pulse-gold 2s infinite;
+    }
+
+    .number-card.collected .card-label {
+      color: #b37d00;
+    }
+
+    @keyframes pulse-gold {
+      0% {
+        box-shadow: 0 0 0 0 rgba(255, 190, 26, 0.7);
+      }
+
+      70% {
+        box-shadow: 0 0 0 6px rgba(255, 190, 26, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(255, 190, 26, 0);
+      }
+    }
+
+    /* ==========================================
+       八、 恭喜弹窗 & 显隐样式
+       ========================================== */
+    .progress-panel.hidden {
+      display: none !important;
+    }
+
+    .congrats-overlay {
+      z-index: 120;
+    }
+
+    .congrats-card {
+      max-width: 420px;
+      border: 2px solid rgba(255, 190, 26, 0.4);
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 30px 70px rgba(255, 107, 107, 0.15), 0 10px 30px rgba(255, 190, 26, 0.15);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .congrats-icon-glow {
+      position: absolute;
+      top: -50px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(255, 190, 26, 0.3) 0%, rgba(255, 190, 26, 0) 70%);
+      z-index: 1;
+      pointer-events: none;
+      animation: rotate-glow 10s infinite linear;
+    }
+
+    @keyframes rotate-glow {
+      0% {
+        transform: translateX(-50%) rotate(0deg);
+      }
+
+      100% {
+        transform: translateX(-50%) rotate(360deg);
+      }
+    }
+
+    .congrats-crown {
+      font-size: 72px;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 2;
+      animation: bounce-crown 2s infinite ease-in-out;
+    }
+
+    @keyframes bounce-crown {
+
+      0%,
+      100% {
+        transform: translateY(0) scale(1);
+      }
+
+      50% {
+        transform: translateY(-12px) scale(1.06) rotate(3deg);
+      }
+    }
+
+    .congrats-title {
+      font-size: 26px;
+      font-weight: 800;
+      color: #2c3e50;
+      margin-bottom: 6px;
+      background: linear-gradient(135deg, #ff6b6b 0%, #ffbe1a 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      position: relative;
+      z-index: 2;
+    }
+
+    .congrats-subtitle {
+      font-size: 15px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      font-weight: 700;
+      position: relative;
+      z-index: 2;
+    }
+
+    .congrats-stats {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .stat-item {
+      background: rgba(255, 107, 107, 0.05);
+      border: 1px solid rgba(255, 107, 107, 0.1);
+      border-radius: 12px;
+      padding: 10px 18px;
+      min-width: 100px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .stat-item:last-child {
+      background: rgba(81, 205, 137, 0.05);
+      border: 1px solid rgba(81, 205, 137, 0.1);
+    }
+
+    .stat-val {
+      font-size: 22px;
+      font-weight: 800;
+      font-family: 'Outfit', sans-serif;
+      color: var(--primary);
+    }
+
+    .stat-item:last-child .stat-val {
+      color: var(--success);
+    }
+
+    .stat-lbl {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    @keyframes fall {
+      0% {
+        transform: translateY(0) rotate(0deg);
+      }
+
+      100% {
+        transform: translateY(100vh) rotate(360deg);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- 1. 头部导航栏 -->
+  <header class="app-header">
+    <div class="app-title-group">
+      <h1 class="app-title">在校园里找一找</h1>
+      <span class="app-subtitle">一年级数学上册《数一数》互动学习课件</span>
+    </div>
+    <div class="control-actions">
+      <!-- 提示显示开关 -->
+      <button class="btn btn-secondary" id="hints-toggle-btn" onclick="toggleHints()">
+        <svg style="width:16px;height:16px;" viewBox="0 0 24 24">
+          <path fill="currentColor"
+            d="M12,2A7,7 0 0,0 5,9C5,11.38 6.19,13.47 8,14.74V17A1,1 0 0,0 9,18H15A1,1 0 0,0 16,17V14.74C17.81,13.47 19,11.38 19,9A7,7 0 0,0 12,2M9,21A1,1 0 0,0 10,22H14A1,1 0 0,0 15,21V20H9V21Z" />
+        </svg>
+        显示热区提示
+      </button>
+      <!-- 进度显示开关 -->
+      <button class="btn btn-secondary" id="progress-toggle-btn" onclick="toggleProgressPanel()">
+        <svg style="width:16px;height:16px;" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M13,21V11H21V21H13M3,21V15H11V21H3M3,13V3H11V13H3M13,9V3H21V9H13Z" />
+        </svg>
+        显示收集进度
+      </button>
+      <!-- 重置进度 -->
+      <button class="btn btn-secondary" onclick="resetProgress()">
+        <svg style="width:16px;height:16px;" viewBox="0 0 24 24">
+          <path fill="currentColor"
+            d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z" />
+        </svg>
+        重置进度
+      </button>
+    </div>
+  </header>
+
+  <div class="app-body-layout">
+    <!-- 2. 全景大图展示区 (Stitched Panorama) -->
+    <main class="panorama-viewport" id="panorama-viewport">
+      <div class="panorama-container">
+
+        <!-- 左侧图片容器 (第2页) -->
+        <div class="page-wrapper" id="page-2-wrapper">
+          <!-- 原图元素 (优先载入同级 page2.png) -->
+          <img class="page-img" id="page-2-img" src="left.png" alt="左侧校园" onerror="handleImageError(this, 2)"
+            onload="handleImageSuccess(this, 2)">
+
+          <!-- 矢量背景 (若原图缺失时显示，保障课件直接可用) -->
+          <svg class="page-svg-bg" id="page-2-svg" viewBox="0 0 750 1000" style="display:none;">
+            <defs>
+              <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#bae7ff" />
+                <stop offset="100%" stop-color="#e6f7ff" />
+              </linearGradient>
+              <linearGradient id="wallGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#ffa39e" />
+                <stop offset="100%" stop-color="#ffccc7" />
+              </linearGradient>
+            </defs>
+            <!-- 天空 -->
+            <rect x="0" y="0" width="750" height="400" fill="url(#skyGrad)" />
+            <circle cx="200" cy="120" r="40" fill="#ffffff" opacity="0.8" />
+            <circle cx="230" cy="120" r="30" fill="#ffffff" opacity="0.8" />
+            <circle cx="170" cy="130" r="25" fill="#ffffff" opacity="0.8" />
+            <!-- 操场 -->
+            <rect x="0" y="400" width="750" height="600" fill="#f4f0df" />
+            <!-- 左侧楼房 -->
+            <rect x="0" y="150" width="180" height="300" fill="url(#wallGrad)" rx="5" />
+            <rect x="63" y="380" width="64" height="70" fill="#c59b6c" rx="4" /> <!-- 大门 1 -->
+            <!-- 中间楼房 -->
+            <rect x="300" y="200" width="300" height="220" fill="#ffe7ba" rx="5" />
+            <rect x="405" y="380" width="90" height="40" fill="#a07855" rx="4" /> <!-- 大门 2 -->
+            <rect x="521" y="385" width="34" height="35" fill="#a07855" rx="4" /> <!-- 大门 3 -->
+            <!-- 右侧楼房 -->
+            <rect x="650" y="180" width="100" height="300" fill="url(#wallGrad)" rx="5" />
+            <rect x="682" y="380" width="41" height="70" fill="#a07855" rx="4" /> <!-- 大门 4 -->
+
+            <!-- 绿化植物 -->
+            <rect x="180" y="410" width="120" height="30" fill="#87d068" rx="8" />
+
+            <!-- 4个分类垃圾桶 -->
+            <g transform="translate(390, 400)">
+              <rect x="0" y="5" width="14" height="25" fill="#ff4d4f" rx="2" />
+              <rect x="16" y="5" width="14" height="25" fill="#1890ff" rx="2" />
+              <rect x="32" y="5" width="14" height="25" fill="#73d13d" rx="2" />
+              <rect x="48" y="5" width="14" height="25" fill="#8c8c8c" rx="2" />
+            </g>
+
+            <!-- 踢毽子区 (长椅) -->
+            <rect x="310" y="470" width="140" height="15" fill="#d4b106" rx="4" />
+            <line x1="330" y1="485" x2="330" y2="505" stroke="#d4b106" stroke-width="6" />
+            <line x1="430" y1="485" x2="430" y2="505" stroke="#d4b106" stroke-width="6" />
+            <circle cx="340" cy="450" r="14" fill="#ff7875" />
+            <circle cx="420" cy="445" r="14" fill="#ffc069" />
+
+            <!-- 老师与围观学生 -->
+            <!-- 老师 -->
+            <g transform="translate(480, 520)">
+              <circle cx="40" cy="20" r="20" fill="#ffe0bd" />
+              <path d="M40,5 C40,5 20,5 20,25 C35,25 40,10 40,5 Z" fill="#2c3e50" />
+              <rect x="25" y="40" width="30" height="60" fill="#ffffff" rx="5" />
+              <rect x="20" y="100" width="40" height="130" fill="#40a9ff" rx="5" />
+            </g>
+            <!-- 围观学生们 (7位小朋友) -->
+            <g opacity="0.9">
+              <circle cx="150" cy="680" r="15" fill="#ffe0bd" />
+              <rect x="140" y="695" width="20" height="50" fill="#ff9c6e" rx="4" />
+              <circle cx="210" cy="650" r="15" fill="#ffe0bd" />
+              <rect x="200" y="665" width="20" height="50" fill="#ffc069" rx="4" />
+              <circle cx="280" cy="640" r="15" fill="#ffe0bd" />
+              <rect x="270" y="655" width="20" height="50" fill="#ff85c0" rx="4" />
+              <circle cx="360" cy="670" r="15" fill="#ffe0bd" />
+              <rect x="350" y="685" width="20" height="50" fill="#5cdbd3" rx="4" />
+              <circle cx="430" cy="740" r="15" fill="#ffe0bd" />
+              <rect x="420" y="755" width="20" height="50" fill="#95de64" rx="4" />
+              <circle cx="500" cy="780" r="15" fill="#ffe0bd" />
+              <rect x="490" y="795" width="20" height="50" fill="#ff7875" rx="4" />
+              <circle cx="560" cy="720" r="15" fill="#ffe0bd" />
+              <rect x="550" y="735" width="20" height="50" fill="#b37feb" rx="4" />
+            </g>
+
+            <!-- 3颗大树之：左侧大树 (coords: 7.5, 410) & 中间大树 (coords: 150, 330) -->
+            <g id="svg-tree-1">
+              <rect x="2" y="410" width="16" height="350" fill="#8c5333" rx="4" />
+              <ellipse cx="10" cy="410" rx="45" ry="60" fill="#52c41a" />
+              <ellipse cx="-10" cy="370" rx="35" ry="50" fill="#73d13d" />
+              <ellipse cx="30" cy="380" rx="35" ry="50" fill="#73d13d" />
+            </g>
+            <g id="svg-tree-2">
+              <rect x="153" y="330" width="10" height="150" fill="#8c5333" rx="2" />
+              <ellipse cx="158" cy="330" rx="28" ry="40" fill="#52c41a" />
+              <ellipse cx="145" cy="310" rx="20" ry="30" fill="#73d13d" />
+              <ellipse cx="170" cy="315" rx="20" ry="30" fill="#73d13d" />
+            </g>
+
+            <text x="375" y="960" font-size="28" font-weight="700" fill="#7f8c8d" text-anchor="middle">校园左侧大图占位器</text>
+          </svg>
+        </div>
+
+        <!-- 右侧图片容器 (第3页) -->
+        <div class="page-wrapper" id="page-3-wrapper">
+          <!-- 原图元素 (优先载入同级 page3.png) -->
+          <img class="page-img" id="page-3-img" src="right.png" alt="右侧校园" onerror="handleImageError(this, 3)"
+            onload="handleImageSuccess(this, 3)">
+
+          <!-- 矢量背景 (若原图缺失时显示，保障课件直接可用) -->
+          <svg class="page-svg-bg" id="page-3-svg" viewBox="0 0 750 1000" style="display:none;">
+            <!-- 天空 -->
+            <rect x="0" y="0" width="750" height="400" fill="url(#skyGrad)" />
+            <!-- 操场 -->
+            <rect x="0" y="400" width="750" height="600" fill="#f4f0df" />
+
+            <!-- 国旗与旗杆 -->
+            <line x1="100" y1="90" x2="100" y2="480" stroke="#b5b5b5" stroke-width="8" stroke-linecap="round" />
+            <rect x="100" y="90" width="120" height="80" fill="#ff4d4f" rx="3" />
+            <!-- 国旗五角星示意 -->
+            <circle cx="125" cy="115" r="10" fill="#ffec3d" />
+            <circle cx="145" cy="105" r="4" fill="#ffec3d" />
+            <circle cx="152" cy="117" r="4" fill="#ffec3d" />
+            <circle cx="152" cy="130" r="4" fill="#ffec3d" />
+            <circle cx="145" cy="140" r="4" fill="#ffec3d" />
+
+            <!-- 白鸽天空中展翅 -->
+            <g fill="#ffffff" stroke="#e8e8e8" stroke-width="1">
+              <path d="M 330,80 Q 340,65 350,80 Q 360,65 370,80 Q 350,90 330,80 Z" />
+              <path d="M 380,60 Q 390,45 400,60 Q 410,45 420,60 Q 400,70 380,60 Z" />
+              <path d="M 440,75 Q 450,60 460,75 Q 470,60 480,75 Q 460,85 440,75 Z" />
+              <path d="M 350,110 Q 360,95 370,110 Q 380,95 390,110 Q 370,120 350,110 Z" />
+              <path d="M 410,100 Q 420,85 430,100 Q 440,85 450,100 Q 430,110 410,100 Z" />
+              <path d="M 470,115 Q 480,100 490,115 Q 500,100 510,115 Q 490,125 470,115 Z" />
+              <path d="M 320,130 Q 330,115 340,130 Q 350,115 360,130 Q 340,140 320,130 Z" />
+              <path d="M 380,145 Q 390,130 400,145 Q 410,130 420,145 Q 400,155 380,145 Z" />
+              <path d="M 440,150 Q 450,135 460,150 Q 470,135 480,150 Q 460,160 440,150 Z" />
+            </g>
+
+            <!-- 跳绳的小朋友 -->
+            <g transform="translate(240, 400)">
+              <!-- 绳子 -->
+              <path d="M 15,60 Q 55,100 95,60" fill="none" stroke="#5cdbd3" stroke-width="3" stroke-dasharray="4" />
+              <circle cx="10" cy="50" r="12" fill="#ffe0bd" />
+              <rect x="2" y="62" width="16" height="40" fill="#ffc069" rx="3" />
+              <circle cx="100" cy="50" r="12" fill="#ffe0bd" />
+              <rect x="92" y="62" width="16" height="40" fill="#95de64" rx="3" />
+              <circle cx="55" cy="45" r="12" fill="#ffe0bd" />
+              <rect x="47" y="57" width="16" height="40" fill="#ff7875" rx="3" />
+            </g>
+
+            <!-- 向日葵花圃 -->
+            <g transform="translate(410, 440)">
+              <rect x="0" y="50" width="180" height="25" fill="#73d13d" rx="6" />
+              <!-- 8朵向日葵 -->
+              <g fill="#ffc069" stroke="#d48806" stroke-width="1.5">
+                <circle cx="20" cy="25" r="16" fill="#ffec3d" />
+                <circle cx="20" cy="25" r="8" fill="#ad6800" />
+                <circle cx="42" cy="25" r="16" fill="#ffec3d" />
+                <circle cx="42" cy="25" r="8" fill="#ad6800" />
+                <circle cx="64" cy="25" r="16" fill="#ffec3d" />
+                <circle cx="64" cy="25" r="8" fill="#ad6800" />
+                <circle cx="86" cy="25" r="16" fill="#ffec3d" />
+                <circle cx="86" cy="25" r="8" fill="#ad6800" />
+
+                <circle cx="31" cy="45" r="16" fill="#ffec3d" />
+                <circle cx="31" cy="45" r="8" fill="#ad6800" />
+                <circle cx="53" cy="45" r="16" fill="#ffec3d" />
+                <circle cx="53" cy="45" r="8" fill="#ad6800" />
+                <circle cx="75" cy="45" r="16" fill="#ffec3d" />
+                <circle cx="75" cy="45" r="8" fill="#ad6800" />
+                <circle cx="97" cy="45" r="16" fill="#ffec3d" />
+                <circle cx="97" cy="45" r="8" fill="#ad6800" />
+              </g>
+            </g>
+
+            <!-- 3颗大树之：右侧大树 (coords: 600, 320) -->
+            <g id="svg-tree-3">
+              <rect x="595" y="320" width="14" height="200" fill="#8c5333" rx="3" />
+              <ellipse cx="602" cy="320" rx="38" ry="55" fill="#52c41a" />
+              <ellipse cx="585" cy="300" rx="30" ry="40" fill="#73d13d" />
+              <ellipse cx="618" cy="305" rx="30" ry="40" fill="#73d13d" />
+            </g>
+
+            <text x="375" y="960" font-size="28" font-weight="700" fill="#7f8c8d" text-anchor="middle">校园右侧大图占位器</text>
+          </svg>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- 3. 底部探索进度收集板 (Progress Board) -->
+    <section class="progress-panel hidden">
+      <div class="progress-header">
+        <div class="progress-title">
+          <svg style="width:20px;height:20px;color:var(--warning);" viewBox="0 0 24 24">
+            <path fill="currentColor"
+              d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M12 20C7.6 20 4 16.4 4 12S7.6 4 12 4 20 7.6 20 12 16.4 20 12 20M12 17L17 12L15.6 10.6L12 14.2L10.4 12.6L9 14L12 17Z" />
+          </svg>
+          校园数学探索大发现
+        </div>
+        <div class="progress-count" id="progress-text">已集齐: 0 / 9</div>
+      </div>
+      <!-- 进度条 -->
+      <div class="progress-bar-container">
+        <div class="progress-bar-fill" id="progress-bar"></div>
+      </div>
+      <!-- 1-9 集齐卡片 -->
+      <div class="grid-container" id="cards-grid">
+        <!-- 由 JS 渲染 1-9 卡片 -->
+      </div>
+    </section>
+  </div>
+
+  <!-- 4. 遮罩层对话框 (磨砂玻璃弹窗) -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal-card">
+      <button class="modal-close-btn" onclick="closeModal()" aria-label="关闭弹窗">
+        <svg style="width:22px;height:22px" viewBox="0 0 24 24">
+          <path fill="currentColor"
+            d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
+        </svg>
+      </button>
+      <div class="modal-badge" id="modal-badge-id">校园发现 #1</div>
+      <!-- 详解句子 -->
+      <p class="modal-text" id="modal-content-text">
+        校园里有 <span class="highlight-num">1</span> 位老师。
+      </p>
+
+      <!-- 语音与田字格交互区 -->
+      <div class="interactive-section">
+        <!-- 自动展现的田字格 -->
+        <div class="tianzige-wrapper" id="tianzige-container">
+          <div class="tianzige">
+            <span class="tianzige-number" id="tianzige-num-text">1</span>
+          </div>
+          <span class="tianzige-label">数学田字格</span>
+        </div>
+
+        <!-- 小喇叭常驻播放器 -->
+        <button class="audio-replay-btn" id="audio-replay-btn" onclick="replaySpeech()" title="再次播放语音">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18,19.86 21,16.28 21,12C21,7.72 18,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16C15.5,15.29 16.5,13.77 16.5,12M3,9V15H7L12,20V4L7,9H3Z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. 恭喜通关弹窗 (Custom Success Celebration Modal) -->
+  <div class="modal-overlay congrats-overlay" id="congrats-overlay">
+    <div class="modal-card congrats-card">
+      <div class="congrats-icon-glow"></div>
+      <div class="congrats-crown">👑</div>
+      <h2 class="congrats-title">太棒啦！全部集齐！</h2>
+      <p class="congrats-subtitle">你真是一个数学探索小天才！</p>
+
+      <div class="congrats-stats">
+        <div class="stat-item">
+          <span class="stat-val" id="congrats-stat-count">10</span>
+          <span class="stat-lbl">探索发现</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-val">100%</span>
+          <span class="stat-lbl">探索进度</span>
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-lg" onclick="closeCongratsModal()"
+        style="margin-top: 10px; font-size: 16px; padding: 12px 30px; width: 100%; justify-content: center; border: none;">
+        🌟 开启新的探索
+      </button>
+    </div>
+  </div>
+
+
+
+  <!-- ==========================================
+       九、 JS 业务逻辑与状态机
+       ========================================== -->
+  <script>
+    // 1. 核心状态机 scenesData 定义
+    const scenesData = [
+      {
+        id: 1,
+        name: '老师',
+        text: '校园里有 1 位老师。',
+        number: 1,
+        page: 2,
+        coords: { left: 60, top: 47, width: 19, height: 35 }
+      },
+      {
+        id: 2,
+        name: '踢毽子',
+        text: '背景长椅旁，有 2 个小朋友在踢毽子。',
+        number: 2,
+        page: 2,
+        coords: { left: 41, top: 45, width: 23, height: 10 }
+      },
+      {
+        id: 3,
+        name: '跳绳',
+        text: '操场左侧，有 3 个小朋友聚在一起跳绳。',
+        number: 3,
+        page: 3,
+        coords: { left: 31, top: 38, width: 17, height: 17 }
+      },
+      {
+        id: 10,
+        name: '大树',
+        text: '校园里有 3 棵高大茂盛的大树。',
+        number: 3,
+        page: 2,
+        coords: [
+          { page: 2, left: 1, top: 41, width: 6, height: 24 },
+          { page: 2, left: 20, top: 33, width: 5, height: 12 },
+          { page: 3, left: 80, top: 32, width: 6, height: 12 }
+        ]
+      },
+      {
+        id: 4,
+        name: '垃圾桶',
+        text: '墙边并排摆放着 4 个分类垃圾桶。',
+        number: 4,
+        page: 2,
+        coords: { left: 52, top: 40, width: 9, height: 6 }
+      },
+      {
+        id: 5,
+        name: '五角星',
+        text: '国旗上有 5 颗五角星。',
+        number: 5,
+        page: 3,
+        coords: { left: 9, top: 8, width: 22, height: 10 }
+      },
+      {
+        id: 6,
+        name: '大门',
+        text: '校园里一共能看到 6 扇一楼大门。',
+        number: 6,
+        page: 2,
+        coords: [
+          { left: 8, top: 42, width: 8, height: 10 },
+          { left: 54, top: 40, width: 12, height: 6 },
+          { left: 69, top: 40, width: 4, height: 5 },
+          { left: 91, top: 39, width: 5, height: 7 }
+        ]
+      },
+      {
+        id: 7,
+        name: '围观学生',
+        text: '围在老师身边交流的小朋友刚好是 7 位。',
+        number: 7,
+        page: 2,
+        coords: { left: 10, top: 57, width: 68, height: 42 }
+      },
+      {
+        id: 8,
+        name: '向日葵',
+        text: '小花园里前后一排刚好开了 8 朵向日葵。',
+        number: 8,
+        page: 3,
+        coords: { left: 54, top: 43, width: 26, height: 11 }
+      },
+      {
+        id: 9,
+        name: '白鸽',
+        text: '天空中展翅飞翔的白鸽正好是 9 只。',
+        number: 9,
+        page: 3,
+        coords: { left: 43, top: 5, width: 22, height: 10 }
+      }
+    ];
+
+    // 2. 数据与收集进度初始化
+    let collectedSet = new Set();
+    let currentActiveScene = null;
+    let preferredVoice = null;
+    let progressVisible = false; // 默认隐藏
+
+    // 语音播报相关句柄
+    let currentTextUtterance = null;
+    let currentNumUtterance = null;
+    let ttsTimeout = null;
+
+    // 初始化运行
+    window.addEventListener('DOMContentLoaded', () => {
+      loadSavedProgress();
+      renderHotspots();
+      renderProgressCards();
+      updateProgressBar();
+      initSpeechVoices();
+      setupDragAndDrop();
+    });
+
+    // 3. Web Speech API 发音人筛选
+    function initSpeechVoices() {
+      const loadVoices = () => {
+        const voices = window.speechSynthesis.getVoices();
+        // 优先匹配高质量中文人声
+        preferredVoice = voices.find(v => v.lang.includes('zh-CN') && (v.name.includes('Microsoft') || v.name.includes('Google') || v.name.includes('Apple'))) ||
+          voices.find(v => v.lang.includes('zh-CN')) ||
+          voices.find(v => v.lang.startsWith('zh')) ||
+          null;
+      };
+
+      loadVoices();
+      if (window.speechSynthesis.onvoiceschanged !== undefined) {
+        window.speechSynthesis.onvoiceschanged = loadVoices;
+      }
+    }
+
+    // 4. 渲染热区 Div (支持数组多坐标热区绑定同一事件)
+    function renderHotspots() {
+      // 清空已有热区元素
+      document.querySelectorAll('.hotspot').forEach(el => el.remove());
+
+      scenesData.forEach(scene => {
+        // 如果 coords 为坐标对象数组，则渲染多个，否则包装成单元素数组渲染
+        const coordsArray = Array.isArray(scene.coords) ? scene.coords : [scene.coords];
+
+        coordsArray.forEach(coord => {
+          const hotspot = document.createElement('div');
+          hotspot.className = 'hotspot';
+          hotspot.style.left = `${coord.left}%`;
+          hotspot.style.top = `${coord.top}%`;
+          hotspot.style.width = `${coord.width}%`;
+          hotspot.style.height = `${coord.height}%`;
+          hotspot.title = `寻找并点击：${scene.name}`;
+
+          // 高亮发光小中心点
+          const dot = document.createElement('div');
+          dot.className = 'hotspot-dot';
+          hotspot.appendChild(dot);
+
+          hotspot.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openSceneModal(scene);
+          });
+
+          // 寻找对应页面的 container
+          const targetPage = coord.page || scene.page;
+          const targetWrapper = document.getElementById(`page-${targetPage}-wrapper`);
+          if (targetWrapper) {
+            targetWrapper.appendChild(hotspot);
+          }
+        });
+      });
+    }
+
+    // 5. 渲染底部 1-9 集齐卡片
+    function renderProgressCards() {
+      const grid = document.getElementById('cards-grid');
+      grid.innerHTML = ''; // 清空
+
+      scenesData.forEach(scene => {
+        const card = document.createElement('div');
+        card.className = `number-card ${collectedSet.has(scene.id) ? 'collected' : ''}`;
+        card.id = `num-card-${scene.id}`;
+        card.title = `点击回顾：${scene.name}`;
+
+        card.innerHTML = `
+          <div class="card-badge">${scene.number}</div>
+          <div class="card-label">${scene.name}</div>
+        `;
+
+        card.addEventListener('click', () => {
+          openSceneModal(scene);
+        });
+
+        grid.appendChild(card);
+      });
+    }
+
+    // 6. 热区点击核心逻辑 (弹窗 -> 播报句子 -> onend -> 播放单数字)
+    function openSceneModal(scene) {
+      currentActiveScene = scene;
+
+      // 更新弹窗文字与布局
+      document.getElementById('modal-badge-id').innerText = `校园发现 #${scene.number}`;
+
+      // 对文本中的数字添加特殊高亮类名
+      const highlightedText = scene.text.replace(
+        new RegExp(`\\b${scene.number}\\b|${scene.number}`),
+        `<span class="highlight-num">${scene.number}</span>`
+      );
+      document.getElementById('modal-content-text').innerHTML = highlightedText;
+      document.getElementById('tianzige-num-text').innerText = scene.number;
+
+      // 展现弹窗遮罩
+      const modal = document.getElementById('modal-overlay');
+      modal.classList.add('active');
+
+      // 让田字格直接显示（从开始就保持可见）
+      const tianzige = document.getElementById('tianzige-container');
+      tianzige.classList.add('visible');
+
+      // 开启连贯的语音与动效流程
+      playSequence(scene);
+    }
+
+    // 语音时序控制机
+    function playSequence(scene) {
+      // 1. 停止当前所有的语音
+      window.speechSynthesis.cancel();
+      if (ttsTimeout) clearTimeout(ttsTimeout);
+
+      const replayBtn = document.getElementById('audio-replay-btn');
+
+      // 设置小喇叭播放器为工作状态 (绿色脉冲)
+      replayBtn.classList.add('speaking');
+
+      // 2. 构造整句语音播报
+      currentTextUtterance = new SpeechSynthesisUtterance(scene.text);
+      if (preferredVoice) currentTextUtterance.voice = preferredVoice;
+      currentTextUtterance.lang = 'zh-CN';
+      currentTextUtterance.rate = 0.85; // 略慢，契合低年级教学
+      currentTextUtterance.pitch = 1.1; // 稍微清脆一些
+
+      // 设置安全退出定时器：若 Speech Synthesis api 卡死或未触发 onend，强行在数秒后执行播放数字
+      const textDurationMs = (scene.text.length * 400) + 1200;
+      ttsTimeout = setTimeout(() => {
+        playNumberOnly(scene);
+      }, textDurationMs);
+
+      // 整句播报完成触发事件
+      currentTextUtterance.onend = () => {
+        playNumberOnly(scene);
+      };
+
+      currentTextUtterance.onerror = () => {
+        playNumberOnly(scene);
+      };
+
+      // 播放句子
+      window.speechSynthesis.speak(currentTextUtterance);
+    }
+
+    // 只播放一声数字单音，并不影响田字格显示
+    function playNumberOnly(scene) {
+      if (ttsTimeout) {
+        clearTimeout(ttsTimeout);
+        ttsTimeout = null;
+      }
+
+      // 停止当前所有语音，防止重叠
+      window.speechSynthesis.cancel();
+
+      const replayBtn = document.getElementById('audio-replay-btn');
+      replayBtn.classList.add('speaking');
+
+      // 构造数字音播报
+      currentNumUtterance = new SpeechSynthesisUtterance(scene.number.toString());
+      if (preferredVoice) currentNumUtterance.voice = preferredVoice;
+      currentNumUtterance.lang = 'zh-CN';
+      currentNumUtterance.rate = 0.8;
+      currentNumUtterance.pitch = 1.15;
+
+      currentNumUtterance.onend = () => {
+        replayBtn.classList.remove('speaking');
+        // 将数字计入收集池
+        markAsCollected(scene.id);
+      };
+
+      currentNumUtterance.onerror = () => {
+        replayBtn.classList.remove('speaking');
+        markAsCollected(scene.id);
+      };
+
+      // 播放数字单音
+      window.speechSynthesis.speak(currentNumUtterance);
+    }
+
+    // 常驻小播放器点击重播 - 只播放数字读音，不改变田字格状态
+    function replaySpeech() {
+      if (currentActiveScene) {
+        playNumberOnly(currentActiveScene);
+      }
+    }
+
+    // 关闭弹窗
+    function closeModal() {
+      // 关闭弹窗并完全中止发音
+      window.speechSynthesis.cancel();
+      if (ttsTimeout) clearTimeout(ttsTimeout);
+
+      document.getElementById('modal-overlay').classList.remove('active');
+      document.getElementById('audio-replay-btn').classList.remove('speaking');
+    }
+
+    // 7. 进度与收集系统
+    function markAsCollected(id) {
+      if (!collectedSet.has(id)) {
+        collectedSet.add(id);
+        saveProgress();
+
+        // 更新底部卡片高亮状态
+        const card = document.getElementById(`num-card-${id}`);
+        if (card) card.classList.add('collected');
+
+        updateProgressBar();
+      }
+    }
+
+    function updateProgressBar() {
+      const count = collectedSet.size;
+      const total = scenesData.length;
+      document.getElementById('progress-text').innerText = `已发现: ${count} / ${total}`;
+
+      const percent = (count / total) * 100;
+      document.getElementById('progress-bar').style.width = `${percent}%`;
+
+      // 满进度彩蛋提示
+      if (count === total) {
+        setTimeout(() => {
+          showCongratsModal();
+        }, 800);
+      }
+    }
+
+    // 重置进度
+    function resetProgress() {
+      if (confirm('确认要重置所有探索发现吗？')) {
+        collectedSet.clear();
+        saveProgress();
+
+        // 清除所有卡片高亮
+        document.querySelectorAll('.number-card').forEach(card => {
+          card.classList.remove('collected');
+        });
+        updateProgressBar();
+      }
+    }
+
+    // 本地存储进度
+    function saveProgress() {
+      const arr = Array.from(collectedSet);
+      localStorage.setItem('campus-math-collected', JSON.stringify(arr));
+    }
+
+    function loadSavedProgress() {
+      const data = localStorage.getItem('campus-math-collected');
+      if (data) {
+        try {
+          const arr = JSON.parse(data);
+          collectedSet = new Set(arr);
+        } catch (e) {
+          collectedSet = new Set();
+        }
+      }
+    }
+
+    // 8. 显示热区提示切换
+    function toggleHints() {
+      const viewport = document.getElementById('panorama-viewport');
+      const btn = document.getElementById('hints-toggle-btn');
+
+      viewport.classList.toggle('show-hints');
+      btn.classList.toggle('active');
+    }
+
+    // 8.5 显示探索收集进度侧边栏开关
+    function toggleProgressPanel() {
+      const panel = document.querySelector('.progress-panel');
+      const btn = document.getElementById('progress-toggle-btn');
+      progressVisible = !progressVisible;
+
+      if (progressVisible) {
+        panel.classList.remove('hidden');
+        btn.classList.add('active');
+        btn.innerHTML = `
+          <svg style="width:16px;height:16px;" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M13,21V11H21V21H13M3,21V15H11V21H3M3,13V3H11V13H3M13,9V3H21V9H13Z" />
+          </svg>
+          隐藏收集进度
+        `;
+      } else {
+        panel.classList.add('hidden');
+        btn.classList.remove('active');
+        btn.innerHTML = `
+          <svg style="width:16px;height:16px;" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M13,21V11H21V21H13M3,21V15H11V21H3M3,13V3H11V13H3M13,9V3H21V9H13Z" />
+          </svg>
+          显示收集进度
+        `;
+      }
+    }
+
+    // 8.6 恭喜弹窗控制
+    function showCongratsModal() {
+      const total = scenesData.length;
+      const countEl = document.getElementById('congrats-stat-count');
+      if (countEl) countEl.innerText = total;
+
+      const overlay = document.getElementById('congrats-overlay');
+      if (overlay) overlay.classList.add('active');
+      triggerConfetti();
+      playCongratsSound();
+    }
+
+    function closeCongratsModal() {
+      const overlay = document.getElementById('congrats-overlay');
+      if (overlay) overlay.classList.remove('active');
+      resetProgress();
+    }
+
+    function playCongratsSound() {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance('太棒啦！你真是一个数学探索小天才！所有的数学发现都已经被你集齐啦！');
+      if (preferredVoice) utterance.voice = preferredVoice;
+      utterance.lang = 'zh-CN';
+      utterance.rate = 0.9;
+      utterance.pitch = 1.25;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    // 8.7 五彩纸屑粒子动效
+    function triggerConfetti() {
+      const colors = ['#ff6b6b', '#ffbe1a', '#51cd89', '#40a9ff', '#b37feb'];
+      const container = document.getElementById('congrats-overlay');
+      if (!container) return;
+
+      for (let i = 0; i < 80; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti-particle';
+        confetti.style.position = 'absolute';
+        confetti.style.width = `${Math.random() * 8 + 6}px`;
+        confetti.style.height = `${Math.random() * 12 + 6}px`;
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.top = `-20px`;
+        confetti.style.left = `${Math.random() * 100}%`;
+        confetti.style.borderRadius = '2px';
+        confetti.style.opacity = Math.random() * 0.7 + 0.3;
+        confetti.style.zIndex = '130';
+
+        const duration = Math.random() * 2 + 2;
+        const delay = Math.random() * 0.5;
+        confetti.style.animation = `fall ${duration}s ${delay}s linear forwards`;
+
+        container.appendChild(confetti);
+
+        setTimeout(() => {
+          confetti.remove();
+        }, (duration + delay) * 1000);
+      }
+    }
+
+    // 9. 插图导入管理面板
+    function toggleImportPanel(show = null) {
+      const overlay = document.getElementById('import-overlay');
+      if (show === null) {
+        overlay.classList.toggle('active');
+      } else if (show) {
+        overlay.classList.add('active');
+      } else {
+        overlay.classList.remove('active');
+      }
+    }
+
+    // 处理手动文件选择导入
+    function handleImageInput(event, pageNum) {
+      const file = event.target.files[0];
+      if (file && file.type.startsWith('image/')) {
+        loadImageFile(file, pageNum);
+      }
+    }
+
+    // 支持拖放交互导入 (Drag & Drop)
+    function setupDragAndDrop() {
+      const wrappers = [
+        document.getElementById('page-2-wrapper'),
+        document.getElementById('page-3-wrapper')
+      ];
+
+      wrappers.forEach((wrapper, index) => {
+        const pageNum = index + 2;
+
+        wrapper.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          wrapper.classList.add('drag-hover');
+        });
+
+        wrapper.addEventListener('dragleave', () => {
+          wrapper.classList.remove('drag-hover');
+        });
+
+        wrapper.addEventListener('drop', (e) => {
+          e.preventDefault();
+          wrapper.classList.remove('drag-hover');
+
+          const file = e.dataTransfer.files[0];
+          if (file && file.type.startsWith('image/')) {
+            loadImageFile(file, pageNum);
+          }
+        });
+      });
+    }
+
+    // 将图片文件读取为数据URL呈现并记忆
+    function loadImageFile(file, pageNum) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = document.getElementById(`page-${pageNum}-img`);
+        const svg = document.getElementById(`page-${pageNum}-svg`);
+
+        img.src = e.target.result;
+        img.style.display = 'block';
+        if (svg) svg.style.display = 'none';
+
+        // 尝试持久化存储导入的背景图（受限于浏览器 LocalStorage 的空间，大图可能会触发配额限制，进行静默处理）
+        try {
+          localStorage.setItem(`campus-img-url-p${pageNum}`, e.target.result);
+        } catch (err) {
+          console.warn("由于图片文件偏大，未将插图写入浏览器长期缓存，当前页面有效。");
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // 图片加载失败回调
+    function handleImageError(imgEl, pageNum) {
+      // 检查是否有之前保存在 LocalStorage 里的 base64 图
+      const savedData = localStorage.getItem(`campus-img-url-p${pageNum}`);
+      if (savedData) {
+        imgEl.src = savedData;
+        imgEl.style.display = 'block';
+        return;
+      }
+
+      imgEl.style.display = 'none';
+      const svgEl = document.getElementById(`page-${pageNum}-svg`);
+      if (svgEl) svgEl.style.display = 'block';
+    }
+
+    // 图片成功加载回调
+    function handleImageSuccess(imgEl, pageNum) {
+      imgEl.style.display = 'block';
+      const svgEl = document.getElementById(`page-${pageNum}-svg`);
+      if (svgEl) svgEl.style.display = 'none';
+    }
+  </script>
+</body>
+
+</html>
