@@ -2385,6 +2385,10 @@
             centerKey: 'b',
             // 当前相对中心点的增量旋转角度 (顺时针为正，单位: 度)
             deltaAngle: 0,
+            // 未吸附的原始累计拖拽角度
+            rawDeltaAngle: 0,
+            // 当前吸附的整数角度缓存 (防抖音效触发)
+            lastSnapDeg: null,
             // 导引弧线的基准起始辐射角 (弧度)
             arcBaseRad: 0,
             // 拖拽旋转状态
@@ -2426,6 +2430,8 @@
             m0PuzzleState.vertices.b = { ...rendered.b };
             m0PuzzleState.vertices.c = { ...rendered.c };
             m0PuzzleState.deltaAngle = 0;
+            m0PuzzleState.rawDeltaAngle = 0;
+            m0PuzzleState.lastSnapDeg = null;
         }
 
         // 统一渲染：由顶点世界坐标直接动态生成路径与顶点圆圈，彻底杜绝父级 Transform 与手动坐标双重变换
@@ -2507,6 +2513,8 @@
             // 2. 将旋转中心切换为新选中的顶点，增量角归零
             m0PuzzleState.centerKey = vertexName;
             m0PuzzleState.deltaAngle = 0;
+            m0PuzzleState.rawDeltaAngle = 0;
+            m0PuzzleState.lastSnapDeg = null;
 
             // 3. 隐藏上一次旧的导引弧线
             const arcEl = document.getElementById('m0-puzzle-arc');
@@ -2536,7 +2544,7 @@
         }
 
         // 绘制动态旋转轨迹圆弧与度数徽标
-        function m0PuzzleRenderArc(delta) {
+        function m0PuzzleRenderArc(delta, isSnapped = false) {
             const arcEl = document.getElementById('m0-puzzle-arc');
             const tagEl = document.getElementById('m0-puzzle-arc-tag');
             const rectEl = document.getElementById('m0-puzzle-arc-rect');
@@ -2568,7 +2576,7 @@
 
             const d = `M ${startX.toFixed(1)} ${startY.toFixed(1)} A ${r} ${r} 0 ${largeArcFlag} ${sweepFlag} ${endX.toFixed(1)} ${endY.toFixed(1)}`;
             arcEl.setAttribute('d', d);
-            arcEl.setAttribute('stroke', isCCW ? '#059669' : '#2563eb');
+            arcEl.setAttribute('stroke', isSnapped ? '#10b981' : (isCCW ? '#059669' : '#2563eb'));
             arcEl.setAttribute('marker-end', isCCW ? 'url(#m0-marker-ccw)' : 'url(#m0-marker-cw)');
             arcEl.setAttribute('opacity', '1');
 
@@ -2578,13 +2586,18 @@
             const tagY = cy + (r + 34) * Math.sin(midRad);
 
             if (rectEl && textEl) {
-                rectEl.setAttribute('x', (tagX - 54).toFixed(1));
+                rectEl.setAttribute('x', (tagX - 58).toFixed(1));
                 rectEl.setAttribute('y', (tagY - 14).toFixed(1));
-                rectEl.setAttribute('stroke', isCCW ? '#059669' : '#2563eb');
+                rectEl.setAttribute('width', isSnapped ? '116' : '108');
+                rectEl.setAttribute('stroke', isSnapped ? '#059669' : (isCCW ? '#059669' : '#2563eb'));
+                rectEl.setAttribute('stroke-width', isSnapped ? '2.5' : '2');
+                rectEl.setAttribute('fill', isSnapped ? '#ecfdf5' : '#ffffff');
                 textEl.setAttribute('x', tagX.toFixed(1));
                 textEl.setAttribute('y', tagY.toFixed(1));
-                textEl.setAttribute('fill', isCCW ? '#047857' : '#1d4ed8');
-                textEl.textContent = isCCW ? `逆时针 ${Math.round(Math.abs(delta))}°` : `顺时针 ${Math.round(delta)}°`;
+                textEl.setAttribute('fill', isSnapped ? '#047857' : (isCCW ? '#047857' : '#1d4ed8'));
+                const dirText = isCCW ? '逆时针' : '顺时针';
+                const snapIcon = isSnapped ? ' 🧲' : '';
+                textEl.textContent = `${dirText} ${Math.round(Math.abs(delta))}°${snapIcon}`;
             }
             tagEl.setAttribute('opacity', '1');
         }
@@ -2634,6 +2647,8 @@
             };
             m0PuzzleState.centerKey = 'b';
             m0PuzzleState.deltaAngle = 0;
+            m0PuzzleState.rawDeltaAngle = 0;
+            m0PuzzleState.lastSnapDeg = null;
             m0PuzzleState.dragging = false;
 
             const pieces = document.getElementById('m0-puzzle-pieces');
@@ -2875,6 +2890,31 @@
             };
         }
 
+        // 常用几何度数智能磁吸匹配器（支持 ±4° 磁吸吸附）
+        function m0PuzzleFindSnapAngle(rawAngle, threshold = 4.0) {
+            const baseAngles = [0, 30, 45, 60, 90, 120, 135, 150, 180, 210, 225, 240, 270, 300, 315, 330, 360];
+            const turn = Math.floor(rawAngle / 360) * 360;
+            let closestSnap = null;
+            let minDiff = Infinity;
+
+            const candidates = [];
+            baseAngles.forEach(a => {
+                candidates.push(turn + a);
+                candidates.push(turn - 360 + a);
+                candidates.push(turn + 360 + a);
+            });
+
+            for (let i = 0; i < candidates.length; i++) {
+                const snap = candidates[i];
+                const diff = Math.abs(rawAngle - snap);
+                if (diff <= threshold && diff < minDiff) {
+                    minDiff = diff;
+                    closestSnap = snap;
+                }
+            }
+            return closestSnap;
+        }
+
         function m0PuzzlePointerDown(event) {
             if (m0PuzzleState.revealStep < 3) return;
             if (event.target.closest('[data-puzzle-vertex]')) return;
@@ -2891,12 +2931,17 @@
             const centerPt = m0PuzzleState.vertices[m0PuzzleState.centerKey] || { x: 540, y: 300 };
             const dx = point.x - centerPt.x;
             const dy = point.y - centerPt.y;
+            const dist = Math.hypot(dx, dy);
+
+            // 1. 距离死区保护：当离旋转中心过近 (< 35px) 时忽略本次按下，防止极坐标跳动
+            if (dist < 35) return;
 
             m0PuzzleState.dragging = true;
             m0PuzzleState.lastPointerAngle = Math.atan2(dy, dx) * 180 / Math.PI;
             m0PuzzleState.arcBaseRad = m0PuzzleState.lastPointerAngle * Math.PI / 180;
+            m0PuzzleState.rawDeltaAngle = 0;
             m0PuzzleState.deltaAngle = 0;
-            m0PuzzleState.lastSneezeAngle = 0;
+            m0PuzzleState.lastSnapDeg = 0;
 
             try {
                 event.currentTarget.setPointerCapture(event.pointerId);
@@ -2912,28 +2957,65 @@
             const centerPt = m0PuzzleState.vertices[m0PuzzleState.centerKey] || { x: 540, y: 300 };
             const dx = point.x - centerPt.x;
             const dy = point.y - centerPt.y;
+            const dist = Math.hypot(dx, dy);
+
+            // 1. 距离死区保护：光标距旋转中心小于 35px 时忽略本次角度变化，并同步角度防止离开死区时突跳
+            if (dist < 35) {
+                m0PuzzleState.lastPointerAngle = Math.atan2(dy, dx) * 180 / Math.PI;
+                return;
+            }
+
             const nowAngle = Math.atan2(dy, dx) * 180 / Math.PI;
 
+            // 3. 角度环绕防抖：处理 Math.atan2 在 -180° 与 180° 边界处的突变跳动
             let step = nowAngle - m0PuzzleState.lastPointerAngle;
             while (step > 180) step -= 360;
             while (step < -180) step += 360;
 
+            // 异常突变保护：单帧角度突跳超过 90° 视为指针失焦或瞬时异常，丢弃本帧突变
+            if (Math.abs(step) > 90) {
+                m0PuzzleState.lastPointerAngle = nowAngle;
+                return;
+            }
+
             m0PuzzleState.lastPointerAngle = nowAngle;
-            m0PuzzleState.deltaAngle += step;
+
+            // 4. 阻尼手感调节：加入 0.88 灵敏度缩放系数，使拖拽沉稳跟手、告别轻飘抖动
+            const DAMPING = 0.88;
+            m0PuzzleState.rawDeltaAngle = (m0PuzzleState.rawDeltaAngle || 0) + step * DAMPING;
+
+            // 2. 常用角度智能磁吸（Snap）：在 ±4° 范围内自动吸附到常用几何度数
+            const snapDeg = m0PuzzleFindSnapAngle(m0PuzzleState.rawDeltaAngle, 4.0);
+            if (snapDeg !== null) {
+                m0PuzzleState.deltaAngle = snapDeg;
+                // 吸附时触发轻微震动与清脆 Tick 步进音效反馈
+                if (m0PuzzleState.lastSnapDeg !== snapDeg) {
+                    m0PuzzleState.lastSnapDeg = snapDeg;
+                    if (typeof sound !== 'undefined' && typeof sound.playTick === 'function') {
+                        sound.playTick();
+                    }
+                    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+                        try { navigator.vibrate(12); } catch (e) {}
+                    }
+                }
+            } else {
+                m0PuzzleState.deltaAngle = m0PuzzleState.rawDeltaAngle;
+                m0PuzzleState.lastSnapDeg = null;
+            }
 
             m0PuzzleApplyTransform();
-            m0PuzzleRenderArc(m0PuzzleState.deltaAngle);
-
-            if (Math.abs(m0PuzzleState.deltaAngle - m0PuzzleState.lastSneezeAngle) >= 45) {
-                m0PuzzleState.lastSneezeAngle = m0PuzzleState.deltaAngle;
-                if (typeof sound !== 'undefined') sound.playSneeze();
-            }
+            m0PuzzleRenderArc(m0PuzzleState.deltaAngle, snapDeg !== null);
 
             const status = document.getElementById('m0-puzzle-status');
             if (status) {
                 const rounded = Math.round(m0PuzzleState.deltaAngle);
-                status.innerText = `正在绕点 ${m0PuzzleState.centerKey.toUpperCase()} 旋转 (${rounded}°)`;
-                status.className = 'text-[11px] px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold border border-amber-300';
+                if (snapDeg !== null) {
+                    status.innerText = `正在绕点 ${m0PuzzleState.centerKey.toUpperCase()} 旋转：${rounded}° (已磁吸 🧲)`;
+                    status.className = 'text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold border border-emerald-300 shadow-2xs';
+                } else {
+                    status.innerText = `正在绕点 ${m0PuzzleState.centerKey.toUpperCase()} 旋转 (${rounded}°)`;
+                    status.className = 'text-[11px] px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold border border-amber-300';
+                }
             }
         }
 
@@ -2947,6 +3029,8 @@
             } catch (e) {}
 
             m0PuzzleBakeCurrentTransform();
+            m0PuzzleState.rawDeltaAngle = 0;
+            m0PuzzleState.lastSnapDeg = null;
 
             const arcEl = document.getElementById('m0-puzzle-arc');
             const tagEl = document.getElementById('m0-puzzle-arc-tag');
