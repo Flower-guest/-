@@ -900,13 +900,6 @@
                     <div id="clock-stage-wrapper"
                         class="flex-1 min-w-0 h-full relative flex flex-col items-center justify-center p-2 overflow-hidden">
                         <!-- 钟表上方专属：旋转方向指示箭头与标签 (指示顺时针 / 逆时针) -->
-                        <div id="clock-top-direction-indicator"
-                            class="flex items-center space-x-2 px-5 py-1.5 rounded-full text-xs sm:text-sm font-bold transition-all duration-300 shadow-sm border mb-2 bg-amber-50 text-amber-800 border-amber-300">
-                            <svg id="clock-top-arrow-icon" class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                <path id="clock-top-arrow-path" d="M 4 14 A 8 8 0 0 1 20 12 M 16 8 L 20 12 L 16 16" />
-                            </svg>
-                            <span id="clock-top-direction-text" class="tracking-wide">顺时针方向 ↻</span>
-                        </div>
 
                         <svg id="clock-svg" viewBox="0 0 500 500"
                             class="h-full max-h-full max-w-full aspect-square drop-shadow-xl select-none cursor-default overflow-visible">
@@ -5305,7 +5298,9 @@ function m3UpdateAngleButtonsHighlight(deg) {
                         if (typeof m4UpdatePresetButtonsHighlight === 'function') {
                             m4UpdatePresetButtonsHighlight(deg);
                         }
-                        m4UpdateDegreeInfoCard(m4DegreeState.startHour, hour, deg, currentRotateDir);
+                        if (typeof m4UpdateDegreeInfoCard === 'function') {
+                            m4UpdateDegreeInfoCard(m4DegreeState.startHour, hour, deg, currentRotateDir);
+                        }
                     } else if (m4SubMode === 'quiz') {
                         if (!m4CreatorState.isLocked) {
                             m4SetToNum(hour);
