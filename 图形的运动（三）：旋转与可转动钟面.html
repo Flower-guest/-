@@ -476,19 +476,19 @@
 
                                     <!-- 拼图影子层 (初始状态底衬，供旋转前后对比) -->
                                     <g id="m0-puzzle-ghost" opacity="0.22">
-                                        <path d="M 360 300 L 540 300 L 360 120 Z" fill="#f97316" stroke="#9a3412" stroke-width="3" />
-                                        <rect x="360" y="300" width="180" height="180" rx="3" fill="#10b981" stroke="#047857" stroke-width="3" />
-                                        <path d="M 540 300 L 720 480 L 540 480 Z" fill="#3b82f6" stroke="#1d4ed8" stroke-width="3" />
+                                        <path d="M 360 300 L 540 300 L 360 120 Z" fill="#dc2626" stroke="#991b1b" stroke-width="3" />
+                                        <rect x="360" y="300" width="180" height="180" rx="3" fill="#0f766e" stroke="#115e59" stroke-width="3" />
+                                        <path d="M 540 300 L 720 480 L 540 480 Z" fill="#0ea5e9" stroke="#0369a1" stroke-width="3" />
                                     </g>
 
                                     <!-- 拼图实体层 (支持以指定顶点为中心旋转) -->
                                     <g id="m0-puzzle-pieces" filter="url(#m0-puzzle-shadow)">
-                                        <rect id="m0-puzzle-piece-2" x="360" y="300" width="180" height="180" rx="3" fill="#10b981" stroke="#047857" stroke-width="3.5" />
-                                        <path id="m0-puzzle-piece-3" d="M 540 300 L 720 480 L 540 480 Z" fill="#3b82f6" stroke="#1d4ed8" stroke-width="3.5" />
+                                        <rect id="m0-puzzle-piece-2" x="360" y="300" width="180" height="180" rx="3" fill="#0f766e" stroke="#115e59" stroke-width="3.5" />
+                                        <path id="m0-puzzle-piece-3" d="M 540 300 L 720 480 L 540 480 Z" fill="#0ea5e9" stroke="#0369a1" stroke-width="3.5" />
 
                                         <!-- 1号图形整体群组 (包含三角形本体、1号文字、三个旋转顶点A/B/C及其字母标签，旋转时三个顶点随之移动) -->
                                         <g id="m0-puzzle-group-1">
-                                            <path id="m0-puzzle-piece-1" d="M 360 300 L 540 300 L 360 120 Z" fill="#f97316" stroke="#9a3412" stroke-width="3.5" class="transition-colors cursor-grab" />
+                                            <path id="m0-puzzle-piece-1" d="M 360 300 L 540 300 L 360 120 Z" fill="#dc2626" stroke="#991b1b" stroke-width="3.5" class="transition-colors cursor-grab" />
                                             <text id="m0-puzzle-label-1" x="420" y="240" font-size="36" font-weight="900" fill="white" text-anchor="middle" dominant-baseline="central" pointer-events="none">1号</text>
 
                                             <!-- 1号图形三个旋转中心顶点 -->
@@ -944,6 +944,16 @@
                                     markerHeight="6" orient="auto">
                                     <path d="M 0 1 L 10 5 L 0 9 z" fill="#3b82f6" />
                                 </marker>
+
+                                <!-- 模块二方向导引专用箭头，跟随弧线切线方向显示 -->
+                                <marker id="guide-arrow-cw" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8"
+                                    markerHeight="8" orient="auto">
+                                    <path d="M 0 0 L 10 5 L 0 10 L 2.5 5 Z" fill="#f59e0b" stroke="#ffffff" stroke-width="0.8" />
+                                </marker>
+                                <marker id="guide-arrow-ccw" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8"
+                                    markerHeight="8" orient="auto">
+                                    <path d="M 0 0 L 10 5 L 0 10 L 2.5 5 Z" fill="#0284c7" stroke="#ffffff" stroke-width="0.8" />
+                                </marker>
                             </defs>
 
                             <!-- 表盘外框与立体投影环 -->
@@ -957,10 +967,7 @@
                             <g id="clock-dial-direction-guide" class="transition-opacity duration-300 pointer-events-none select-none">
                                 <!-- 顺时针导引 (右侧：外圈平滑圆弧R=246，并在右上黄框处标注“顺时针方向 ↻”，完全不挡表盘数字) -->
                                 <g id="guide-cw" class="transition-opacity duration-300">
-                                    <path d="M 280 20 A 246 246 0 0 1 456 132" fill="none" stroke="#f59e0b" stroke-width="4.5" stroke-linecap="round" filter="drop-shadow(0 2px 5px rgba(245,158,11,0.35))" />
-                                    <g transform="translate(456, 132) rotate(155)">
-                                        <polygon points="7,0 -15,-8 -10,0 -15,8" fill="#f59e0b" stroke="#ffffff" stroke-width="1.8" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.25))" />
-                                    </g>
+                                    <path d="M 280 20 A 246 246 0 0 1 456 132" fill="none" stroke="#f59e0b" stroke-width="4.5" stroke-linecap="round" marker-end="url(#guide-arrow-cw)" filter="drop-shadow(0 2px 5px rgba(245,158,11,0.35))" />
                                     <!-- 右上黄框专属提示卡片 (精准对应用户指定黄框位置，高光双层圆角徽标) -->
                                     <g id="guide-cw-badge" transform="translate(415, 20)">
                                         <rect x="-65" y="-16" width="130" height="32" rx="16" fill="#fef3c7" stroke="#f59e0b" stroke-width="2.5" filter="drop-shadow(0 4px 10px rgba(245,158,11,0.3))" />
@@ -970,10 +977,7 @@
 
                                 <!-- 逆时针导引 (左侧对应位置：外圈平滑圆弧R=246，并在左上对称黄框处标注“↺ 逆时针方向”) -->
                                 <g id="guide-ccw" class="transition-opacity duration-300 opacity-0" style="display: none;">
-                                    <path d="M 220 20 A 246 246 0 0 0 44 132" fill="none" stroke="#0284c7" stroke-width="4.5" stroke-linecap="round" filter="drop-shadow(0 2px 5px rgba(2,132,199,0.35))" />
-                                    <g transform="translate(44, 132) rotate(25)">
-                                        <polygon points="7,0 -15,-8 -10,0 -15,8" fill="#0284c7" stroke="#ffffff" stroke-width="1.8" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.25))" />
-                                    </g>
+                                    <path d="M 220 20 A 246 246 0 0 0 44 132" fill="none" stroke="#0284c7" stroke-width="4.5" stroke-linecap="round" marker-end="url(#guide-arrow-ccw)" filter="drop-shadow(0 2px 5px rgba(2,132,199,0.35))" />
                                     <!-- 左上对称位置专属提示卡片 -->
                                     <g id="guide-ccw-badge" transform="translate(85, 20)">
                                         <rect x="-65" y="-16" width="130" height="32" rx="16" fill="#e0f2fe" stroke="#0284c7" stroke-width="2.5" filter="drop-shadow(0 4px 10px rgba(2,132,199,0.3))" />
@@ -2052,12 +2056,15 @@
         let currentNeedleAngle = 0;
         function setClockNeedleAngle(deg, animate = true) {
             const needle = document.getElementById('clock-needle-group');
+            if (!needle) return;
+            deg = ((Number(deg) % 360) + 360) % 360;
             if (animate) {
                 needle.style.transition = 'transform 0.45s cubic-bezier(0.34, 1.3, 0.64, 1)';
             } else {
                 needle.style.transition = 'none';
             }
             needle.style.transform = `rotate(${deg}deg)`;
+            needle.setAttribute('transform', `rotate(${deg} 250 250)`);
             currentNeedleAngle = deg;
         }
 
@@ -3665,10 +3672,7 @@
                     currentNeedleAngle = (currentNeedleAngle - delta + 360) % 360;
                 }
 
-                const needleGroup = document.getElementById('clock-needle-group');
-                if (needleGroup) {
-                    needleGroup.setAttribute('transform', `rotate(${currentNeedleAngle} 250 250)`);
-                }
+                setClockNeedleAngle(currentNeedleAngle, false);
                 renderClockState();
                 m1ContinuousAnimId = requestAnimationFrame(step);
             }
@@ -3701,10 +3705,7 @@
             m1StopContinuousRotate();
             currentRotateDir = '顺时针';
             currentNeedleAngle = 0;
-            const needleGroup = document.getElementById('clock-needle-group');
-            if (needleGroup) {
-                needleGroup.setAttribute('transform', 'rotate(0 250 250)');
-            }
+            setClockNeedleAngle(0, false);
             updateTopRimDirectionArrow('顺时针');
             renderClockState();
         }
@@ -4123,6 +4124,11 @@ function m3UpdateAngleButtonsHighlight(deg) {
             if (vAHalo) {
                 vAHalo.setAttribute('cx', ax.toFixed(1));
                 vAHalo.setAttribute('cy', ay.toFixed(1));
+            }
+            const vAHit = document.getElementById('vertex-a-hit');
+            if (vAHit) {
+                vAHit.setAttribute('cx', ax.toFixed(1));
+                vAHit.setAttribute('cy', ay.toFixed(1));
             }
             const lA = document.getElementById('label-a');
             if (lA) {
@@ -4666,8 +4672,19 @@ function m3UpdateAngleButtonsHighlight(deg) {
                 const rect = svg.getBoundingClientRect();
                 const clientX = (e.touches && e.touches.length > 0) ? e.touches[0].clientX : e.clientX;
                 const clientY = (e.touches && e.touches.length > 0) ? e.touches[0].clientY : e.clientY;
-                const svgX = ((clientX - rect.left) / rect.width) * 880;
-                const svgY = ((clientY - rect.top) / rect.height) * 720;
+                let svgX;
+                let svgY;
+                if (typeof svg.createSVGPoint === 'function' && svg.getScreenCTM()) {
+                    const point = svg.createSVGPoint();
+                    point.x = clientX;
+                    point.y = clientY;
+                    const localPoint = point.matrixTransform(svg.getScreenCTM().inverse());
+                    svgX = localPoint.x;
+                    svgY = localPoint.y;
+                } else {
+                    svgX = ((clientX - rect.left) / rect.width) * 880;
+                    svgY = ((clientY - rect.top) / rect.height) * 720;
+                }
 
                 const dx = svgX - TRI_O.x;
                 const dy = svgY - TRI_O.y;
@@ -5225,7 +5242,7 @@ function m3UpdateAngleButtonsHighlight(deg) {
                 dragAccumDelta = 0;
                 isValueRevealed = false; // 用户拖拽新位置，数值保持遮蔽等待点击揭晓
 
-                // 针对钟面探究与演练模块，每次重新落笔/点击开启新一轮操作时，默认初始化为顺时针基准
+                // 模块二题目方向固定；模块四保留用户当前选择，拖动时再根据实际轨迹识别方向
                 if (currentStage === 'stage_1_clock_intro') {
                     currentRotateDir = '顺时针';
                 } else if (currentStage === 'stage_2_clock_quiz') {
@@ -5253,6 +5270,13 @@ function m3UpdateAngleButtonsHighlight(deg) {
                 } else if (dragAccumDelta < -2.0) {
                     currentRotateDir = '逆时针';
                 }
+                if (currentStage === 'stage_4_custom_clock') {
+                    if (m4SubMode === 'degree') {
+                        m4DegreeState.direction = currentRotateDir;
+                    } else if (m4SubMode === 'quiz' && m4CreatorState && !m4CreatorState.isLocked) {
+                        m4CreatorState.direction = currentRotateDir;
+                    }
+                }
 
                 // 题目方向是固定答案，拖动时只记录学生本次实际的旋转方向。
 
@@ -5278,7 +5302,9 @@ function m3UpdateAngleButtonsHighlight(deg) {
                         const degSlider = document.getElementById('m4-deg-slider');
                         if (degInput) degInput.value = deg;
                         if (degSlider) degSlider.value = deg;
-                        m4UpdatePresetButtonsHighlight(deg);
+                        if (typeof m4UpdatePresetButtonsHighlight === 'function') {
+                            m4UpdatePresetButtonsHighlight(deg);
+                        }
                         m4UpdateDegreeInfoCard(m4DegreeState.startHour, hour, deg, currentRotateDir);
                     } else if (m4SubMode === 'quiz') {
                         if (!m4CreatorState.isLocked) {
@@ -5358,7 +5384,9 @@ function m3UpdateAngleButtonsHighlight(deg) {
                         const degSlider = document.getElementById('m4-deg-slider');
                         if (degInput) degInput.value = currentRotatedDeg;
                         if (degSlider) degSlider.value = currentRotatedDeg;
-                        m4UpdatePresetButtonsHighlight(currentRotatedDeg);
+                        if (typeof m4UpdatePresetButtonsHighlight === 'function') {
+                            m4UpdatePresetButtonsHighlight(currentRotatedDeg);
+                        }
                         
                     m4SyncInputsFromDegree(currentRotatedDeg);
                     m4SyncEndHourFromDegree(m4DegreeState.startHour, currentRotatedDeg, currentRotateDir);
@@ -5466,7 +5494,9 @@ function m3UpdateAngleButtonsHighlight(deg) {
                     const degSlider = document.getElementById('m4-deg-slider');
                     if (degInput) degInput.value = deg;
                     if (degSlider) degSlider.value = deg;
-                    m4UpdatePresetButtonsHighlight(deg);
+                    if (typeof m4UpdatePresetButtonsHighlight === 'function') {
+                        m4UpdatePresetButtonsHighlight(deg);
+                    }
                     
                     m4SyncInputsFromDegree(deg);
                     m4SyncEndHourFromDegree(m4DegreeState.startHour, deg, currentRotateDir);
@@ -5550,3 +5580,4 @@ function m3UpdateAngleButtonsHighlight(deg) {
 </body>
 
 </html>
+
