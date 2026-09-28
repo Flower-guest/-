@@ -498,12 +498,8 @@
                                                 <circle data-puzzle-vertex="c" cx="360" cy="120" r="13" />
                                             </g>
 
-                                            <!-- 顶点字母标记 (A / B / C) -->
-                                            <g id="m0-puzzle-vertex-labels" font-size="22" font-weight="900" pointer-events="none">
-                                                <text x="330" y="332" fill="#047857">A</text>
-                                                <text x="564" y="332" fill="#0369a1">B</text>
-                                                <text x="330" y="112" fill="#b45309">C</text>
-                                            </g>
+                                            <!-- 顶点不显示字母，激活后统一标注旋转中心 O -->
+                                            <g id="m0-puzzle-vertex-labels" display="none" pointer-events="none"></g>
                                         </g>
                                     </g>
 
@@ -515,7 +511,7 @@
 
                                     <!-- 选中的旋转中心发光波纹圈与文本 -->
                                     <circle id="m0-puzzle-center-ring" cx="360" cy="300" r="22" fill="none" stroke="#0ea5e9" stroke-width="3.5" stroke-dasharray="5 3" opacity="0" class="glow-pulse pointer-events-none" />
-                                    <text id="m0-puzzle-center-text" x="385" y="282" font-size="16" font-weight="bold" fill="#0369a1" opacity="0">旋转中心 (点 A)</text>
+                                    <text id="m0-puzzle-center-text" x="385" y="282" font-size="20" font-weight="900" fill="#0369a1" opacity="0">O</text>
 
                                     <!-- 模块一旋转时的生动拟声喷嚏弹幕气泡 (🤧 阿——嚏！) -->
                                     <g id="m0-puzzle-sneeze-toast" opacity="0" transform="translate(480, 160)" pointer-events="none" style="transition: opacity 0.25s ease, transform 0.3s ease;">
@@ -960,19 +956,19 @@
                             <g id="clock-dial-direction-guide" class="transition-opacity duration-300 pointer-events-none select-none">
                                 <!-- 顺时针导引 (右侧：外圈平滑圆弧R=246，并在右上黄框处标注“顺时针方向 ↻”，完全不挡表盘数字) -->
                                 <g id="guide-cw" class="transition-opacity duration-300">
-                                    <path d="M 280 20 A 246 246 0 0 1 456 132" fill="none" stroke="#f59e0b" stroke-width="4.5" stroke-linecap="round" marker-end="url(#guide-arrow-cw)" filter="drop-shadow(0 2px 5px rgba(245,158,11,0.35))" />
+                                    <path d="M 300 4 A 270 270 0 0 1 490 135" fill="none" stroke="#f59e0b" stroke-width="4.5" stroke-linecap="round" marker-end="url(#guide-arrow-cw)" filter="drop-shadow(0 2px 5px rgba(245,158,11,0.35))" />
                                     <!-- 右上黄框专属提示卡片 (精准对应用户指定黄框位置，高光双层圆角徽标) -->
-                                    <g id="guide-cw-badge" transform="translate(415, 20)">
+                                    <g id="guide-cw-badge" transform="translate(430, 10)">
                                         <rect x="-65" y="-16" width="130" height="32" rx="16" fill="#fef3c7" stroke="#f59e0b" stroke-width="2.5" filter="drop-shadow(0 4px 10px rgba(245,158,11,0.3))" />
                                         <text x="0" y="5" text-anchor="middle" font-size="13" font-weight="900" fill="#b45309" letter-spacing="0.5">顺时针方向 ↻</text>
                                     </g>
                                 </g>
 
                                 <!-- 逆时针导引 (左侧对应位置：外圈平滑圆弧R=246，并在左上对称黄框处标注“↺ 逆时针方向”) -->
-                                <g id="guide-ccw" class="transition-opacity duration-300 opacity-0" style="display: none;">
-                                    <path d="M 220 20 A 246 246 0 0 0 44 132" fill="none" stroke="#0284c7" stroke-width="4.5" stroke-linecap="round" marker-end="url(#guide-arrow-ccw)" filter="drop-shadow(0 2px 5px rgba(2,132,199,0.35))" />
+                                <g id="guide-ccw" class="transition-opacity duration-300 opacity-0" style="display: none; pointer-events: none;">
+                                    <path d="M 200 4 A 270 270 0 0 0 10 135" fill="none" stroke="#0284c7" stroke-width="4.5" stroke-linecap="round" marker-end="url(#guide-arrow-ccw)" filter="drop-shadow(0 2px 5px rgba(2,132,199,0.35))" />
                                     <!-- 左上对称位置专属提示卡片 -->
-                                    <g id="guide-ccw-badge" transform="translate(85, 20)">
+                                    <g id="guide-ccw-badge" transform="translate(70, 10)">
                                         <rect x="-65" y="-16" width="130" height="32" rx="16" fill="#e0f2fe" stroke="#0284c7" stroke-width="2.5" filter="drop-shadow(0 4px 10px rgba(2,132,199,0.3))" />
                                         <text x="0" y="5" text-anchor="middle" font-size="13" font-weight="900" fill="#0369a1" letter-spacing="0.5">↺ 逆时针方向</text>
                                     </g>
@@ -2112,6 +2108,7 @@
             if (guideCCW) {
                 guideCCW.setAttribute('opacity', isCw ? '0' : '1');
                 guideCCW.style.display = isCw ? 'none' : 'inline';
+                guideCCW.style.visibility = isCw ? 'hidden' : 'visible';
             }
 
             const topIndicator = document.getElementById('clock-top-direction-indicator');
@@ -2168,7 +2165,6 @@
             if (currentStage === 'stage_4_custom_clock') {
                 startHour = (typeof m4State !== 'undefined') ? m4State.startNum : 12;
                 startAngle = (typeof m4State !== 'undefined') ? m4State.startAngle : 0;
-                currentRotateDir = '顺时针';
             } else if (currentStage === 'stage_2_clock_quiz') {
                 const q = (typeof m2Quizzes !== 'undefined') ? (m2Quizzes.find(item => item.id === m2CurrentQuizIndex) || m2Quizzes[0]) : { fromNum: 1 };
                 startHour = q.fromNum;
@@ -2552,6 +2548,28 @@
             const transform = `rotate(${m0PuzzleState.angle} ${x} ${y})`;
             group1.setAttribute('transform', transform);
 
+            // 顶点必须跟随深红色 1 号实体图形，而不是跟随淡红色影子。
+            const rad = m0PuzzleState.angle * Math.PI / 180;
+            const cos = Math.cos(rad);
+            const sin = Math.sin(rad);
+            const rotatePoint = (point) => ({
+                x: x + (point.x - x) * cos - (point.y - y) * sin,
+                y: y + (point.x - x) * sin + (point.y - y) * cos
+            });
+            const basePoints = {
+                a: { x: 360, y: 300 },
+                b: { x: 540, y: 300 },
+                c: { x: 360, y: 120 }
+            };
+            Object.entries(basePoints).forEach(([name, point]) => {
+                const vertex = document.querySelector(`[data-puzzle-vertex="${name}"]`);
+                const next = rotatePoint(point);
+                if (vertex) {
+                    vertex.setAttribute('cx', next.x.toFixed(2));
+                    vertex.setAttribute('cy', next.y.toFixed(2));
+                }
+            });
+
             const ring = document.getElementById('m0-puzzle-center-ring');
             const centerText = document.getElementById('m0-puzzle-center-text');
             if (ring) { ring.setAttribute('cx', x); ring.setAttribute('cy', y); }
@@ -2740,15 +2758,19 @@
                 b: { x: 540, y: 300, name: 'b' },
                 c: { x: 360, y: 120, name: 'c' }
             };
-            m0PuzzleState.center = points[vertexName] || points.a;
+            const nextCenter = points[vertexName] || points.a;
+            const previousAngle = m0PuzzleState.angle;
+            m0PuzzleState.center = nextCenter;
             sound.playClick();
             const ring = document.getElementById('m0-puzzle-center-ring');
             const centerText = document.getElementById('m0-puzzle-center-text');
             if (ring) ring.setAttribute('opacity', '1');
             if (centerText) {
-                centerText.textContent = `旋转中心 (点 ${vertexName.toUpperCase()})`;
+                centerText.textContent = 'O';
                 centerText.setAttribute('opacity', '1');
             }
+            // 切换旋转中心时保持当前图形的视觉角度，避免点击顶点造成图形跳动。
+            m0PuzzleState.angle = previousAngle;
             m0PuzzleApplyTransform();
         }
 
@@ -3696,7 +3718,7 @@
 
         function m1Init() {
             m1StopContinuousRotate();
-            currentRotateDir = '顺时针';
+            currentRotateDir = currentRotateDir || '顺时针';
             currentNeedleAngle = 0;
             setClockNeedleAngle(0, false);
             updateTopRimDirectionArrow('顺时针');
@@ -4907,7 +4929,7 @@ function m3UpdateAngleButtonsHighlight(deg) {
                 summaryDeg.innerHTML = `③ 角度：${degree}°`;
             }
 
-            currentRotateDir = '顺时针';
+            currentRotateDir = currentRotateDir || '顺时针';
             isValueRevealed = false;
             setClockNeedleAngle(m4State.startAngle, false);
             clearMarkers();
@@ -4981,7 +5003,7 @@ function m3UpdateAngleButtonsHighlight(deg) {
                     if (c2) c2.classList.remove('hidden');
                     if (btn2) {
                         btn2.className = 'px-2.5 py-1 text-xs font-bold rounded-md bg-emerald-600 text-white shadow-xs';
-                        btn2.innerText = '✓ 顺时针旋转';
+                        btn2.innerText = `✓ ${currentRotateDir}旋转`;
                     }
                 } else {
                     if (choice2) choice2.classList.remove('hidden');
@@ -5079,9 +5101,10 @@ function m3UpdateAngleButtonsHighlight(deg) {
         function m4ActionStep2() {
             if (m4State.step < 1) return;
             sound.playWhoosh();
-            currentRotateDir = '顺时针';
+            currentRotateDir = currentRotateDir || '顺时针';
             isValueRevealed = false;
-            const targetAngle = m4State.startAngle + m4State.degree;
+            const signedDegree = currentRotateDir === '逆时针' ? -m4State.degree : m4State.degree;
+            const targetAngle = m4State.startAngle + signedDegree;
             setClockNeedleAngle(targetAngle, true);
             renderClockState({ snap: true });
 
@@ -5091,13 +5114,13 @@ function m3UpdateAngleButtonsHighlight(deg) {
 
         // 第 2 步：选择方向
         function m4SelectDirection(choice) {
-            if (choice === '顺时针') {
+            if (choice === currentRotateDir) {
                 sound.playSuccess();
                 m4State.isDirectionVerified = true;
                 m4UpdateStepUI();
             } else {
                 sound.playError();
-                alert('提示：请仔细观察红色箭头的运动轨迹，它与时钟正常走动方向一致，叫做“顺时针方向”哦！');
+                alert(`提示：当前演示方向为“${currentRotateDir}”，请按实际箭头方向选择。`);
             }
         }
 
@@ -5105,7 +5128,6 @@ function m3UpdateAngleButtonsHighlight(deg) {
         function m4ActionStep3() {
             if (!m4State.isDirectionVerified) return;
             sound.playStepUnlock();
-            currentRotateDir = '顺时针';
             isValueRevealed = true;
             renderClockState({ snap: true });
 
@@ -5327,24 +5349,10 @@ function m3UpdateAngleButtonsHighlight(deg) {
                 renderClockState({ isDragging: false, snap: true });
 
                 if (currentStage === 'stage_1_clock_intro') {
-                    if (hour === m1State.endNum && currentRotateDir === '顺时针') {
-                        sound.playSuccess();
-                        m1State.isRotated = true;
-                        m1State.isDirectionVerified = true;
-                        m1State.isSectorShown = true;
-                        m1State.step = Math.max(m1State.step, 3);
-                        if (currentStage === 'stage_1_clock_intro') {
-                const hintEl = document.getElementById('clock-drag-hint');
-                if (hintEl) {
-                    hintEl.classList.add('hidden');
-                    hintEl.style.display = 'none';
-                }
-            }
-            m1UpdateStepUI();
-                        updateClockDragHint(`🎉 成功拨到目标 <strong>${hour} 点</strong>！旋转了 <strong>${m1State.degree}°</strong>`, '🏆');
-                    } else if (hour === m1State.endNum && currentRotateDir === '逆时针') {
-                        updateClockDragHint(`已转至 <strong>${hour} 点</strong>（逆时针）。例题要求顺时针旋转，试着顺时针拨拨看！`, '💡');
-                    }
+                    // 模块二仅用于认识方向，不依赖题目状态对象。
+                    updateTopRimDirectionArrow(currentRotateDir);
+                    const directionText = currentRotateDir === '顺时针' ? '顺时针' : '逆时针';
+                    updateClockDragHint(`当前指向 <strong>${hour} 点</strong> · ${directionText}旋转`, '🕒');
                 } else if (currentStage === 'stage_2_clock_quiz') {
                     const q = m2Quizzes.find(item => item.id === m2CurrentQuizIndex) || m2Quizzes[0];
                     if (q.targetMissing === 'degrees') {
@@ -5383,9 +5391,15 @@ function m3UpdateAngleButtonsHighlight(deg) {
                             m4UpdatePresetButtonsHighlight(currentRotatedDeg);
                         }
                         
-                    m4SyncInputsFromDegree(currentRotatedDeg);
-                    m4SyncEndHourFromDegree(m4DegreeState.startHour, currentRotatedDeg, currentRotateDir);
-                    m4UpdateAngleTypeBadge(currentRotatedDeg);
+                    if (typeof m4SyncInputsFromDegree === 'function') {
+                        m4SyncInputsFromDegree(currentRotatedDeg);
+                    }
+                    if (typeof m4SyncEndHourFromDegree === 'function') {
+                        m4SyncEndHourFromDegree(m4DegreeState.startHour, currentRotatedDeg, currentRotateDir);
+                    }
+                    if (typeof m4UpdateAngleTypeBadge === 'function') {
+                        m4UpdateAngleTypeBadge(currentRotatedDeg);
+                    }
 
                         updateClockDragHint(`已转至 <strong>${hour} 点</strong> · ${currentRotateDir}旋转 <strong>${currentRotatedDeg}°</strong>`, '🕒');
                     } else if (m4SubMode === 'quiz') {
@@ -5493,9 +5507,15 @@ function m3UpdateAngleButtonsHighlight(deg) {
                         m4UpdatePresetButtonsHighlight(deg);
                     }
                     
-                    m4SyncInputsFromDegree(deg);
-                    m4SyncEndHourFromDegree(m4DegreeState.startHour, deg, currentRotateDir);
-                    m4UpdateAngleTypeBadge(deg);
+                    if (typeof m4SyncInputsFromDegree === 'function') {
+                        m4SyncInputsFromDegree(deg);
+                    }
+                    if (typeof m4SyncEndHourFromDegree === 'function') {
+                        m4SyncEndHourFromDegree(m4DegreeState.startHour, deg, currentRotateDir);
+                    }
+                    if (typeof m4UpdateAngleTypeBadge === 'function') {
+                        m4UpdateAngleTypeBadge(deg);
+                    }
 
                 } else if (m4SubMode === 'quiz') {
                     if (!m4CreatorState.isLocked) {
