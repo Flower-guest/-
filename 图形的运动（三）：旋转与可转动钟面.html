@@ -965,7 +965,7 @@
                                 </g>
 
                                 <!-- 逆时针导引 (左侧对应位置：外圈平滑圆弧R=246，并在左上对称黄框处标注“↺ 逆时针方向”) -->
-                                <g id="guide-ccw" class="transition-opacity duration-300 opacity-0" style="display: none; pointer-events: none;">
+                                <g id="guide-ccw" class="transition-opacity duration-300" style="display: none; opacity: 0; pointer-events: none;">
                                     <path d="M 200 4 A 270 270 0 0 0 10 135" fill="none" stroke="#0284c7" stroke-width="4.5" stroke-linecap="round" marker-end="url(#guide-arrow-ccw)" filter="drop-shadow(0 2px 5px rgba(2,132,199,0.35))" />
                                     <!-- 左上对称位置专属提示卡片 -->
                                     <g id="guide-ccw-badge" transform="translate(70, 10)">
@@ -1097,103 +1097,8 @@
                     <!-- 隐藏废弃原 m2-right-panel 占位 -->
                     <div id="m2-right-panel" class="hidden"></div>
 
-                    <!-- Tab 4: 模块四 钟面指针探究 - 右侧导学面板 -->
-                    <div id="m4-right-panel"
-                        class="hidden w-80 xl:w-96 flex-shrink-0 flex flex-col gap-2.5 overflow-y-auto pl-1">
-                        <!-- 探究步骤状态指示 -->
-                        <div
-                            class="bg-white rounded-2xl p-3.5 border border-slate-200 shadow-sm flex items-center justify-between">
-                            <span class="text-xs font-bold text-slate-700 flex items-center space-x-1.5">
-                                <span>🔍</span>
-                                <span>剖析旋转三要素</span>
-                            </span>
-                            <span id="m4-step-badge"
-                                class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600">
-                                未开始
-                            </span>
-                        </div>
-
-                        <!-- 步骤三：展开扇面与大格算理 -->
-                        <div class="step-box bg-white rounded-2xl border border-slate-200 p-3.5 transition-all duration-300 opacity-60 shadow-sm"
-                            id="m4-step3-box">
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="text-xs font-bold text-slate-700 flex items-center space-x-1.5">
-                                    <span
-                                        class="w-5 h-5 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold"
-                                        id="m4-step3-badge">3</span>
-                                    <span>计算旋转角度</span>
-                                </span>
-                                <button id="m4-btn-step3" onclick="m4ActionStep3()" disabled
-                                    class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-200 text-slate-400 cursor-not-allowed transition">
-                                    📐 展开扇面与算理
-                                </button>
-                            </div>
-                            <div id="m4-step3-content"
-                                class="hidden text-xs text-slate-600 bg-amber-50/70 p-2.5 rounded-xl border border-amber-200 leading-relaxed mt-2">
-                                <p class="font-bold text-amber-900 mb-1">【要素三：旋转角度（度数算理）】</p>
-                                <div
-                                    class="bg-white p-2 rounded-lg border border-amber-200 font-mono text-xs my-1 text-slate-800">
-                                    <div>• 钟面一整圈（周角）：<strong>360°</strong></div>
-                                    <div>• 钟面共平均分成：<strong>12 个大格</strong></div>
-                                    <div class="text-amber-700 font-bold">• 每个大格：360° ÷ 12 = <strong>30°</strong></div>
-                                </div>
-                                <p id="m4-calc-text" class="text-amber-800 font-semibold mt-1">
-                                    指针走了 1 个大格，旋转角度为：1 × 30° = <strong>30°</strong>。
-                                </p>
-                            </div>
-                        </div>
-
-                        <!-- 步骤四：生成标准规范语句 -->
-                        <div class="step-box bg-white rounded-2xl border border-slate-200 p-3.5 transition-all duration-300 opacity-60 shadow-sm"
-                            id="m4-step4-box">
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="text-xs font-bold text-slate-700 flex items-center space-x-1.5">
-                                    <span
-                                        class="w-5 h-5 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold"
-                                        id="m4-step4-badge">4</span>
-                                    <span>标准表达生成</span>
-                                </span>
-                                <button id="m4-btn-step4" onclick="m4ActionStep4()" disabled
-                                    class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-200 text-slate-400 cursor-not-allowed transition">
-                                    📜 生成标准描述语
-                                </button>
-                            </div>
-                            <div id="m4-step4-content"
-                                class="hidden text-xs bg-gradient-to-r from-sky-50 to-amber-50 p-3 rounded-xl border-2 border-sky-300 shadow-sm mt-2">
-                                <p class="text-[11px] font-bold text-slate-500 mb-1 uppercase tracking-wider">人教版教材规范表述：
-                                </p>
-                                <p id="m4-final-statement" class="text-sm font-bold text-slate-900 leading-relaxed">
-                                    从“12”到“1”，指针<span class="text-sky-600 underline decoration-2">绕点 O</span> 按<span
-                                        class="text-red-500 underline decoration-2">顺时针方向</span>旋转了 <span
-                                        class="text-amber-600 font-black text-base underline decoration-2">30°</span>。
-                                </p>
-                                <div
-                                    class="flex items-center justify-between text-[11px] text-slate-500 mt-2.5 pt-2 border-t border-slate-200">
-                                    <span>① 中心：点 O</span>
-                                    <span>② 方向：顺时针</span>
-                                    <span id="m4-summary-deg">③ 角度：30°</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 旋转三要素综合梳理卡片 -->
-                        <div
-                            class="bg-gradient-to-br from-indigo-50 to-sky-50 rounded-2xl p-3.5 border border-indigo-200 text-xs shadow-2xs">
-                            <div class="font-bold text-indigo-950 flex items-center space-x-1.5 mb-1.5">
-                                <span>🎯</span>
-                                <span>旋转三要素核心公式</span>
-                            </div>
-                            <div class="space-y-1.5 text-indigo-900/90 leading-relaxed">
-                                <div class="bg-white/80 p-2 rounded-lg border border-indigo-100">
-                                    <span class="font-bold text-indigo-800">旋转角度公式：</span>
-                                    <span class="text-amber-800 font-bold">旋转角度 = 经过的大格数 × 30°</span>
-                                </div>
-                                <p class="text-indigo-800/80">
-                                    掌握<strong>旋转中心</strong>、<strong>旋转方向</strong>和<strong>旋转角度</strong>，图形运动的所有奥秘都能迎刃而解！
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Tab 4: 模块四 钟面指针探究 - 右侧导学面板已移除 -->
+                    <div id="m4-right-panel" class="hidden"></div>
 
                 </div>
 
@@ -1484,24 +1389,6 @@
                 </div>
 
                 <div id="m4-tools" class="hidden flex flex-wrap items-center gap-2">
-                    <span class="text-xs text-slate-500 font-medium">快捷试转：</span>
-                    <button onclick="m4QuickRotate(30)"
-                        class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-medium transition">
-                        +1格 (30°)
-                    </button>
-                    <button onclick="m4QuickRotate(60)"
-                        class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-medium transition">
-                        +2格 (60°)
-                    </button>
-                    <button onclick="m4QuickRotate(90)"
-                        class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-medium transition">
-                        +3格 (90°)
-                    </button>
-                    <button onclick="m4QuickRotate(-30)"
-                        class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-medium transition">
-                        -1格 (逆时针30°)
-                    </button>
-                    <span class="text-slate-300">|</span>
                     <span class="text-xs text-slate-500 font-medium">指针读数：</span>
                     <span class="text-xs px-2.5 py-0.5 bg-sky-50 text-sky-700 border border-sky-200 rounded font-bold">
                         指向：<span id="m4-current-num">12</span> 点
@@ -2096,19 +1983,19 @@
 
         // 统一渲染钟面视觉与读数状态 (支持顺/逆时针自适应与数值遮蔽)
         
-        // 根据实际顺时针/逆时针实时动态更新表盘方向导引箭头与徽标卡片
         function updateTopRimDirectionArrow(direction) {
             const isCw = (direction === '顺时针');
             const guideCW = document.getElementById('guide-cw');
             const guideCCW = document.getElementById('guide-ccw');
             if (guideCW) {
-                guideCW.setAttribute('opacity', isCw ? '1' : '0');
                 guideCW.style.display = isCw ? 'inline' : 'none';
+                guideCW.style.opacity = isCw ? '1' : '0';
+                guideCW.setAttribute('opacity', isCw ? '1' : '0');
             }
             if (guideCCW) {
-                guideCCW.setAttribute('opacity', isCw ? '0' : '1');
                 guideCCW.style.display = isCw ? 'none' : 'inline';
-                guideCCW.style.visibility = isCw ? 'hidden' : 'visible';
+                guideCCW.style.opacity = isCw ? '0' : '1';
+                guideCCW.setAttribute('opacity', isCw ? '0' : '1');
             }
 
             const topIndicator = document.getElementById('clock-top-direction-indicator');
@@ -3602,7 +3489,7 @@
             if (m2L) m2L.classList.add('hidden');
             if (m2R) m2R.classList.add('hidden');
             if (m4L) m4L.classList.toggle('hidden', !isM4);
-            if (m4R) m4R.classList.toggle('hidden', !isM4);
+            if (m4R) m4R.classList.add('hidden');
 
             // 钟面拖拽提示层显隐与文案更新 (模块二保持纯净不显示底部胶囊)
             const dragHint = document.getElementById('clock-drag-hint');
