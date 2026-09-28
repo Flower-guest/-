@@ -2372,17 +2372,222 @@
             animTimerSecond: null
         };
 
-        // 模块一拼图状态：影子逐块显形、演示旋转与顶点选中心自由旋转。
+        // 模块一拼图状态：维护 1 号图形世界物理坐标、当前旋转中心及增量旋转角
         const m0PuzzleState = {
             revealStep: 0,
-            angle: 0,
-            center: { x: 360, y: 300, name: 'a' },
+            // 1号图形三个顶点的当前世界坐标（已固化）
+            vertices: {
+                a: { x: 360, y: 300 },
+                b: { x: 540, y: 300 },
+                c: { x: 360, y: 120 }
+            },
+            // 当前选中的旋转中心顶点 ('a' | 'b' | 'c')
+            centerKey: 'b',
+            // 当前相对中心点的增量旋转角度 (顺时针为正，单位: 度)
+            deltaAngle: 0,
+            // 导引弧线的基准起始辐射角 (弧度)
+            arcBaseRad: 0,
+            // 拖拽旋转状态
             dragging: false,
-            dragStart: 0,
-            dragBase: 0,
+            lastPointerAngle: 0,
+            lastSneezeAngle: 0,
             initialized: false,
-            animId: null
+            animId: null,
+            sneezeToastTimer: null
         };
+
+        // 获取经过当前增量旋转变换后的三个顶点世界坐标
+        function m0PuzzleGetRenderedVertices() {
+            const centerPt = m0PuzzleState.vertices[m0PuzzleState.centerKey] || { x: 540, y: 300 };
+            const cx = centerPt.x;
+            const cy = centerPt.y;
+            const rad = m0PuzzleState.deltaAngle * Math.PI / 180;
+            const cos = Math.cos(rad);
+            const sin = Math.sin(rad);
+
+            const rendered = {};
+            ['a', 'b', 'c'].forEach(k => {
+                const pt = m0PuzzleState.vertices[k];
+                const dx = pt.x - cx;
+                const dy = pt.y - cy;
+                rendered[k] = {
+                    x: cx + dx * cos - dy * sin,
+                    y: cy + dx * sin + dy * cos
+                };
+            });
+            return rendered;
+        }
+
+        // 坐标固化 (Bake Transform)：将当前的增量旋转计算合并到顶点世界坐标中，并将增量角归零
+        function m0PuzzleBakeCurrentTransform() {
+            if (m0PuzzleState.deltaAngle === 0) return;
+            const rendered = m0PuzzleGetRenderedVertices();
+            m0PuzzleState.vertices.a = { ...rendered.a };
+            m0PuzzleState.vertices.b = { ...rendered.b };
+            m0PuzzleState.vertices.c = { ...rendered.c };
+            m0PuzzleState.deltaAngle = 0;
+        }
+
+        // 统一渲染：由顶点世界坐标直接动态生成路径与顶点圆圈，彻底杜绝父级 Transform 与手动坐标双重变换
+        function m0PuzzleApplyTransform() {
+            const group1 = document.getElementById('m0-puzzle-group-1');
+            if (!group1) return;
+            // 彻底移除父级 group 上的 transform 属性，杜绝任何坐标双重叠加
+            group1.removeAttribute('transform');
+
+            const rendered = m0PuzzleGetRenderedVertices();
+
+            // 1. 更新 1 号三角形路径 d
+            const piece1 = document.getElementById('m0-puzzle-piece-1');
+            if (piece1) {
+                const d = `M ${rendered.a.x.toFixed(2)} ${rendered.a.y.toFixed(2)} L ${rendered.b.x.toFixed(2)} ${rendered.b.y.toFixed(2)} L ${rendered.c.x.toFixed(2)} ${rendered.c.y.toFixed(2)} Z`;
+                piece1.setAttribute('d', d);
+            }
+
+            // 2. 更新三个顶点圆圈的 cx, cy 及激活高亮样式
+            ['a', 'b', 'c'].forEach(k => {
+                const vertexEl = document.querySelector(`[data-puzzle-vertex="${k}"]`);
+                if (vertexEl) {
+                    vertexEl.setAttribute('cx', rendered[k].x.toFixed(2));
+                    vertexEl.setAttribute('cy', rendered[k].y.toFixed(2));
+                    if (k === m0PuzzleState.centerKey) {
+                        vertexEl.setAttribute('fill', '#0284c7');
+                        vertexEl.setAttribute('stroke', '#ffffff');
+                    } else {
+                        vertexEl.setAttribute('fill', '#ffffff');
+                        vertexEl.setAttribute('stroke', '#0f172a');
+                    }
+                }
+            });
+
+            // 3. 更新 1 号图形文字标签 (居中于三角形重心)
+            const label1 = document.getElementById('m0-puzzle-label-1');
+            if (label1) {
+                const centroidX = (rendered.a.x + rendered.b.x + rendered.c.x) / 3;
+                const centroidY = (rendered.a.y + rendered.b.y + rendered.c.y) / 3;
+                label1.setAttribute('x', centroidX.toFixed(2));
+                label1.setAttribute('y', centroidY.toFixed(2));
+            }
+
+            // 4. 旋转中心光圈 O 精准贴合在当前选中的顶点坐标上
+            const curCenterPt = rendered[m0PuzzleState.centerKey] || rendered.b;
+            const ring = document.getElementById('m0-puzzle-center-ring');
+            const centerText = document.getElementById('m0-puzzle-center-text');
+            if (ring) {
+                ring.setAttribute('cx', curCenterPt.x.toFixed(2));
+                ring.setAttribute('cy', curCenterPt.y.toFixed(2));
+                ring.setAttribute('opacity', '1');
+            }
+            if (centerText) {
+                centerText.setAttribute('x', (curCenterPt.x + 24).toFixed(2));
+                centerText.setAttribute('y', (curCenterPt.y - 16).toFixed(2));
+                centerText.textContent = 'O';
+                centerText.setAttribute('opacity', '1');
+            }
+
+            const angleBadge = document.getElementById('m0-puzzle-angle-badge');
+            if (angleBadge) {
+                const rounded = Math.round(m0PuzzleState.deltaAngle);
+                angleBadge.innerText = `旋转角度：${rounded}°`;
+            }
+        }
+
+        // 切换旋转中心点：先固化当前变换，再切换中心点，增量归零，图形完全纹丝不动留在原位
+        function m0PuzzleSelectCenter(vertexName) {
+            if (!['a', 'b', 'c'].includes(vertexName)) vertexName = 'b';
+
+            if (m0PuzzleState.animId) {
+                cancelAnimationFrame(m0PuzzleState.animId);
+                m0PuzzleState.animId = null;
+            }
+
+            // 1. 固化当前变换
+            m0PuzzleBakeCurrentTransform();
+
+            // 2. 将旋转中心切换为新选中的顶点，增量角归零
+            m0PuzzleState.centerKey = vertexName;
+            m0PuzzleState.deltaAngle = 0;
+
+            // 3. 隐藏上一次旧的导引弧线
+            const arcEl = document.getElementById('m0-puzzle-arc');
+            const tagEl = document.getElementById('m0-puzzle-arc-tag');
+            if (arcEl) arcEl.setAttribute('opacity', '0');
+            if (tagEl) tagEl.setAttribute('opacity', '0');
+
+            // 4. 播放轻触音效
+            if (typeof sound !== 'undefined') sound.playClick();
+
+            // 5. 统一渲染：1号图形顶点世界坐标与屏幕位置完全静止不动，旋转中心 O 光圈精准移动到新顶点
+            m0PuzzleApplyTransform();
+
+            const status = document.getElementById('m0-puzzle-status');
+            if (status && m0PuzzleState.revealStep >= 3) {
+                status.innerText = `已将旋转中心切换为点 ${vertexName.toUpperCase()}（1号图形保持原位）`;
+                status.className = 'text-[11px] px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 font-bold border border-sky-300';
+            }
+        }
+
+        // 计算当前旋转中心的参考基准射线角 (用于弧线起点定位)
+        function m0PuzzleComputeArcBaseRad() {
+            const centerPt = m0PuzzleState.vertices[m0PuzzleState.centerKey] || { x: 540, y: 300 };
+            const refKey = m0PuzzleState.centerKey === 'a' ? 'b' : 'a';
+            const refPt = m0PuzzleState.vertices[refKey];
+            return Math.atan2(refPt.y - centerPt.y, refPt.x - centerPt.x);
+        }
+
+        // 绘制动态旋转轨迹圆弧与度数徽标
+        function m0PuzzleRenderArc(delta) {
+            const arcEl = document.getElementById('m0-puzzle-arc');
+            const tagEl = document.getElementById('m0-puzzle-arc-tag');
+            const rectEl = document.getElementById('m0-puzzle-arc-rect');
+            const textEl = document.getElementById('m0-puzzle-arc-text');
+            if (!arcEl || !tagEl) return;
+
+            if (Math.abs(delta) < 2) {
+                arcEl.setAttribute('opacity', '0');
+                tagEl.setAttribute('opacity', '0');
+                return;
+            }
+
+            const centerPt = m0PuzzleState.vertices[m0PuzzleState.centerKey] || { x: 540, y: 300 };
+            const cx = centerPt.x;
+            const cy = centerPt.y;
+            const r = 110;
+
+            const baseRad = m0PuzzleState.arcBaseRad || 0;
+            const startX = cx + r * Math.cos(baseRad);
+            const startY = cy + r * Math.sin(baseRad);
+
+            const curRad = baseRad + delta * Math.PI / 180;
+            const endX = cx + r * Math.cos(curRad);
+            const endY = cy + r * Math.sin(curRad);
+
+            const isCCW = delta < 0;
+            const sweepFlag = isCCW ? 0 : 1;
+            const largeArcFlag = Math.abs(delta) > 180 ? 1 : 0;
+
+            const d = `M ${startX.toFixed(1)} ${startY.toFixed(1)} A ${r} ${r} 0 ${largeArcFlag} ${sweepFlag} ${endX.toFixed(1)} ${endY.toFixed(1)}`;
+            arcEl.setAttribute('d', d);
+            arcEl.setAttribute('stroke', isCCW ? '#059669' : '#2563eb');
+            arcEl.setAttribute('marker-end', isCCW ? 'url(#m0-marker-ccw)' : 'url(#m0-marker-cw)');
+            arcEl.setAttribute('opacity', '1');
+
+            // 角度徽标居中于弧线外侧
+            const midRad = baseRad + (delta * 0.5) * Math.PI / 180;
+            const tagX = cx + (r + 34) * Math.cos(midRad);
+            const tagY = cy + (r + 34) * Math.sin(midRad);
+
+            if (rectEl && textEl) {
+                rectEl.setAttribute('x', (tagX - 54).toFixed(1));
+                rectEl.setAttribute('y', (tagY - 14).toFixed(1));
+                rectEl.setAttribute('stroke', isCCW ? '#059669' : '#2563eb');
+                textEl.setAttribute('x', tagX.toFixed(1));
+                textEl.setAttribute('y', tagY.toFixed(1));
+                textEl.setAttribute('fill', isCCW ? '#047857' : '#1d4ed8');
+                textEl.textContent = isCCW ? `逆时针 ${Math.round(Math.abs(delta))}°` : `顺时针 ${Math.round(delta)}°`;
+            }
+            tagEl.setAttribute('opacity', '1');
+        }
 
         function m0PuzzleInit() {
             const svg = document.getElementById('m0-puzzle-svg');
@@ -2422,8 +2627,15 @@
                 m0PuzzleState.animId = null;
             }
             m0PuzzleState.revealStep = 0;
-            m0PuzzleState.angle = 0;
-            m0PuzzleState.center = { x: 540, y: 300, name: 'b' };
+            m0PuzzleState.vertices = {
+                a: { x: 360, y: 300 },
+                b: { x: 540, y: 300 },
+                c: { x: 360, y: 120 }
+            };
+            m0PuzzleState.centerKey = 'b';
+            m0PuzzleState.deltaAngle = 0;
+            m0PuzzleState.dragging = false;
+
             const pieces = document.getElementById('m0-puzzle-pieces');
             const ghost = document.getElementById('m0-puzzle-ghost');
             const ring = document.getElementById('m0-puzzle-center-ring');
@@ -2476,7 +2688,7 @@
                 document.getElementById('m0-puzzle-piece-3')
             ];
             if (m0PuzzleState.revealStep >= pieces.length) return;
-            sound.playStepUnlock();
+            if (typeof sound !== 'undefined') sound.playStepUnlock();
             const piece = pieces[m0PuzzleState.revealStep];
             if (piece) {
                 piece.style.animation = 'm0PuzzleFlash 520ms ease-out';
@@ -2491,122 +2703,6 @@
                 status.innerText = m0PuzzleState.revealStep === 3 ? '三块拼图已全部显形' : `已显形 ${m0PuzzleState.revealStep} 号图形`;
             }
             if (reveal) reveal.innerText = m0PuzzleState.revealStep === 3 ? '✓ 拼图已全部显示' : '▶ 显示下一块';
-        }
-
-        function m0PuzzleApplyTransform() {
-            const group1 = document.getElementById('m0-puzzle-group-1');
-            if (!group1) return;
-            const { x, y } = m0PuzzleState.center;
-
-            // 1. group1 旋转即可带动三角形与三个顶点圈圈同步旋转
-            const transform = `rotate(${m0PuzzleState.angle} ${x} ${y})`;
-            group1.setAttribute('transform', transform);
-
-            // 2. 顶点使用初始固定坐标即可（删除原有的 rotatePoint 计算与 cx/cy 重新赋值）
-            // 注意：初始坐标需确保与 svg 内声明的一致：
-            // a: (360, 300), b: (540, 300), c: (360, 120)
-
-            // 3. 同步外面的旋转中心光圈 O 的位置
-            const ring = document.getElementById('m0-puzzle-center-ring');
-            const centerText = document.getElementById('m0-puzzle-center-text');
-            if (ring) { ring.setAttribute('cx', x); ring.setAttribute('cy', y); }
-            if (centerText) { centerText.setAttribute('x', x + 24); centerText.setAttribute('y', y - 16); }
-
-            const angleBadge = document.getElementById('m0-puzzle-angle-badge');
-            if (angleBadge) {
-                const rounded = Math.round(m0PuzzleState.angle);
-                angleBadge.innerText = `旋转角度：${rounded}°`;
-            }
-            // const group1 = document.getElementById('m0-puzzle-group-1');
-            // if (!group1) return;
-            // const { x, y } = m0PuzzleState.center;
-            // const transform = `rotate(${m0PuzzleState.angle} ${x} ${y})`;
-            // group1.setAttribute('transform', transform);
-
-            // // 顶点必须跟随深红色 1 号实体图形，而不是跟随淡红色影子。
-            // const rad = m0PuzzleState.angle * Math.PI / 180;
-            // const cos = Math.cos(rad);
-            // const sin = Math.sin(rad);
-            // const rotatePoint = (point) => ({
-            //     x: x + (point.x - x) * cos - (point.y - y) * sin,
-            //     y: y + (point.x - x) * sin + (point.y - y) * cos
-            // });
-            // const basePoints = {
-            //     a: { x: 360, y: 300 },
-            //     b: { x: 540, y: 300 },
-            //     c: { x: 360, y: 120 }
-            // };
-            // Object.entries(basePoints).forEach(([name, point]) => {
-            //     const vertex = document.querySelector(`[data-puzzle-vertex="${name}"]`);
-            //     const next = rotatePoint(point);
-            //     if (vertex) {
-            //         vertex.setAttribute('cx', next.x.toFixed(2));
-            //         vertex.setAttribute('cy', next.y.toFixed(2));
-            //     }
-            // });
-
-            // const ring = document.getElementById('m0-puzzle-center-ring');
-            // const centerText = document.getElementById('m0-puzzle-center-text');
-            // if (ring) { ring.setAttribute('cx', x); ring.setAttribute('cy', y); }
-            // if (centerText) { centerText.setAttribute('x', x + 24); centerText.setAttribute('y', y - 16); }
-
-            // const angleBadge = document.getElementById('m0-puzzle-angle-badge');
-            // if (angleBadge) {
-            //     const rounded = Math.round(m0PuzzleState.angle);
-            //     angleBadge.innerText = `旋转角度：${rounded}°`;
-            // }
-        }
-
-        // 绘制旋转轨迹导引弧线
-        function m0PuzzleRenderArc(startDeg, curDeg, isMethod1) {
-            const arcEl = document.getElementById('m0-puzzle-arc');
-            const tagEl = document.getElementById('m0-puzzle-arc-tag');
-            const rectEl = document.getElementById('m0-puzzle-arc-rect');
-            const textEl = document.getElementById('m0-puzzle-arc-text');
-            if (!arcEl || !tagEl) return;
-
-            const delta = curDeg - startDeg;
-            if (Math.abs(delta) < 2) {
-                arcEl.setAttribute('opacity', '0');
-                tagEl.setAttribute('opacity', '0');
-                return;
-            }
-
-            const { x: cx, y: cy } = m0PuzzleState.center;
-            const r = 110;
-            const startRad = startDeg * Math.PI / 180;
-            const curRad = curDeg * Math.PI / 180;
-
-            const startX = cx + r * Math.cos(startRad);
-            const startY = cy + r * Math.sin(startRad);
-            const endX = cx + r * Math.cos(curRad);
-            const endY = cy + r * Math.sin(curRad);
-
-            const isCCW = delta < 0;
-            const sweepFlag = isCCW ? 0 : 1;
-            const largeArcFlag = Math.abs(delta) > 180 ? 1 : 0;
-
-            const d = `M ${startX.toFixed(1)} ${startY.toFixed(1)} A ${r} ${r} 0 ${largeArcFlag} ${sweepFlag} ${endX.toFixed(1)} ${endY.toFixed(1)}`;
-            arcEl.setAttribute('d', d);
-            arcEl.setAttribute('stroke', isMethod1 ? '#059669' : '#2563eb');
-            arcEl.setAttribute('marker-end', isMethod1 ? 'url(#m0-marker-ccw)' : 'url(#m0-marker-cw)');
-            arcEl.setAttribute('opacity', '1');
-
-            // 角度标签位置
-            const midRad = (startDeg + delta * 0.5) * Math.PI / 180;
-            const tagX = cx + (r + 32) * Math.cos(midRad);
-            const tagY = cy + (r + 32) * Math.sin(midRad);
-
-            if (rectEl && textEl) {
-                rectEl.setAttribute('x', (tagX - 54).toFixed(1));
-                rectEl.setAttribute('y', (tagY - 14).toFixed(1));
-                rectEl.setAttribute('stroke', isMethod1 ? '#059669' : '#2563eb');
-                textEl.setAttribute('x', tagX.toFixed(1));
-                textEl.setAttribute('y', tagY.toFixed(1));
-                textEl.setAttribute('fill', isMethod1 ? '#047857' : '#1d4ed8');
-                textEl.textContent = isMethod1 ? `逆时针 ${Math.round(Math.abs(delta))}°` : `顺时针 ${Math.round(delta)}°`;
-            }
-            tagEl.setAttribute('opacity', '1');
         }
 
         // 演示旋转 1 号图形：以 B 点为旋转中心顺时针旋转 90°，完成后禁用按钮
@@ -2624,34 +2720,53 @@
                 if (p3) p3.setAttribute('opacity', '1');
                 if (g1) g1.setAttribute('opacity', '1');
                 document.querySelectorAll('#m0-puzzle-labels > text').forEach((label) => label.setAttribute('opacity', '1'));
+                const reveal = document.getElementById('m0-puzzle-reveal');
+                if (reveal) reveal.innerText = '✓ 拼图已全部显示';
             }
-            // 选定顶点 B 为旋转中心
-            m0PuzzleSelectCenter('b');
+
+            // 重置为标准初始图形位置，选定顶点 B 为旋转中心
+            m0PuzzleState.vertices = {
+                a: { x: 360, y: 300 },
+                b: { x: 540, y: 300 },
+                c: { x: 360, y: 120 }
+            };
+            m0PuzzleState.centerKey = 'b';
+            m0PuzzleState.deltaAngle = 0;
+            m0PuzzleState.arcBaseRad = m0PuzzleComputeArcBaseRad();
+            m0PuzzleApplyTransform();
 
             // 播放喷嚏音效
-            sound.playSneeze();
+            if (typeof sound !== 'undefined') sound.playSneeze();
 
             const start = 0;
             const end = 90;
-            m0PuzzleState.angle = start;
-            m0PuzzleApplyTransform();
-
+            const duration = 750;
             const startedAt = performance.now();
+
+            const status = document.getElementById('m0-puzzle-status');
+            if (status) {
+                status.innerText = `1号图形以B为中心顺时针旋转90°`;
+                status.className = 'text-[11px] px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold border border-amber-300';
+            }
+
             function frame(now) {
-                const progress = Math.min(1, (now - startedAt) / 750);
+                const progress = Math.min(1, (now - startedAt) / duration);
                 const ease = progress < 0.5 ? 2 * progress * progress : 1 - Math.pow(-2 * progress + 2, 2) / 2;
-                m0PuzzleState.angle = start + (end - start) * ease;
+                m0PuzzleState.deltaAngle = start + (end - start) * ease;
                 m0PuzzleApplyTransform();
-                m0PuzzleRenderArc(start, m0PuzzleState.angle, false);
+                m0PuzzleRenderArc(m0PuzzleState.deltaAngle);
+
                 if (progress < 1) {
                     m0PuzzleState.animId = requestAnimationFrame(frame);
                 } else {
-                    m0PuzzleState.angle = end;
+                    m0PuzzleState.deltaAngle = end;
                     m0PuzzleApplyTransform();
-                    m0PuzzleRenderArc(start, end, false);
+                    m0PuzzleRenderArc(end);
+                    // 固化坐标
+                    m0PuzzleBakeCurrentTransform();
                     m0PuzzleState.animId = null;
 
-                    // 顺时针旋转90°完成后禁用该按钮，不可再点击
+                    // 顺时针旋转90°完成后禁用该按钮，不可再重复点击
                     const btn = document.getElementById('m0-puzzle-rotate-demo-btn');
                     if (btn) {
                         btn.disabled = true;
@@ -2661,14 +2776,9 @@
                 }
             }
             m0PuzzleState.animId = requestAnimationFrame(frame);
-            const status = document.getElementById('m0-puzzle-status');
-            if (status) {
-                status.innerText = `1号图形以B为中心顺时针旋转90°`;
-                status.className = 'text-[11px] px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold border border-amber-300';
-            }
         }
 
-        // 方法一：从现有角度逆时针旋转 90°；方法二：从现有角度顺时针旋转 270°
+        // 方法一：从现有位置绕点B逆时针旋转 90°；方法二：从现有位置绕点B顺时针旋转 270°
         function m0PuzzleApplyMethod(method) {
             if (m0PuzzleState.animId) {
                 cancelAnimationFrame(m0PuzzleState.animId);
@@ -2683,19 +2793,23 @@
                 if (p3) p3.setAttribute('opacity', '1');
                 if (g1) g1.setAttribute('opacity', '1');
                 document.querySelectorAll('#m0-puzzle-labels > text').forEach((label) => label.setAttribute('opacity', '1'));
+                const reveal = document.getElementById('m0-puzzle-reveal');
+                if (reveal) reveal.innerText = '✓ 拼图已全部显示';
             }
-            // 选定顶点 B 为旋转中心
+
+            // 选定顶点 B 为旋转中心并固化之前的变换
             m0PuzzleSelectCenter('b');
 
             // 播放喷嚏音效
-            sound.playSneeze();
+            if (typeof sound !== 'undefined') sound.playSneeze();
 
             const isMethod1 = (method === 1);
-            // 按照现有一号图形角度进行对应顺、逆时针度数旋转：
-            // 方法一：逆时针旋转 90° (-90°)
-            // 方法二：顺时针旋转 270° (+270°)
-            const startAngle = m0PuzzleState.angle;
-            const targetAngle = isMethod1 ? (startAngle - 90) : (startAngle + 270);
+            // 按照现有一号图形位置进行对应度数旋转：
+            // 方法一：绕点B逆时针旋转 90° (-90°)
+            // 方法二：绕点B顺时针旋转 270° (+270°)
+            m0PuzzleState.arcBaseRad = m0PuzzleComputeArcBaseRad();
+            const startAngle = 0;
+            const targetAngle = isMethod1 ? -90 : 270;
             const duration = isMethod1 ? 850 : 1450;
             const startedAt = performance.now();
 
@@ -2711,49 +2825,38 @@
                 const elapsed = now - startedAt;
                 const progress = Math.min(1, elapsed / duration);
                 const ease = progress < 0.5 ? 2 * progress * progress : 1 - Math.pow(-2 * progress + 2, 2) / 2;
-                m0PuzzleState.angle = startAngle + (targetAngle - startAngle) * ease;
+                m0PuzzleState.deltaAngle = startAngle + (targetAngle - startAngle) * ease;
                 m0PuzzleApplyTransform();
-                m0PuzzleRenderArc(startAngle, m0PuzzleState.angle, isMethod1);
+                m0PuzzleRenderArc(m0PuzzleState.deltaAngle);
 
                 if (progress < 1) {
                     m0PuzzleState.animId = requestAnimationFrame(frame);
                 } else {
-                    m0PuzzleState.angle = targetAngle;
+                    m0PuzzleState.deltaAngle = targetAngle;
                     m0PuzzleApplyTransform();
-                    m0PuzzleRenderArc(startAngle, targetAngle, isMethod1);
+                    m0PuzzleRenderArc(targetAngle);
+                    // 固化坐标
+                    m0PuzzleBakeCurrentTransform();
                     m0PuzzleState.animId = null;
+
+                    // 重新启用演示旋转1号图形按钮，以便用户继续交互
+                    const demoBtn = document.getElementById('m0-puzzle-rotate-demo-btn');
+                    if (demoBtn) {
+                        demoBtn.disabled = false;
+                        demoBtn.className = 'w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-95 text-white text-xs font-bold transition shadow-xs flex items-center justify-center space-x-1.5';
+                        demoBtn.innerHTML = '<span>↻</span><span>演示旋转1号图形</span>';
+                    }
                 }
             }
             m0PuzzleState.animId = requestAnimationFrame(frame);
         }
 
-        function m0PuzzleSelectCenter(vertexName) {
-            const points = {
-                a: { x: 360, y: 300, name: 'a' },
-                b: { x: 540, y: 300, name: 'b' },
-                c: { x: 360, y: 120, name: 'c' }
-            };
-            const nextCenter = points[vertexName] || points.a;
-            const previousAngle = m0PuzzleState.angle;
-            m0PuzzleState.center = nextCenter;
-            sound.playClick();
-            const ring = document.getElementById('m0-puzzle-center-ring');
-            const centerText = document.getElementById('m0-puzzle-center-text');
-            if (ring) ring.setAttribute('opacity', '1');
-            if (centerText) {
-                centerText.textContent = 'O';
-                centerText.setAttribute('opacity', '1');
-            }
-            // 切换旋转中心时保持当前图形的视觉角度，避免点击顶点造成图形跳动。
-            m0PuzzleState.angle = previousAngle;
-            m0PuzzleApplyTransform();
-        }
-
         function m0PuzzleShowSneezeToast() {
             const toast = document.getElementById('m0-puzzle-sneeze-toast');
             if (!toast) return;
-            const cx = (m0PuzzleState.center && m0PuzzleState.center.x) || 480;
-            const cy = ((m0PuzzleState.center && m0PuzzleState.center.y) || 280) - 80;
+            const centerPt = (m0PuzzleState.vertices && m0PuzzleState.vertices[m0PuzzleState.centerKey]) || { x: 540, y: 300 };
+            const cx = centerPt.x || 480;
+            const cy = (centerPt.y || 280) - 80;
             toast.setAttribute('transform', `translate(${cx}, ${cy})`);
             toast.style.opacity = '1';
             if (m0PuzzleState.sneezeToastTimer) clearTimeout(m0PuzzleState.sneezeToastTimer);
@@ -2764,6 +2867,7 @@
 
         function m0PuzzleSvgPoint(event) {
             const svg = document.getElementById('m0-puzzle-svg');
+            if (!svg) return { x: 0, y: 0 };
             const rect = svg.getBoundingClientRect();
             return {
                 x: (event.clientX - rect.left) / rect.width * 900,
@@ -2772,42 +2876,88 @@
         }
 
         function m0PuzzlePointerDown(event) {
-            if (m0PuzzleState.revealStep < 3 || event.target.closest('[data-puzzle-vertex]')) return;
+            if (m0PuzzleState.revealStep < 3) return;
+            if (event.target.closest('[data-puzzle-vertex]')) return;
+
+            if (m0PuzzleState.animId) {
+                cancelAnimationFrame(m0PuzzleState.animId);
+                m0PuzzleState.animId = null;
+            }
+
+            // 先固化之前可能的增量
+            m0PuzzleBakeCurrentTransform();
+
             const point = m0PuzzleSvgPoint(event);
-            const dx = point.x - m0PuzzleState.center.x;
-            const dy = point.y - m0PuzzleState.center.y;
+            const centerPt = m0PuzzleState.vertices[m0PuzzleState.centerKey] || { x: 540, y: 300 };
+            const dx = point.x - centerPt.x;
+            const dy = point.y - centerPt.y;
+
             m0PuzzleState.dragging = true;
-            m0PuzzleState.dragStart = Math.atan2(dy, dx) * 180 / Math.PI;
-            m0PuzzleState.dragBase = m0PuzzleState.angle;
-            event.currentTarget.setPointerCapture?.(event.pointerId);
+            m0PuzzleState.lastPointerAngle = Math.atan2(dy, dx) * 180 / Math.PI;
+            m0PuzzleState.arcBaseRad = m0PuzzleState.lastPointerAngle * Math.PI / 180;
+            m0PuzzleState.deltaAngle = 0;
+            m0PuzzleState.lastSneezeAngle = 0;
+
+            try {
+                event.currentTarget.setPointerCapture(event.pointerId);
+            } catch (e) {}
 
             // 用户开始拖拽旋转时播放喷嚏音效
-            sound.playSneeze();
+            if (typeof sound !== 'undefined') sound.playSneeze();
         }
 
         function m0PuzzlePointerMove(event) {
             if (!m0PuzzleState.dragging) return;
             const point = m0PuzzleSvgPoint(event);
-            const dx = point.x - m0PuzzleState.center.x;
-            const dy = point.y - m0PuzzleState.center.y;
-            const now = Math.atan2(dy, dx) * 180 / Math.PI;
-            const prevAngle = m0PuzzleState.angle;
-            m0PuzzleState.angle = m0PuzzleState.dragBase + now - m0PuzzleState.dragStart;
+            const centerPt = m0PuzzleState.vertices[m0PuzzleState.centerKey] || { x: 540, y: 300 };
+            const dx = point.x - centerPt.x;
+            const dy = point.y - centerPt.y;
+            const nowAngle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+            let step = nowAngle - m0PuzzleState.lastPointerAngle;
+            while (step > 180) step -= 360;
+            while (step < -180) step += 360;
+
+            m0PuzzleState.lastPointerAngle = nowAngle;
+            m0PuzzleState.deltaAngle += step;
+
             m0PuzzleApplyTransform();
-            if (Math.abs(m0PuzzleState.angle - (m0PuzzleState.lastSneezeAngle || 0)) >= 45) {
-                m0PuzzleState.lastSneezeAngle = m0PuzzleState.angle;
-                sound.playSneeze();
+            m0PuzzleRenderArc(m0PuzzleState.deltaAngle);
+
+            if (Math.abs(m0PuzzleState.deltaAngle - m0PuzzleState.lastSneezeAngle) >= 45) {
+                m0PuzzleState.lastSneezeAngle = m0PuzzleState.deltaAngle;
+                if (typeof sound !== 'undefined') sound.playSneeze();
             }
 
             const status = document.getElementById('m0-puzzle-status');
-            // if (status) {
-            //     status.innerText = `自由旋转中 (${Math.round(m0PuzzleState.angle)}°)`;
-            //     status.className = 'text-[11px] px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold border border-amber-300';
-            // }
+            if (status) {
+                const rounded = Math.round(m0PuzzleState.deltaAngle);
+                status.innerText = `正在绕点 ${m0PuzzleState.centerKey.toUpperCase()} 旋转 (${rounded}°)`;
+                status.className = 'text-[11px] px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold border border-amber-300';
+            }
         }
 
-        function m0PuzzlePointerUp() {
+        function m0PuzzlePointerUp(event) {
+            if (!m0PuzzleState.dragging) return;
             m0PuzzleState.dragging = false;
+            try {
+                if (event && event.currentTarget && event.currentTarget.hasPointerCapture && event.currentTarget.hasPointerCapture(event.pointerId)) {
+                    event.currentTarget.releasePointerCapture(event.pointerId);
+                }
+            } catch (e) {}
+
+            m0PuzzleBakeCurrentTransform();
+
+            const arcEl = document.getElementById('m0-puzzle-arc');
+            const tagEl = document.getElementById('m0-puzzle-arc-tag');
+            if (arcEl) arcEl.setAttribute('opacity', '0');
+            if (tagEl) tagEl.setAttribute('opacity', '0');
+
+            const status = document.getElementById('m0-puzzle-status');
+            if (status) {
+                status.innerText = `已停止在当前位置（旋转中心为点 ${m0PuzzleState.centerKey.toUpperCase()}）`;
+                status.className = 'text-[11px] px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 font-semibold border border-slate-200';
+            }
         }
 
         const M0_CONSTS = {
