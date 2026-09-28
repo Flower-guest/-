@@ -183,9 +183,22 @@
         }
 
         @keyframes m0PuzzleFlash {
-            0%, 100% { opacity: 1; filter: brightness(1); }
-            35% { opacity: 0.15; filter: brightness(1.8); }
-            70% { opacity: 1; filter: brightness(1.35); }
+
+            0%,
+            100% {
+                opacity: 1;
+                filter: brightness(1);
+            }
+
+            35% {
+                opacity: 0.15;
+                filter: brightness(1.8);
+            }
+
+            70% {
+                opacity: 1;
+                filter: brightness(1.35);
+            }
         }
 
         /* 三角尺直接拖拽交互手柄 */
@@ -332,13 +345,16 @@
                 class="hidden px-5 py-2 border-b border-slate-100 bg-slate-50 flex flex-wrap items-center justify-between gap-2 flex-shrink-0">
                 <div class="flex items-center space-x-3 flex-wrap gap-y-1">
                     <span class="text-xs font-bold text-slate-700">📐 例 6(2) 三角尺旋转探究：</span>
-                    <span class="text-xs px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 font-bold border border-amber-200">
+                    <span
+                        class="text-xs px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 font-bold border border-amber-200">
                         当前旋转角度：<strong id="m3-angle-badge" class="text-amber-950 font-black">0°</strong>
                     </span>
                     <span class="text-xs text-slate-400">|</span>
                     <span class="text-xs font-semibold text-slate-600">直角边长：4cm (点 O 固定)</span>
-                    <span id="m3-top-photo-badge" class="text-xs px-2 py-0.5 rounded bg-sky-100 text-sky-800 font-medium hidden">已拍 <strong id="m3-top-photo-count">0</strong> 张频闪照</span>
-                    
+                    <span id="m3-top-photo-badge"
+                        class="text-xs px-2 py-0.5 rounded bg-sky-100 text-sky-800 font-medium hidden">已拍 <strong
+                            id="m3-top-photo-count">0</strong> 张频闪照</span>
+
                     <!-- 快速角度预设按钮 -->
                     <div class="flex items-center space-x-1 ml-2" id="m3-angle-presets">
                         <button onclick="m3SetAngle(0); m3RenderGallery();" data-deg="0"
@@ -354,9 +370,11 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <label class="flex items-center space-x-1.5 text-xs text-slate-700 cursor-pointer bg-white px-2.5 py-1 rounded-lg border border-slate-200 hover:bg-slate-50 transition shadow-2xs font-semibold"
+                    <label
+                        class="flex items-center space-x-1.5 text-xs text-slate-700 cursor-pointer bg-white px-2.5 py-1 rounded-lg border border-slate-200 hover:bg-slate-50 transition shadow-2xs font-semibold"
                         title="在方格画布上重叠保留每次拍摄的半透明轨迹残影">
-                        <input type="checkbox" id="m3-strobe-overlay-toggle" checked onchange="m3ToggleStrobeOverlay(this.checked)"
+                        <input type="checkbox" id="m3-strobe-overlay-toggle" checked
+                            onchange="m3ToggleStrobeOverlay(this.checked)"
                             class="rounded text-amber-500 focus:ring-amber-400">
                         <span>残影叠加</span>
                     </label>
@@ -395,7 +413,8 @@
                     </button>
                     <span class="text-slate-300">|</span>
                     <!-- 任意位置自定义探究组件 -->
-                    <div class="flex items-center space-x-1.5 bg-white px-2 py-0.5 rounded-lg border border-slate-200 text-xs shadow-2xs">
+                    <div
+                        class="flex items-center space-x-1.5 bg-white px-2 py-0.5 rounded-lg border border-slate-200 text-xs shadow-2xs">
                         <span class="font-bold text-indigo-700 flex items-center space-x-1">
                             <span>✨</span>
                             <span>任意位置：</span>
@@ -432,34 +451,40 @@
                     <!-- 模块一：三块拼图旋转工作区 -->
                     <div id="m0-puzzle-view"
                         class="flex-1 min-h-0 w-full h-full flex flex-col lg:flex-row gap-3 p-1 overflow-hidden">
-                        <div class="flex-1 min-w-0 min-h-0 w-full h-full bg-white rounded-2xl border border-slate-200 shadow-sm p-3 flex flex-col">
+                        <div
+                            class="flex-1 min-w-0 min-h-0 w-full h-full bg-white rounded-2xl border border-slate-200 shadow-sm p-3 flex flex-col">
                             <div class="flex items-center justify-between border-b border-slate-100 pb-2 mb-2">
                                 <div class="flex items-center space-x-2 text-sky-700">
                                     <span class="text-base">🧩</span>
                                     <h2 class="font-bold text-sm">三块拼图的旋转探究</h2>
                                 </div>
                                 <div class="flex items-center space-x-2">
-                                  
+
                                     <span id="m0-puzzle-status"
                                         class="text-[11px] px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 font-semibold border border-slate-200">
                                         影子状态
                                     </span>
                                 </div>
                             </div>
-                            <div class="flex-1 min-h-0 rounded-xl border border-slate-200 bg-slate-50 overflow-hidden flex items-center justify-center relative">
+                            <div
+                                class="flex-1 min-h-0 rounded-xl border border-slate-200 bg-slate-50 overflow-hidden flex items-center justify-center relative">
                                 <svg id="m0-puzzle-svg" viewBox="0 0 900 620"
                                     class="w-full h-full max-h-full select-none touch-none">
                                     <defs>
                                         <filter id="m0-puzzle-shadow" x="-20%" y="-20%" width="140%" height="140%">
-                                            <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.16" />
+                                            <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#0f172a"
+                                                flood-opacity="0.16" />
                                         </filter>
-                                        <marker id="m0-marker-cw" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                                        <marker id="m0-marker-cw" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6"
+                                            markerHeight="6" orient="auto">
                                             <path d="M 0 1 L 9 5 L 0 9 z" fill="#2563eb" />
                                         </marker>
-                                        <marker id="m0-marker-ccw" viewBox="0 0 10 10" refX="3" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                        <marker id="m0-marker-ccw" viewBox="0 0 10 10" refX="3" refY="5" markerWidth="6"
+                                            markerHeight="6" orient="auto-start-reverse">
                                             <path d="M 9 1 L 0 5 L 9 9 z" fill="#059669" />
                                         </marker>
-                                        <marker id="m0-marker-amber" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                                        <marker id="m0-marker-amber" viewBox="0 0 10 10" refX="7" refY="5"
+                                            markerWidth="6" markerHeight="6" orient="auto">
                                             <path d="M 0 1 L 9 5 L 0 9 z" fill="#d97706" />
                                         </marker>
                                     </defs>
@@ -468,31 +493,46 @@
                                     <g id="m0-puzzle-grid" opacity="0.65"></g>
 
                                     <!-- 动态旋转导引圆弧与度数徽标 -->
-                                    <path id="m0-puzzle-arc" d="" fill="none" stroke="#059669" stroke-width="3.5" stroke-dasharray="5 3" opacity="0" />
+                                    <path id="m0-puzzle-arc" d="" fill="none" stroke="#059669" stroke-width="3.5"
+                                        stroke-dasharray="5 3" opacity="0" />
                                     <g id="m0-puzzle-arc-tag" opacity="0">
-                                        <rect id="m0-puzzle-arc-rect" x="0" y="0" width="108" height="28" rx="14" fill="#ffffff" stroke="#059669" stroke-width="2" filter="drop-shadow(0 2px 5px rgba(0,0,0,0.12))" />
-                                        <text id="m0-puzzle-arc-text" x="0" y="0" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="900" fill="#047857">逆时针 90°</text>
+                                        <rect id="m0-puzzle-arc-rect" x="0" y="0" width="108" height="28" rx="14"
+                                            fill="#ffffff" stroke="#059669" stroke-width="2"
+                                            filter="drop-shadow(0 2px 5px rgba(0,0,0,0.12))" />
+                                        <text id="m0-puzzle-arc-text" x="0" y="0" text-anchor="middle"
+                                            dominant-baseline="central" font-size="12" font-weight="900"
+                                            fill="#047857">逆时针 90°</text>
                                     </g>
 
                                     <!-- 拼图影子层 (初始状态底衬，供旋转前后对比) -->
                                     <g id="m0-puzzle-ghost" opacity="0.22">
-                                        <path d="M 360 300 L 540 300 L 360 120 Z" fill="#dc2626" stroke="#991b1b" stroke-width="3" />
-                                        <rect x="360" y="300" width="180" height="180" rx="3" fill="#0f766e" stroke="#115e59" stroke-width="3" />
-                                        <path d="M 540 300 L 720 480 L 540 480 Z" fill="#0ea5e9" stroke="#0369a1" stroke-width="3" />
+                                        <path d="M 360 300 L 540 300 L 360 120 Z" fill="#dc2626" stroke="#991b1b"
+                                            stroke-width="3" />
+                                        <rect x="360" y="300" width="180" height="180" rx="3" fill="#0f766e"
+                                            stroke="#115e59" stroke-width="3" />
+                                        <path d="M 540 300 L 720 480 L 540 480 Z" fill="#0ea5e9" stroke="#0369a1"
+                                            stroke-width="3" />
                                     </g>
 
                                     <!-- 拼图实体层 (支持以指定顶点为中心旋转) -->
                                     <g id="m0-puzzle-pieces" filter="url(#m0-puzzle-shadow)">
-                                        <rect id="m0-puzzle-piece-2" x="360" y="300" width="180" height="180" rx="3" fill="#0f766e" stroke="#115e59" stroke-width="3.5" />
-                                        <path id="m0-puzzle-piece-3" d="M 540 300 L 720 480 L 540 480 Z" fill="#0ea5e9" stroke="#0369a1" stroke-width="3.5" />
+                                        <rect id="m0-puzzle-piece-2" x="360" y="300" width="180" height="180" rx="3"
+                                            fill="#0f766e" stroke="#115e59" stroke-width="3.5" />
+                                        <path id="m0-puzzle-piece-3" d="M 540 300 L 720 480 L 540 480 Z" fill="#0ea5e9"
+                                            stroke="#0369a1" stroke-width="3.5" />
 
                                         <!-- 1号图形整体群组 (包含三角形本体、1号文字、三个旋转顶点A/B/C及其字母标签，旋转时三个顶点随之移动) -->
                                         <g id="m0-puzzle-group-1">
-                                            <path id="m0-puzzle-piece-1" d="M 360 300 L 540 300 L 360 120 Z" fill="#dc2626" stroke="#991b1b" stroke-width="3.5" class="transition-colors cursor-grab" />
-                                            <text id="m0-puzzle-label-1" x="420" y="240" font-size="36" font-weight="900" fill="white" text-anchor="middle" dominant-baseline="central" pointer-events="none">1号</text>
+                                            <path id="m0-puzzle-piece-1" d="M 360 300 L 540 300 L 360 120 Z"
+                                                fill="#dc2626" stroke="#991b1b" stroke-width="3.5"
+                                                class="transition-colors cursor-grab" />
+                                            <text id="m0-puzzle-label-1" x="420" y="240" font-size="36"
+                                                font-weight="900" fill="white" text-anchor="middle"
+                                                dominant-baseline="central" pointer-events="none">1号</text>
 
                                             <!-- 1号图形三个旋转中心顶点 -->
-                                            <g id="m0-puzzle-vertices" fill="#ffffff" stroke="#0f172a" stroke-width="3.5" cursor="pointer">
+                                            <g id="m0-puzzle-vertices" fill="#ffffff" stroke="#0f172a"
+                                                stroke-width="3.5" cursor="pointer">
                                                 <circle data-puzzle-vertex="a" cx="360" cy="300" r="13" />
                                                 <circle data-puzzle-vertex="b" cx="540" cy="300" r="13" />
                                                 <circle data-puzzle-vertex="c" cx="360" cy="120" r="13" />
@@ -504,19 +544,27 @@
                                     </g>
 
                                     <!-- 2号与3号序号大号文本标签 -->
-                                    <g id="m0-puzzle-labels" font-size="36" font-weight="900" fill="white" text-anchor="middle" dominant-baseline="central" pointer-events="none">
+                                    <g id="m0-puzzle-labels" font-size="36" font-weight="900" fill="white"
+                                        text-anchor="middle" dominant-baseline="central" pointer-events="none">
                                         <text id="m0-puzzle-label-2" x="450" y="390">2号</text>
                                         <text id="m0-puzzle-label-3" x="600" y="420">3号</text>
                                     </g>
 
                                     <!-- 选中的旋转中心发光波纹圈与文本 -->
-                                    <circle id="m0-puzzle-center-ring" cx="360" cy="300" r="22" fill="none" stroke="#0ea5e9" stroke-width="3.5" stroke-dasharray="5 3" opacity="0" class="glow-pulse pointer-events-none" />
-                                    <text id="m0-puzzle-center-text" x="385" y="282" font-size="20" font-weight="900" fill="#0369a1" opacity="0">O</text>
+                                    <circle id="m0-puzzle-center-ring" cx="360" cy="300" r="22" fill="none"
+                                        stroke="#0ea5e9" stroke-width="3.5" stroke-dasharray="5 3" opacity="0"
+                                        class="glow-pulse pointer-events-none" />
+                                    <text id="m0-puzzle-center-text" x="385" y="282" font-size="20" font-weight="900"
+                                        fill="#0369a1" opacity="0">O</text>
 
                                     <!-- 模块一旋转时的生动拟声喷嚏弹幕气泡 (🤧 阿——嚏！) -->
-                                    <g id="m0-puzzle-sneeze-toast" opacity="0" transform="translate(480, 160)" pointer-events="none" style="transition: opacity 0.25s ease, transform 0.3s ease;">
-                                        <rect x="-70" y="-22" width="140" height="44" rx="22" fill="#fffbeb" stroke="#f59e0b" stroke-width="2.5" filter="url(#m0-puzzle-shadow)" />
-                                        <text x="0" y="2" text-anchor="middle" dominant-baseline="central" font-size="18" font-weight="900" fill="#b45309">
+                                    <g id="m0-puzzle-sneeze-toast" opacity="0" transform="translate(480, 160)"
+                                        pointer-events="none"
+                                        style="transition: opacity 0.25s ease, transform 0.3s ease;">
+                                        <rect x="-70" y="-22" width="140" height="44" rx="22" fill="#fffbeb"
+                                            stroke="#f59e0b" stroke-width="2.5" filter="url(#m0-puzzle-shadow)" />
+                                        <text x="0" y="2" text-anchor="middle" dominant-baseline="central"
+                                            font-size="18" font-weight="900" fill="#b45309">
                                             🤧 阿——嚏！
                                         </text>
                                     </g>
@@ -525,7 +573,8 @@
                         </div>
 
                         <!-- 右侧操作面板 -->
-                        <div class="w-full lg:w-72 xl:w-80 flex-shrink-0 bg-white rounded-2xl border border-slate-200 shadow-sm p-3.5 flex flex-col gap-3 overflow-y-auto">
+                        <div
+                            class="w-full lg:w-72 xl:w-80 flex-shrink-0 bg-white rounded-2xl border border-slate-200 shadow-sm p-3.5 flex flex-col gap-3 overflow-y-auto">
                             <div class="flex items-center justify-between border-b border-slate-100 pb-2">
                                 <span class="text-xs font-bold text-slate-800 flex items-center space-x-1.5">
                                     <span>🎮</span>
@@ -752,8 +801,7 @@
                     </div>
 
                     <!-- 单项特写放大探究视窗 (自适应铺满) -->
-                    <div id="m0-single-view"
-                        class="hidden">
+                    <div id="m0-single-view" class="hidden">
                         <div
                             class="w-full flex items-center justify-between bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-2xs mb-2 flex-shrink-0">
                             <div class="flex items-center space-x-2">
@@ -937,11 +985,13 @@
                                 <!-- 模块二方向导引专用箭头，跟随弧线切线方向显示 -->
                                 <marker id="guide-arrow-cw" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8"
                                     markerHeight="8" orient="auto">
-                                    <path d="M 0 0 L 10 5 L 0 10 L 2.5 5 Z" fill="#f59e0b" stroke="#ffffff" stroke-width="0.8" />
+                                    <path d="M 0 0 L 10 5 L 0 10 L 2.5 5 Z" fill="#f59e0b" stroke="#ffffff"
+                                        stroke-width="0.8" />
                                 </marker>
                                 <marker id="guide-arrow-ccw" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8"
                                     markerHeight="8" orient="auto">
-                                    <path d="M 0 0 L 10 5 L 0 10 L 2.5 5 Z" fill="#0284c7" stroke="#ffffff" stroke-width="0.8" />
+                                    <path d="M 0 0 L 10 5 L 0 10 L 2.5 5 Z" fill="#0284c7" stroke="#ffffff"
+                                        stroke-width="0.8" />
                                 </marker>
                             </defs>
 
@@ -953,24 +1003,36 @@
                                 fill="url(#clock-dial-gradient)" />
 
                             <!-- 钟面上的旋转方向导引弯曲箭头 (位置在黄框与右上/左上刻度外侧，顺时针在右从12到2，逆时针在左从12到10) -->
-                            <g id="clock-dial-direction-guide" class="transition-opacity duration-300 pointer-events-none select-none">
+                            <g id="clock-dial-direction-guide"
+                                class="transition-opacity duration-300 pointer-events-none select-none">
                                 <!-- 顺时针导引 (右侧：外圈平滑圆弧R=246，并在右上黄框处标注“顺时针方向 ↻”，完全不挡表盘数字) -->
                                 <g id="guide-cw" class="transition-opacity duration-300">
-                                    <path d="M 300 4 A 270 270 0 0 1 490 135" fill="none" stroke="#f59e0b" stroke-width="4.5" stroke-linecap="round" marker-end="url(#guide-arrow-cw)" filter="drop-shadow(0 2px 5px rgba(245,158,11,0.35))" />
+                                    <path d="M 300 4 A 270 270 0 0 1 490 135" fill="none" stroke="#f59e0b"
+                                        stroke-width="4.5" stroke-linecap="round" marker-end="url(#guide-arrow-cw)"
+                                        filter="drop-shadow(0 2px 5px rgba(245,158,11,0.35))" />
                                     <!-- 右上黄框专属提示卡片 (精准对应用户指定黄框位置，高光双层圆角徽标) -->
                                     <g id="guide-cw-badge" transform="translate(430, 10)">
-                                        <rect x="-65" y="-16" width="130" height="32" rx="16" fill="#fef3c7" stroke="#f59e0b" stroke-width="2.5" filter="drop-shadow(0 4px 10px rgba(245,158,11,0.3))" />
-                                        <text x="0" y="5" text-anchor="middle" font-size="13" font-weight="900" fill="#b45309" letter-spacing="0.5">顺时针方向 ↻</text>
+                                        <rect x="-65" y="-16" width="130" height="32" rx="16" fill="#fef3c7"
+                                            stroke="#f59e0b" stroke-width="2.5"
+                                            filter="drop-shadow(0 4px 10px rgba(245,158,11,0.3))" />
+                                        <text x="0" y="5" text-anchor="middle" font-size="13" font-weight="900"
+                                            fill="#b45309" letter-spacing="0.5">顺时针方向 ↻</text>
                                     </g>
                                 </g>
 
                                 <!-- 逆时针导引 (左侧对应位置：外圈平滑圆弧R=246，并在左上对称黄框处标注“↺ 逆时针方向”) -->
-                                <g id="guide-ccw" class="transition-opacity duration-300" style="display: none; opacity: 0; pointer-events: none;">
-                                    <path d="M 200 4 A 270 270 0 0 0 10 135" fill="none" stroke="#0284c7" stroke-width="4.5" stroke-linecap="round" marker-end="url(#guide-arrow-ccw)" filter="drop-shadow(0 2px 5px rgba(2,132,199,0.35))" />
+                                <g id="guide-ccw" class="transition-opacity duration-300"
+                                    style="display: none; opacity: 0; pointer-events: none;">
+                                    <path d="M 200 4 A 270 270 0 0 0 10 135" fill="none" stroke="#0284c7"
+                                        stroke-width="4.5" stroke-linecap="round" marker-end="url(#guide-arrow-ccw)"
+                                        filter="drop-shadow(0 2px 5px rgba(2,132,199,0.35))" />
                                     <!-- 左上对称位置专属提示卡片 -->
                                     <g id="guide-ccw-badge" transform="translate(70, 10)">
-                                        <rect x="-65" y="-16" width="130" height="32" rx="16" fill="#e0f2fe" stroke="#0284c7" stroke-width="2.5" filter="drop-shadow(0 4px 10px rgba(2,132,199,0.3))" />
-                                        <text x="0" y="5" text-anchor="middle" font-size="13" font-weight="900" fill="#0369a1" letter-spacing="0.5">↺ 逆时针方向</text>
+                                        <rect x="-65" y="-16" width="130" height="32" rx="16" fill="#e0f2fe"
+                                            stroke="#0284c7" stroke-width="2.5"
+                                            filter="drop-shadow(0 4px 10px rgba(2,132,199,0.3))" />
+                                        <text x="0" y="5" text-anchor="middle" font-size="13" font-weight="900"
+                                            fill="#0369a1" letter-spacing="0.5">↺ 逆时针方向</text>
                                     </g>
                                 </g>
                             </g>
@@ -1109,7 +1171,7 @@
                     <!-- 左翼：方格网动态三角尺主视窗 (自适应撑满大画布) -->
                     <div
                         class="flex-1 min-w-0 h-full flex flex-col bg-white rounded-2xl border border-slate-200 shadow-sm p-2 relative overflow-hidden">
-                        
+
                         <!-- 画布视窗：自适应最大居中撑满 -->
                         <div class="flex-1 min-h-0 w-full relative flex items-center justify-center overflow-hidden">
                             <!-- 快门白色闪光特效遮罩 -->
@@ -1156,7 +1218,8 @@
                                         fill="rgba(148, 163, 184, 0.16)" stroke="#94a3b8" stroke-width="3"
                                         stroke-dasharray="5,4" />
                                     <text x="576" y="366" font-size="18" fill="#64748b" font-weight="900">A (旋转前)</text>
-                                    <text x="240" y="24" text-anchor="middle" font-size="18" fill="#64748b" font-weight="900">B (旋转前)</text>
+                                    <text x="240" y="24" text-anchor="middle" font-size="18" fill="#64748b"
+                                        font-weight="900">B (旋转前)</text>
                                 </g>
 
                                 <!-- 频闪摄影多重曝光残影图层 -->
@@ -1201,20 +1264,23 @@
                                             <circle id="vertex-a-pt" cx="560" cy="360" r="10" fill="#10b981"
                                                 stroke="#ffffff" stroke-width="2.5" />
                                             <!-- 加大透明触控热区 -->
-                                            <circle id="vertex-a-hit" cx="560" cy="360" r="42" fill="transparent" class="cursor-grab" />
+                                            <circle id="vertex-a-hit" cx="560" cy="360" r="42" fill="transparent"
+                                                class="cursor-grab" />
                                         </g>
                                         <text id="label-a" x="580" y="367" font-size="24" font-weight="900"
                                             fill="#047857">A</text>
 
-                                        <circle id="vertex-b-pt" cx="240" cy="40" r="9" fill="#3b82f6" stroke="#ffffff" stroke-width="2" />
-                                        <text id="label-b" x="240" y="16" text-anchor="middle" font-size="24" font-weight="900"
-                                            fill="#1d4ed8">B</text>
+                                        <circle id="vertex-b-pt" cx="240" cy="40" r="9" fill="#3b82f6" stroke="#ffffff"
+                                            stroke-width="2" />
+                                        <text id="label-b" x="240" y="16" text-anchor="middle" font-size="24"
+                                            font-weight="900" fill="#1d4ed8">B</text>
                                     </g>
                                 </g>
 
                                 <!-- 固定旋转中心点 O -->
                                 <g id="triangle-center-group" class="cursor-pointer">
-                                    <circle cx="240" cy="360" r="26" fill="none" stroke="#0284c7" stroke-width="2" opacity="0.6" class="animate-pulse" />
+                                    <circle cx="240" cy="360" r="26" fill="none" stroke="#0284c7" stroke-width="2"
+                                        opacity="0.6" class="animate-pulse" />
                                     <circle cx="240" cy="360" r="19" fill="#0284c7" stroke="#ffffff" stroke-width="3"
                                         filter="url(#triangle-center-glow)" />
                                     <circle cx="240" cy="360" r="7" fill="#ffffff" />
@@ -1266,8 +1332,7 @@
                             </div>
 
                             <div class="grid grid-cols-2 gap-2">
-                                <button id="m3-play-strobe-btn" onclick="m3PlayStrobeAnimation()"
-                                    title="连续逐帧放映拍下的频闪照片"
+                                <button id="m3-play-strobe-btn" onclick="m3PlayStrobeAnimation()" title="连续逐帧放映拍下的频闪照片"
                                     class="py-1.5 px-2 text-xs font-bold rounded-xl bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition active:scale-95 flex items-center justify-center space-x-1">
                                     <span>▶️</span>
                                     <span>定格播放</span>
@@ -1528,7 +1593,7 @@
             // 模块一旋转专用的拟声喷嚏系统：真人高保真音频 + Web Audio 合成双重保障 + 弹幕气泡联动
             playSneeze() {
                 if (!this.enabled) return;
-                
+
                 // 联动弹出气泡
                 if (typeof m0PuzzleShowSneezeToast === 'function') {
                     m0PuzzleShowSneezeToast();
@@ -1982,7 +2047,7 @@
         }
 
         // 统一渲染钟面视觉与读数状态 (支持顺/逆时针自适应与数值遮蔽)
-        
+
         function updateTopRimDirectionArrow(direction) {
             const isCw = (direction === '顺时针');
             const guideCW = document.getElementById('guide-cw');
@@ -2432,31 +2497,16 @@
             const group1 = document.getElementById('m0-puzzle-group-1');
             if (!group1) return;
             const { x, y } = m0PuzzleState.center;
+
+            // 1. group1 旋转即可带动三角形与三个顶点圈圈同步旋转
             const transform = `rotate(${m0PuzzleState.angle} ${x} ${y})`;
             group1.setAttribute('transform', transform);
 
-            // 顶点必须跟随深红色 1 号实体图形，而不是跟随淡红色影子。
-            const rad = m0PuzzleState.angle * Math.PI / 180;
-            const cos = Math.cos(rad);
-            const sin = Math.sin(rad);
-            const rotatePoint = (point) => ({
-                x: x + (point.x - x) * cos - (point.y - y) * sin,
-                y: y + (point.x - x) * sin + (point.y - y) * cos
-            });
-            const basePoints = {
-                a: { x: 360, y: 300 },
-                b: { x: 540, y: 300 },
-                c: { x: 360, y: 120 }
-            };
-            Object.entries(basePoints).forEach(([name, point]) => {
-                const vertex = document.querySelector(`[data-puzzle-vertex="${name}"]`);
-                const next = rotatePoint(point);
-                if (vertex) {
-                    vertex.setAttribute('cx', next.x.toFixed(2));
-                    vertex.setAttribute('cy', next.y.toFixed(2));
-                }
-            });
+            // 2. 顶点使用初始固定坐标即可（删除原有的 rotatePoint 计算与 cx/cy 重新赋值）
+            // 注意：初始坐标需确保与 svg 内声明的一致：
+            // a: (360, 300), b: (540, 300), c: (360, 120)
 
+            // 3. 同步外面的旋转中心光圈 O 的位置
             const ring = document.getElementById('m0-puzzle-center-ring');
             const centerText = document.getElementById('m0-puzzle-center-text');
             if (ring) { ring.setAttribute('cx', x); ring.setAttribute('cy', y); }
@@ -2467,6 +2517,44 @@
                 const rounded = Math.round(m0PuzzleState.angle);
                 angleBadge.innerText = `旋转角度：${rounded}°`;
             }
+            // const group1 = document.getElementById('m0-puzzle-group-1');
+            // if (!group1) return;
+            // const { x, y } = m0PuzzleState.center;
+            // const transform = `rotate(${m0PuzzleState.angle} ${x} ${y})`;
+            // group1.setAttribute('transform', transform);
+
+            // // 顶点必须跟随深红色 1 号实体图形，而不是跟随淡红色影子。
+            // const rad = m0PuzzleState.angle * Math.PI / 180;
+            // const cos = Math.cos(rad);
+            // const sin = Math.sin(rad);
+            // const rotatePoint = (point) => ({
+            //     x: x + (point.x - x) * cos - (point.y - y) * sin,
+            //     y: y + (point.x - x) * sin + (point.y - y) * cos
+            // });
+            // const basePoints = {
+            //     a: { x: 360, y: 300 },
+            //     b: { x: 540, y: 300 },
+            //     c: { x: 360, y: 120 }
+            // };
+            // Object.entries(basePoints).forEach(([name, point]) => {
+            //     const vertex = document.querySelector(`[data-puzzle-vertex="${name}"]`);
+            //     const next = rotatePoint(point);
+            //     if (vertex) {
+            //         vertex.setAttribute('cx', next.x.toFixed(2));
+            //         vertex.setAttribute('cy', next.y.toFixed(2));
+            //     }
+            // });
+
+            // const ring = document.getElementById('m0-puzzle-center-ring');
+            // const centerText = document.getElementById('m0-puzzle-center-text');
+            // if (ring) { ring.setAttribute('cx', x); ring.setAttribute('cy', y); }
+            // if (centerText) { centerText.setAttribute('x', x + 24); centerText.setAttribute('y', y - 16); }
+
+            // const angleBadge = document.getElementById('m0-puzzle-angle-badge');
+            // if (angleBadge) {
+            //     const rounded = Math.round(m0PuzzleState.angle);
+            //     angleBadge.innerText = `旋转角度：${rounded}°`;
+            // }
         }
 
         // 绘制旋转轨迹导引弧线
@@ -3455,7 +3543,7 @@
             // 切换画布容器 (线段箭头 vs 钟面 vs 三角网格)
             document.getElementById('arrow-container').classList.toggle('hidden', stageId !== 'stage_0_arrow');
             document.getElementById('clock-container').classList.toggle('hidden', stageId === 'stage_3_triangle' || stageId === 'stage_0_arrow');
-            
+
             // 模块二专属：方向指示采用右上黄框和左上对称卡片，隐藏中央浮动指示器
             const clockTopIndicator = document.getElementById('clock-top-direction-indicator');
             if (clockTopIndicator) clockTopIndicator.classList.add('hidden');
@@ -3942,7 +4030,7 @@
             }
         }
 
-function m3UpdateAngleButtonsHighlight(deg) {
+        function m3UpdateAngleButtonsHighlight(deg) {
             const roundedDeg = Math.round(deg);
             document.querySelectorAll('.m3-angle-btn').forEach(btn => {
                 const btnDeg = parseInt(btn.dataset.deg, 10);
@@ -4102,7 +4190,7 @@ function m3UpdateAngleButtonsHighlight(deg) {
             m3SetAngle(val);
         }
 
-                // 微缩独立矢量图生成器 (供频闪相册缩略图调用)
+        // 微缩独立矢量图生成器 (供频闪相册缩略图调用)
         function generateStrobeThumbnailSVG(angle) {
             const rad = angle * (Math.PI / 180);
             // 微缩视口：76 x 76，中心 O 设在 (24, 52)，直角边长 34
@@ -4330,11 +4418,10 @@ function m3UpdateAngleButtonsHighlight(deg) {
 
                 // 1. 照片卡片外壳
                 const card = document.createElement('div');
-                card.className = `strobe-card flex-shrink-0 flex flex-col items-center bg-white p-1 rounded-xl border cursor-pointer select-none transition-all ${
-                    isActive
-                        ? 'border-amber-400 shadow-md ring-2 ring-amber-300 bg-amber-50/40 scale-105'
-                        : 'border-slate-200 shadow-2xs hover:border-amber-300 hover:shadow-xs'
-                }`;
+                card.className = `strobe-card flex-shrink-0 flex flex-col items-center bg-white p-1 rounded-xl border cursor-pointer select-none transition-all ${isActive
+                    ? 'border-amber-400 shadow-md ring-2 ring-amber-300 bg-amber-50/40 scale-105'
+                    : 'border-slate-200 shadow-2xs hover:border-amber-300 hover:shadow-xs'
+                    }`;
                 card.style.width = '74px';
                 card.onclick = () => m3SelectPhotoAngle(photo.angle);
                 card.title = `点击切换至 ${photo.angle}° 角度`;
@@ -4350,9 +4437,8 @@ function m3UpdateAngleButtonsHighlight(deg) {
                 footer.className = 'flex items-center justify-between w-full mt-1 px-1';
 
                 const degTag = document.createElement('span');
-                degTag.className = `text-[10px] font-black px-1.5 py-0.5 rounded border ${
-                    isActive ? 'text-amber-900 bg-amber-100 border-amber-300' : 'text-slate-700 bg-slate-50 border-slate-200'
-                }`;
+                degTag.className = `text-[10px] font-black px-1.5 py-0.5 rounded border ${isActive ? 'text-amber-900 bg-amber-100 border-amber-300' : 'text-slate-700 bg-slate-50 border-slate-200'
+                    }`;
                 degTag.innerText = `${photo.angle}°`;
                 footer.appendChild(degTag);
 
@@ -5068,10 +5154,10 @@ function m3UpdateAngleButtonsHighlight(deg) {
             m4ResetToStart();
         }
 
-        function m4SetSubMode() {}
-        function m2SelectQuiz() {}
-        function m2CheckAnswer() {}
-        function m2ShowHint() {}
+        function m4SetSubMode() { }
+        function m2SelectQuiz() { }
+        function m2CheckAnswer() { }
+        function m2ShowHint() { }
         function toggleSnap(val) {
             globalSnapEnabled = !!val;
             ['m1-snap-toggle', 'm2-snap-toggle', 'm4-snap-toggle'].forEach(id => {
@@ -5277,16 +5363,16 @@ function m3UpdateAngleButtonsHighlight(deg) {
                         if (typeof m4UpdatePresetButtonsHighlight === 'function') {
                             m4UpdatePresetButtonsHighlight(currentRotatedDeg);
                         }
-                        
-                    if (typeof m4SyncInputsFromDegree === 'function') {
-                        m4SyncInputsFromDegree(currentRotatedDeg);
-                    }
-                    if (typeof m4SyncEndHourFromDegree === 'function') {
-                        m4SyncEndHourFromDegree(m4DegreeState.startHour, currentRotatedDeg, currentRotateDir);
-                    }
-                    if (typeof m4UpdateAngleTypeBadge === 'function') {
-                        m4UpdateAngleTypeBadge(currentRotatedDeg);
-                    }
+
+                        if (typeof m4SyncInputsFromDegree === 'function') {
+                            m4SyncInputsFromDegree(currentRotatedDeg);
+                        }
+                        if (typeof m4SyncEndHourFromDegree === 'function') {
+                            m4SyncEndHourFromDegree(m4DegreeState.startHour, currentRotatedDeg, currentRotateDir);
+                        }
+                        if (typeof m4UpdateAngleTypeBadge === 'function') {
+                            m4UpdateAngleTypeBadge(currentRotatedDeg);
+                        }
 
                         updateClockDragHint(`已转至 <strong>${hour} 点</strong> · ${currentRotateDir}旋转 <strong>${currentRotatedDeg}°</strong>`, '🕒');
                     } else if (m4SubMode === 'quiz') {
@@ -5393,7 +5479,7 @@ function m3UpdateAngleButtonsHighlight(deg) {
                     if (typeof m4UpdatePresetButtonsHighlight === 'function') {
                         m4UpdatePresetButtonsHighlight(deg);
                     }
-                    
+
                     if (typeof m4SyncInputsFromDegree === 'function') {
                         m4SyncInputsFromDegree(deg);
                     }
@@ -5482,4 +5568,3 @@ function m3UpdateAngleButtonsHighlight(deg) {
 </body>
 
 </html>
-
