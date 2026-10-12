@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10×10 网格涂色与合并教学互动课件 - 小数乘整数</title>
+
+    <!-- 引入本地 Tailwind CSS 运行时 -->
+    <script src="../tailwind/tailwind.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#0e1424',
+                        cellDark: '#1b2438',
+                        cellBorder: '#24324f',
+                        colorA: {
+                            DEFAULT: '#2cd5f6',
+                            glow: 'rgba(44, 213, 246, 0.45)',
+                            light: '#a5f3fc'
+                        },
+                        colorB: {
+                            DEFAULT: '#f59b20',
+                            glow: 'rgba(245, 155, 32, 0.45)',
+                            light: '#fed7aa'
+                        },
+                        colorC: {
+                            DEFAULT: '#9d7fe6',
+                            glow: 'rgba(157, 127, 230, 0.45)',
+                            light: '#ddd6fe'
+                        }
+                    },
+                    boxShadow: {
+                        'glow-a': '0 0 20px rgba(44, 213, 246, 0.35)',
+                        'glow-b': '0 0 20px rgba(245, 155, 32, 0.35)',
+                        'glow-c': '0 0 20px rgba(157, 127, 230, 0.35)',
+                    }
+                }
+            }
+        };
+    </script>
+
+    <style>
+        /* 根变量与核心微调 */
+        :root {
+            --bg-page: #0e1424;
+            --cell-bg: #1b2438;
+            --cell-border: #263554;
+            --color-a: #2cd5f6;
+            --color-b: #f59b20;
+            --color-c: #9d7fe6;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-page);
+            color: #f1f5f9;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* 背景微光背景纹理 */
+        .ambient-glow {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background:
+                radial-gradient(circle at 18% 18%, rgba(44, 213, 246, 0.08) 0%, transparent 45%),
+                radial-gradient(circle at 82% 22%, rgba(245, 155, 32, 0.06) 0%, transparent 50%),
+                radial-gradient(circle at 50% 85%, rgba(157, 127, 230, 0.08) 0%, transparent 55%);
+        }
+
+        /* 保证大正方形 1:1 最大化铺满视口且不溢出 */
+        .board-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .main-square-board {
+            /* 响应式计算尺寸：最大化自适应，兼顾顶部工具栏与底部看板 */
+            width: min(84vw, calc(100vh - 240px));
+            height: min(84vw, calc(100vh - 240px));
+            max-width: 620px;
+            max-height: 620px;
+            min-width: 280px;
+            min-height: 280px;
+            aspect-ratio: 1 / 1;
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            grid-template-rows: repeat(10, 1fr);
+            gap: 2.5px;
+            padding: 5px;
+            touch-action: none;
+        }
+
+        /* 单元格基本样式与过渡 */
+        .grid-cell {
+            position: relative;
+            background-color: var(--cell-bg);
+            border-radius: 4px;
+            transition: transform 0.15s ease, background-color 0.22s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.22s ease;
+            box-shadow: inset 0 0 0 1px var(--cell-border);
+            cursor: pointer;
+            touch-action: none;
+        }
+
+        .grid-cell:hover {
+            filter: brightness(1.18);
+            transform: scale(1.04);
+            z-index: 5;
+        }
+
+        .grid-cell:active {
+            transform: scale(0.96);
+        }
+
+        /* 各颜色涂色状态 */
+        .grid-cell.colored-a {
+            background-color: var(--color-a) !important;
+            box-shadow: 0 0 8px rgba(44, 213, 246, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.3) !important;
+        }
+
+        .grid-cell.colored-b {
+            background-color: var(--color-b) !important;
+            box-shadow: 0 0 8px rgba(245, 155, 32, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.3) !important;
+        }
+
+        .grid-cell.colored-c {
+            background-color: var(--color-c) !important;
+            box-shadow: 0 0 8px rgba(157, 127, 230, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.3) !important;
+        }
+
+        /* 拆分模式下的三小网格 */
+        .mini-grid {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            grid-template-rows: repeat(10, 1fr);
+            gap: 1.5px;
+            padding: 4px;
+            border-radius: 12px;
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            touch-action: none;
+        }
+
+        .mini-cell {
+            background-color: var(--cell-bg);
+            border-radius: 2px;
+            box-shadow: inset 0 0 0 0.5px var(--cell-border);
+            transition: background-color 0.2s ease;
+        }
+
+        .mini-cell.colored-a {
+            background-color: var(--color-a) !important;
+            box-shadow: 0 0 4px rgba(44, 213, 246, 0.4) !important;
+        }
+
+        .mini-cell.colored-b {
+            background-color: var(--color-b) !important;
+            box-shadow: 0 0 4px rgba(245, 155, 32, 0.4) !important;
+        }
+
+        .mini-cell.colored-c {
+            background-color: var(--color-c) !important;
+            box-shadow: 0 0 4px rgba(157, 127, 230, 0.4) !important;
+        }
+
+        /* 数字微徽章 */
+        .math-badge {
+            font-feature-settings: "tnum";
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* 脉冲光效动画 */
+        @keyframes gentle-pulse {
+            0%, 100% { opacity: 0.95; transform: scale(1); }
+            50% { opacity: 0.75; transform: scale(0.99); }
+        }
+
+        .pulse-subtle {
+            animation: gentle-pulse 3s infinite ease-in-out;
+        }
+
+        /* 毛玻璃卡片通用样式 */
+        .glass-panel {
+            background: rgba(19, 28, 48, 0.72);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* 标尺行号列号文字 */
+        .board-ruler-text {
+            font-size: 10px;
+            font-family: monospace;
+            color: #64748b;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col bg-[#0e1424] text-slate-100 overflow-y-auto selection:bg-cyan-500/30">
+    <!-- 空间环境背景光晕 -->
+    <div class="ambient-glow"></div>
+
+    <!-- 主容器 -->
+    <div class="relative z-10 flex flex-col min-h-screen w-full">
+
+        <!-- ==============================================
+             顶部导航与操作工具栏 (PRD 2.1 & 4)
+             ============================================== -->
+        <header class="w-full glass-panel border-b border-white/10 px-4 py-2.5 shadow-lg sticky top-0 z-30">
+            <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+                <!-- 课件标题与知识点引导 -->
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 via-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/20 text-white font-black text-xl">
+                        10²
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h1 class="text-base md:text-lg font-bold tracking-wide text-white">小数乘整数：10×10 网格涂色与合并</h1>
+                            <span class="text-xs px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/30 font-medium">数学探究</span>
+                        </div>
+                        <p class="text-xs text-slate-400 hidden sm:block">1个大正方形=1，每小格=0.01（1%），探究 0.18 × 3 的直观几何算理</p>
+                    </div>
+                </div>
+
+                <!-- 核心工具箱：4种笔刷选择 (PRD 3.1 & 4) -->
+                <div class="flex items-center bg-slate-900/80 p-1 rounded-2xl border border-white/10 shadow-inner gap-1">
+                    <!-- 颜色 A (青蓝) -->
+                    <button id="btn-tool-a" data-tool="A" class="tool-btn flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs md:text-sm font-semibold transition-all duration-200 cursor-pointer text-white">
+                        <span class="w-4 h-4 rounded-full bg-[#2cd5f6] shadow-[0_0_8px_#2cd5f6]"></span>
+                        <span>颜色 A <span class="hidden md:inline text-[11px] text-cyan-200/80 font-normal">(0.18)</span></span>
+                    </button>
+
+                    <!-- 颜色 B (黄橙) -->
+                    <button id="btn-tool-b" data-tool="B" class="tool-btn flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs md:text-sm font-semibold transition-all duration-200 cursor-pointer text-slate-300 hover:text-white">
+                        <span class="w-4 h-4 rounded-full bg-[#f59b20] shadow-[0_0_8px_#f59b20]"></span>
+                        <span>颜色 B <span class="hidden md:inline text-[11px] text-amber-200/80 font-normal">(0.18)</span></span>
+                    </button>
+
+                    <!-- 颜色 C (浅紫) -->
+                    <button id="btn-tool-c" data-tool="C" class="tool-btn flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs md:text-sm font-semibold transition-all duration-200 cursor-pointer text-slate-300 hover:text-white">
+                        <span class="w-4 h-4 rounded-full bg-[#9d7fe6] shadow-[0_0_8px_#9d7fe6]"></span>
+                        <span>颜色 C <span class="hidden md:inline text-[11px] text-purple-200/80 font-normal">(0.18)</span></span>
+                    </button>
+
+                    <!-- 橡皮擦 (PRD 3.3) -->
+                    <button id="btn-tool-eraser" data-tool="ERASER" class="tool-btn flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs md:text-sm font-semibold transition-all duration-200 cursor-pointer text-slate-300 hover:text-white">
+                        <svg class="w-4 h-4 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"></path>
+                            <path d="M22 21H7"></path>
+                            <path d="m5 11 9 9"></path>
+                        </svg>
+                        <span>橡皮擦</span>
+                    </button>
+                </div>
+
+                <!-- 快捷与控制按钮组 (PRD 3.2, 3.4 & 4) -->
+                <div class="flex items-center gap-2">
+                    <!-- 快捷生成 18 格 (PRD 3.2) -->
+                    <button id="btn-quick-18" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-sky-600 to-cyan-500 hover:from-sky-500 hover:to-cyan-400 text-white text-xs md:text-sm font-bold shadow-md hover:shadow-cyan-500/30 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                            <rect width="18" height="18" x="3" y="3" rx="2"></rect>
+                            <path d="M3 9h18"></path>
+                            <path d="M9 21V9"></path>
+                        </svg>
+                        <span>生成 18 块</span>
+                    </button>
+
+                    <!-- 合并 / 拆分 切换 (PRD 3.4) -->
+                    <button id="btn-toggle-merge" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-400/40 text-xs md:text-sm font-bold shadow-md transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer">
+                        <svg id="icon-merge-state" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                            <!-- 默认显示“拆分”图标 -->
+                            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+                        </svg>
+                        <span id="label-merge-toggle">拆分对比</span>
+                    </button>
+
+                    <!-- 全部清空 (PRD 4) -->
+                    <button id="btn-clear-all" class="p-2 rounded-xl bg-slate-800/80 hover:bg-rose-950/40 text-slate-300 hover:text-rose-400 border border-white/10 hover:border-rose-500/40 transition-all duration-200 cursor-pointer" title="全部清空">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 6h18"></path>
+                            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                        </svg>
+                    </button>
+
+                    <!-- 音效切换开关 -->
+                    <button id="btn-sound-toggle" class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-white/10 transition-all duration-200 cursor-pointer" title="音效开关">
+                        <svg id="icon-sound" class="w-4 h-4 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- ==============================================
+             主体视口展示区 (自适应 1:1 最大正方形)
+             ============================================== -->
+        <main class="flex-1 flex flex-col items-center justify-center p-3 md:p-6 w-full max-w-7xl mx-auto">
+
+            <!-- 模式 A：单一大正方形铺满主视口 (默认涂色与合并展示视图) -->
+            <div id="view-single-grid" class="w-full flex-1 flex flex-col items-center justify-center transition-all duration-500">
+                
+                <!-- 标尺与正方形容器外层 -->
+                <div class="relative flex flex-col items-center justify-center">
+                    
+                    <!-- 顶部列标尺 (1~10列) -->
+                    <div class="w-full max-w-[620px] flex items-center justify-between px-2 mb-1.5 board-ruler-text opacity-70">
+                        <span class="w-5 text-center">1</span>
+                        <span class="w-5 text-center">2</span>
+                        <span class="w-5 text-center">3</span>
+                        <span class="w-5 text-center">4</span>
+                        <span class="w-5 text-center">5</span>
+                        <span class="w-5 text-center">6</span>
+                        <span class="w-5 text-center">7</span>
+                        <span class="w-5 text-center">8</span>
+                        <span class="w-5 text-center">9</span>
+                        <span class="w-5 text-center">10</span>
+                    </div>
+
+                    <div class="flex items-center">
+                        <!-- 左侧行标尺 (1~10行) -->
+                        <div class="flex flex-col justify-between py-2 mr-1.5 board-ruler-text h-[min(84vw,calc(100vh-240px))] max-h-[620px] min-h-[280px] opacity-70">
+                            <span class="h-4 flex items-center">1</span>
+                            <span class="h-4 flex items-center">2</span>
+                            <span class="h-4 flex items-center">3</span>
+                            <span class="h-4 flex items-center">4</span>
+                            <span class="h-4 flex items-center">5</span>
+                            <span class="h-4 flex items-center">6</span>
+                            <span class="h-4 flex items-center">7</span>
+                            <span class="h-4 flex items-center">8</span>
+                            <span class="h-4 flex items-center">9</span>
+                            <span class="h-4 flex items-center">10</span>
+                        </div>
+
+                        <!-- 10×10 大正方形网格板 (PRD 2.1 & 3.1) -->
+                        <div class="relative p-2 rounded-2xl glass-panel border border-white/15 shadow-2xl">
+                            <div id="main-grid-board" class="main-square-board bg-[#121b2f] rounded-xl shadow-inner select-none">
+                                <!-- JS 动态渲染 100 个格子 -->
+                            </div>
+
+                            <!-- 涂色状态悬浮指示微章 (当鼠标悬浮或滑动时显示) -->
+                            <div id="grid-hover-tip" class="absolute -top-3 right-4 px-2.5 py-0.5 rounded-full bg-slate-900/90 border border-white/20 text-[11px] text-cyan-300 shadow-md opacity-0 pointer-events-none transition-opacity duration-150">
+                                格子 #1 · 0.01
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 合并模式时的“排布视图切换”辅助栏 (PRD 3.2 & 3.4 进阶算理展示) -->
+                <div id="merge-packing-controls" class="mt-3 flex items-center gap-2 transition-all duration-300">
+                    <div class="flex items-center bg-slate-900/80 p-1 rounded-xl border border-white/10 text-xs">
+                        <button id="btn-pack-split-rows" class="px-3 py-1 rounded-lg font-medium text-cyan-300 bg-slate-800 border border-cyan-400/30 transition-all cursor-pointer">
+                            分行对比 (3×18)
+                        </button>
+                        <button id="btn-pack-compact" class="px-3 py-1 rounded-lg font-medium text-slate-400 hover:text-white transition-all cursor-pointer">
+                            紧密拼满 (累计54格)
+                        </button>
+                    </div>
+                    <span class="text-xs text-slate-400 hidden sm:inline">观察：3个0.18拼起来是54个0.01</span>
+                </div>
+            </div>
+
+            <!-- 模式 B：拆分状态（三方阵并排教学模式，PRD 3.4.1） -->
+            <div id="view-split-grid" class="w-full flex-1 flex flex-col items-center justify-center hidden transition-all duration-500 py-2">
+                <div class="text-center mb-4">
+                    <span class="text-xs font-semibold px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-400/30">
+                        三方阵独立对比 · 拆分模式
+                    </span>
+                    <h2 class="text-base md:text-xl font-bold mt-1 text-white">3 个独立的正方形，每个涂出 0.18（18格）</h2>
+                </div>
+
+                <!-- 三个小方阵横向排列，中间带加号 -->
+                <div class="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 w-full max-w-5xl px-4">
+                    
+                    <!-- 第 1 个方阵：颜色 A (0.18) -->
+                    <div class="flex-1 w-full max-w-[240px] flex flex-col items-center">
+                        <div class="w-full p-2.5 rounded-2xl glass-panel border border-[#2cd5f6]/30 shadow-glow-a">
+                            <div id="mini-grid-a" class="mini-grid">
+                                <!-- JS 动态生成 100 小格 -->
+                            </div>
+                        </div>
+                        <div class="mt-3 text-center">
+                            <div class="text-xs text-cyan-300 font-semibold mb-0.5">颜色 A 涂满 18 格</div>
+                            <div class="text-2xl font-black text-[#2cd5f6] font-mono tracking-wider">0.18</div>
+                            <div class="text-[11px] text-slate-400">10格 + 8格 = 18%</div>
+                        </div>
+                    </div>
+
+                    <!-- 加号连接符 1 -->
+                    <div class="text-2xl md:text-4xl font-extrabold text-cyan-400/80 flex items-center justify-center">
+                        +
+                    </div>
+
+                    <!-- 第 2 个方阵：颜色 B (0.18) -->
+                    <div class="flex-1 w-full max-w-[240px] flex flex-col items-center">
+                        <div class="w-full p-2.5 rounded-2xl glass-panel border border-[#f59b20]/30 shadow-glow-b">
+                            <div id="mini-grid-b" class="mini-grid">
+                                <!-- JS 动态生成 100 小格 -->
+                            </div>
+                        </div>
+                        <div class="mt-3 text-center">
+                            <div class="text-xs text-amber-300 font-semibold mb-0.5">颜色 B 涂满 18 格</div>
+                            <div class="text-2xl font-black text-[#f59b20] font-mono tracking-wider">0.18</div>
+                            <div class="text-[11px] text-slate-400">10格 + 8格 = 18%</div>
+                        </div>
+                    </div>
+
+                    <!-- 加号连接符 2 -->
+                    <div class="text-2xl md:text-4xl font-extrabold text-amber-400/80 flex items-center justify-center">
+                        +
+                    </div>
+
+                    <!-- 第 3 个方阵：颜色 C (0.18) -->
+                    <div class="flex-1 w-full max-w-[240px] flex flex-col items-center">
+                        <div class="w-full p-2.5 rounded-2xl glass-panel border border-[#9d7fe6]/30 shadow-glow-c">
+                            <div id="mini-grid-c" class="mini-grid">
+                                <!-- JS 动态生成 100 小格 -->
+                            </div>
+                        </div>
+                        <div class="mt-3 text-center">
+                            <div class="text-xs text-purple-300 font-semibold mb-0.5">颜色 C 涂满 18 格</div>
+                            <div class="text-2xl font-black text-[#9d7fe6] font-mono tracking-wider">0.18</div>
+                            <div class="text-[11px] text-slate-400">10格 + 8格 = 18%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 拆分模式下的汇聚合并引导按钮 -->
+                <div class="mt-6">
+                    <button id="btn-trigger-merge-action" class="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white font-bold text-sm md:text-base shadow-xl shadow-cyan-500/25 hover:scale-105 active:scale-95 transition-all cursor-pointer">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M4 14h6m0 0v6m0-6L3 21"></path>
+                            <path d="M20 10h-6m0 0V4m0 6l7-7"></path>
+                        </svg>
+                        <span>一键合并汇入大正方形网格 →</span>
+                    </button>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- ==============================================
+             底部看板：实时统计与数学算式结论 (PRD 3.4)
+             ============================================== -->
+        <footer class="w-full glass-panel border-t border-white/10 px-4 py-3 z-20">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+                
+                <!-- 涂色格数实时统计卡片 -->
+                <div class="flex flex-wrap items-center justify-center gap-3 text-xs md:text-sm">
+                    <!-- 颜色 A 统计 -->
+                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/70 border border-[#2cd5f6]/30">
+                        <span class="w-3 h-3 rounded-full bg-[#2cd5f6]"></span>
+                        <span class="text-slate-300">青蓝:</span>
+                        <span id="stat-count-a" class="font-bold text-[#2cd5f6] font-mono text-base math-badge">18</span>
+                        <span class="text-slate-400 text-xs">(<span id="stat-val-a">0.18</span>)</span>
+                    </div>
+
+                    <!-- 颜色 B 统计 -->
+                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/70 border border-[#f59b20]/30">
+                        <span class="w-3 h-3 rounded-full bg-[#f59b20]"></span>
+                        <span class="text-slate-300">黄橙:</span>
+                        <span id="stat-count-b" class="font-bold text-[#f59b20] font-mono text-base math-badge">18</span>
+                        <span class="text-slate-400 text-xs">(<span id="stat-val-b">0.18</span>)</span>
+                    </div>
+
+                    <!-- 颜色 C 统计 -->
+                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/70 border border-[#9d7fe6]/30">
+                        <span class="w-3 h-3 rounded-full bg-[#9d7fe6]"></span>
+                        <span class="text-slate-300">柔紫:</span>
+                        <span id="stat-count-c" class="font-bold text-[#9d7fe6] font-mono text-base math-badge">18</span>
+                        <span class="text-slate-400 text-xs">(<span id="stat-val-c">0.18</span>)</span>
+                    </div>
+
+                    <!-- 合计统计 -->
+                    <div class="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-cyan-950/40 border border-cyan-400/40">
+                        <span class="text-cyan-200 font-semibold">总涂色:</span>
+                        <span id="stat-count-total" class="font-black text-cyan-300 font-mono text-lg math-badge">54</span>
+                        <span class="text-slate-400 text-xs">/ 100格</span>
+                    </div>
+                </div>
+
+                <!-- 核心数学算式联动与结论 (PRD 3.4.2) -->
+                <div class="flex items-center justify-center gap-3 bg-slate-900/90 px-4 py-2 rounded-2xl border border-white/10 shadow-lg">
+                    <div class="text-right hidden sm:block">
+                        <div class="text-[11px] text-cyan-300 font-medium">数学算式模型</div>
+                        <div class="text-xs text-slate-400">加法与乘法转化</div>
+                    </div>
+                    <div class="h-8 w-px bg-white/10 hidden sm:block"></div>
+                    <div class="flex items-center gap-2 font-mono">
+                        <!-- 加法算式 -->
+                        <span id="formula-addition" class="text-sm md:text-base font-bold text-slate-200">
+                            <span class="text-[#2cd5f6]">0.18</span> + <span class="text-[#f59b20]">0.18</span> + <span class="text-[#9d7fe6]">0.18</span> = <span class="text-emerald-400 font-black">0.54</span>
+                        </span>
+                        <span class="text-slate-500 font-normal">或</span>
+                        <!-- 乘法算式 -->
+                        <span id="formula-multiplication" class="text-sm md:text-base font-extrabold text-cyan-300 bg-cyan-500/10 px-2 py-0.5 rounded-lg border border-cyan-400/30">
+                            0.18 × 3 = 0.54
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+        </footer>
+    </div>
+
+    <!-- ==============================================
+         交互与逻辑核心驱动脚本
+         ============================================== -->
+    <script>
+        (function () {
+            'use strict';
+
+            // 1. 颜色与常量配置 (PRD 2.2)
+            const COLOR_CONFIG = {
+                NONE: 'NONE',
+                A: { id: 'A', name: '颜色 A', hex: '#2cd5f6', class: 'colored-a', value: 0.18 },
+                B: { id: 'B', name: '颜色 B', hex: '#f59b20', class: 'colored-b', value: 0.18 },
+                C: { id: 'C', name: '颜色 C', hex: '#9d7fe6', class: 'colored-c', value: 0.18 }
+            };
+
+            // 2. 响应式应用状态
+            const state = {
+                // 当前笔刷工具：'A' | 'B' | 'C' | 'ERASER'
+                activeTool: 'A',
+                // 100个格子的颜色数据：Array(100).fill('NONE')
+                cells: Array(100).fill('NONE'),
+                // 当前视图模式：'single' (合并/单大正方形) | 'split' (三小正方形拆分对比)
+                viewMode: 'single',
+                // 合并模式下的排布样式：'split-rows' (每种颜色占两行) | 'compact' (连续紧凑拼接54格)
+                packingMode: 'split-rows',
+                // 拖拽绘制状态
+                isPointerDown: false,
+                lastPaintedIndex: -1,
+                // 音效开关
+                soundEnabled: true
+            };
+
+            // 3. Web Audio API 轻量级合成音效 (无外部依赖)
+            let audioCtx = null;
+            function getAudioContext() {
+                if (!audioCtx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContext) {
+                        audioCtx = new AudioContext();
+                    }
+                }
+                if (audioCtx && audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                return audioCtx;
+            }
+
+            function playSound(type) {
+                if (!state.soundEnabled) return;
+                try {
+                    const ctx = getAudioContext();
+                    if (!ctx) return;
+                    const now = ctx.currentTime;
+
+                    if (type === 'paint') {
+                        // 涂色音效：清脆水滴声 (根据当前工具频率微调)
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        const freq = state.activeTool === 'A' ? 680 : (state.activeTool === 'B' ? 580 : 760);
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, now);
+                        osc.frequency.exponentialRampToValueAtTime(freq * 1.5, now + 0.05);
+
+                        gain.gain.setValueAtTime(0.08, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(now);
+                        osc.stop(now + 0.07);
+                    } else if (type === 'erase') {
+                        // 擦除音效：柔和低频噗声
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(320, now);
+                        osc.frequency.exponentialRampToValueAtTime(140, now + 0.08);
+
+                        gain.gain.setValueAtTime(0.08, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(now);
+                        osc.stop(now + 0.08);
+                    } else if (type === 'fill18') {
+                        // 阶梯琶音 (完成快速填充)
+                        const freqs = [440, 554, 659, 880];
+                        freqs.forEach((f, idx) => {
+                            const osc = ctx.createOscillator();
+                            const gain = ctx.createGain();
+                            const t = now + idx * 0.04;
+                            osc.type = 'sine';
+                            osc.frequency.setValueAtTime(f, t);
+                            gain.gain.setValueAtTime(0.09, t);
+                            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+                            osc.connect(gain);
+                            gain.connect(ctx.destination);
+                            osc.start(t);
+                            osc.stop(t + 0.12);
+                        });
+                    } else if (type === 'merge') {
+                        // 合并汇聚升调音效
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(350, now);
+                        osc.frequency.exponentialRampToValueAtTime(700, now + 0.25);
+                        gain.gain.setValueAtTime(0.12, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(now);
+                        osc.stop(now + 0.28);
+                    } else if (type === 'clear') {
+                        // 清空音效
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'sawtooth';
+                        osc.frequency.setValueAtTime(450, now);
+                        osc.frequency.exponentialRampToValueAtTime(120, now + 0.15);
+                        gain.gain.setValueAtTime(0.08, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(now);
+                        osc.stop(now + 0.16);
+                    }
+                } catch (e) {
+                    console.warn('Audio playback error', e);
+                }
+            }
+
+            // 4. DOM 元素缓存
+            const mainBoardEl = document.getElementById('main-grid-board');
+            const viewSingleEl = document.getElementById('view-single-grid');
+            const viewSplitEl = document.getElementById('view-split-grid');
+            const miniGridAEl = document.getElementById('mini-grid-a');
+            const miniGridBEl = document.getElementById('mini-grid-b');
+            const miniGridCEl = document.getElementById('mini-grid-c');
+
+            const btnToolA = document.getElementById('btn-tool-a');
+            const btnToolB = document.getElementById('btn-tool-b');
+            const btnToolC = document.getElementById('btn-tool-c');
+            const btnToolEraser = document.getElementById('btn-tool-eraser');
+            const toolButtons = [btnToolA, btnToolB, btnToolC, btnToolEraser];
+
+            const btnQuick18 = document.getElementById('btn-quick-18');
+            const btnToggleMerge = document.getElementById('btn-toggle-merge');
+            const btnClearAll = document.getElementById('btn-clear-all');
+            const btnSoundToggle = document.getElementById('btn-sound-toggle');
+            const iconSound = document.getElementById('icon-sound');
+            const iconMergeState = document.getElementById('icon-merge-state');
+            const labelMergeToggle = document.getElementById('label-merge-toggle');
+            const btnTriggerMergeAction = document.getElementById('btn-trigger-merge-action');
+
+            const btnPackSplitRows = document.getElementById('btn-pack-split-rows');
+            const btnPackCompact = document.getElementById('btn-pack-compact');
+            const mergePackingControls = document.getElementById('merge-packing-controls');
+
+            const statCountA = document.getElementById('stat-count-a');
+            const statCountB = document.getElementById('stat-count-b');
+            const statCountC = document.getElementById('stat-count-c');
+            const statCountTotal = document.getElementById('stat-count-total');
+            const statValA = document.getElementById('stat-val-a');
+            const statValB = document.getElementById('stat-val-b');
+            const statValC = document.getElementById('stat-val-c');
+
+            const formulaAddition = document.getElementById('formula-addition');
+            const formulaMultiplication = document.getElementById('formula-multiplication');
+            const gridHoverTip = document.getElementById('grid-hover-tip');
+
+            // 5. 初始化 10×10 大网格 DOM 与拆分三方阵 DOM
+            function initGrids() {
+                // 主网格 100 格
+                mainBoardEl.innerHTML = '';
+                for (let i = 0; i < 100; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell';
+                    cell.dataset.index = i;
+                    mainBoardEl.appendChild(cell);
+                }
+
+                // 拆分模式中的 3 个迷你小网格（各 100 格）
+                [miniGridAEl, miniGridBEl, miniGridCEl].forEach((miniEl, gIdx) => {
+                    miniEl.innerHTML = '';
+                    for (let i = 0; i < 100; i++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'mini-cell';
+                        cell.dataset.index = i;
+                        miniEl.appendChild(cell);
+                    }
+                });
+
+                renderCells();
+                renderMiniGrids();
+            }
+
+            // 6. 渲染大网格中的颜色与类名
+            function renderCells() {
+                const domCells = mainBoardEl.children;
+                for (let i = 0; i < 100; i++) {
+                    const cellEl = domCells[i];
+                    const color = state.cells[i];
+                    cellEl.classList.remove('colored-a', 'colored-b', 'colored-c');
+
+                    if (color === 'A') {
+                        cellEl.classList.add('colored-a');
+                    } else if (color === 'B') {
+                        cellEl.classList.add('colored-b');
+                    } else if (color === 'C') {
+                        cellEl.classList.add('colored-c');
+                    }
+                }
+                updateStatsAndFormula();
+            }
+
+            // 7. 渲染拆分三方阵（各固定呈现其 0.18 / 18格 规范填充，或同步对应颜色数据）
+            function renderMiniGrids() {
+                // 每个独立方阵涂满前 18 格 (第 1 行 10 格 + 第 2 行 8 格)
+                const cellsA = miniGridAEl.children;
+                const cellsB = miniGridBEl.children;
+                const cellsC = miniGridCEl.children;
+
+                for (let i = 0; i < 100; i++) {
+                    cellsA[i].classList.remove('colored-a');
+                    cellsB[i].classList.remove('colored-b');
+                    cellsC[i].classList.remove('colored-c');
+
+                    // 18格：前10格(第1行) + 第2行前8格(10~17)
+                    if (i < 18) {
+                        cellsA[i].classList.add('colored-a');
+                        cellsB[i].classList.add('colored-b');
+                        cellsC[i].classList.add('colored-c');
+                    }
+                }
+            }
+
+            // 8. 实时统计与算式联动更新 (PRD 3.4.2)
+            function updateStatsAndFormula() {
+                let countA = 0;
+                let countB = 0;
+                let countC = 0;
+
+                for (let i = 0; i < 100; i++) {
+                    if (state.cells[i] === 'A') countA++;
+                    else if (state.cells[i] === 'B') countB++;
+                    else if (state.cells[i] === 'C') countC++;
+                }
+
+                const total = countA + countB + countC;
+                const valA = (countA / 100).toFixed(2);
+                const valB = (countB / 100).toFixed(2);
+                const valC = (countC / 100).toFixed(2);
+                const valTotal = (total / 100).toFixed(2);
+
+                statCountA.textContent = countA;
+                statCountB.textContent = countB;
+                statCountC.textContent = countC;
+                statCountTotal.textContent = total;
+
+                statValA.textContent = valA;
+                statValB.textContent = valB;
+                statValC.textContent = valC;
+
+                // 算式联动：若三组皆有值，实时动态展现
+                formulaAddition.innerHTML = `
+                    <span class="text-[#2cd5f6]">${valA}</span> + 
+                    <span class="text-[#f59b20]">${valB}</span> + 
+                    <span class="text-[#9d7fe6]">${valC}</span> = 
+                    <span class="text-emerald-400 font-black">${valTotal}</span>
+                `;
+
+                // 若三组均为 18 格，高亮标准教学算式 0.18 × 3 = 0.54
+                if (countA === 18 && countB === 18 && countC === 18) {
+                    formulaMultiplication.textContent = '0.18 × 3 = 0.54';
+                    formulaMultiplication.className = 'text-sm md:text-base font-extrabold text-cyan-300 bg-cyan-500/15 px-2.5 py-0.5 rounded-lg border border-cyan-400/50 shadow-[0_0_12px_rgba(44,213,246,0.25)]';
+                } else if (countA === countB && countB === countC && countA > 0) {
+                    formulaMultiplication.textContent = `${valA} × 3 = ${valTotal}`;
+                    formulaMultiplication.className = 'text-sm md:text-base font-extrabold text-cyan-300 bg-cyan-500/10 px-2 py-0.5 rounded-lg border border-cyan-400/30';
+                } else {
+                    formulaMultiplication.textContent = `合计 ${total} 个 0.01 = ${valTotal}`;
+                    formulaMultiplication.className = 'text-xs md:text-sm font-semibold text-slate-300 bg-slate-800/80 px-2 py-0.5 rounded-lg border border-white/10';
+                }
+            }
+
+            // 9. 工具选择切换逻辑
+            function setActiveTool(tool) {
+                state.activeTool = tool;
+
+                // 更新按钮外观状态
+                toolButtons.forEach(btn => {
+                    const btnTool = btn.dataset.tool;
+                    if (btnTool === tool) {
+                        btn.classList.add('bg-slate-800', 'ring-2', 'ring-white/80', 'scale-105', 'shadow-lg');
+                        btn.classList.remove('text-slate-300');
+                        btn.classList.add('text-white');
+                    } else {
+                        btn.classList.remove('bg-slate-800', 'ring-2', 'ring-white/80', 'scale-105', 'shadow-lg');
+                        btn.classList.add('text-slate-300');
+                    }
+                });
+            }
+
+            // 10. 涂色与擦除核心动作 (PRD 3.1 & 3.3)
+            function paintCellAtIndex(index) {
+                if (index < 0 || index >= 100) return;
+                if (state.lastPaintedIndex === index) return; // 避免同格重复触发
+
+                state.lastPaintedIndex = index;
+                const newColor = state.activeTool === 'ERASER' ? 'NONE' : state.activeTool;
+
+                if (state.cells[index] !== newColor) {
+                    state.cells[index] = newColor;
+                    const cellEl = mainBoardEl.children[index];
+                    cellEl.classList.remove('colored-a', 'colored-b', 'colored-c');
+
+                    if (newColor === 'A') cellEl.classList.add('colored-a');
+                    else if (newColor === 'B') cellEl.classList.add('colored-b');
+                    else if (newColor === 'C') cellEl.classList.add('colored-c');
+
+                    updateStatsAndFormula();
+                    playSound(newColor === 'NONE' ? 'erase' : 'paint');
+                }
+            }
+
+            // 11. 触控与拖拽滑动涂色事件监听 (PointerEvent + elementFromPoint)
+            function setupPointerPainting() {
+                // 指针按下开始涂色
+                mainBoardEl.addEventListener('pointerdown', (e) => {
+                    e.preventDefault();
+                    state.isPointerDown = true;
+                    state.lastPaintedIndex = -1;
+
+                    // 捕获指针事件
+                    try {
+                        mainBoardEl.setPointerCapture(e.pointerId);
+                    } catch (err) {}
+
+                    const target = document.elementFromPoint(e.clientX, e.clientY);
+                    if (target && target.classList.contains('grid-cell')) {
+                        const idx = parseInt(target.dataset.index, 10);
+                        paintCellAtIndex(idx);
+                        updateHoverTip(target, idx);
+                    }
+                });
+
+                // 指针连续滑动
+                mainBoardEl.addEventListener('pointermove', (e) => {
+                    const target = document.elementFromPoint(e.clientX, e.clientY);
+                    if (target && target.classList.contains('grid-cell')) {
+                        const idx = parseInt(target.dataset.index, 10);
+                        updateHoverTip(target, idx);
+
+                        if (state.isPointerDown) {
+                            e.preventDefault();
+                            paintCellAtIndex(idx);
+                        }
+                    } else {
+                        gridHoverTip.style.opacity = '0';
+                    }
+                });
+
+                // 结束涂色
+                const stopPainting = (e) => {
+                    state.isPointerDown = false;
+                    state.lastPaintedIndex = -1;
+                    if (e && e.pointerId) {
+                        try {
+                            mainBoardEl.releasePointerCapture(e.pointerId);
+                        } catch (err) {}
+                    }
+                };
+
+                mainBoardEl.addEventListener('pointerup', stopPainting);
+                mainBoardEl.addEventListener('pointercancel', stopPainting);
+                document.addEventListener('pointerup', () => {
+                    state.isPointerDown = false;
+                });
+
+                mainBoardEl.addEventListener('pointerleave', () => {
+                    gridHoverTip.style.opacity = '0';
+                });
+            }
+
+            // 悬浮提示信息展示
+            function updateHoverTip(cellEl, idx) {
+                const row = Math.floor(idx / 10) + 1;
+                const col = (idx % 10) + 1;
+                gridHoverTip.textContent = `第${row}行 第${col}列 · 格 #${idx + 1} (代表 0.01)`;
+                gridHoverTip.style.opacity = '1';
+            }
+
+            // 12. 快捷生成 18 格按钮逻辑 (PRD 3.2 严格排布规则)
+            // 规则：
+            // 颜色 A（青蓝）占用第 1～2 行：
+            //   第 1 行：第 1～10 格（整行 10 格，索引 0~9）；
+            //   第 2 行：第 1～8 格（共 8 格，索引 10~17）；第 2 行第 9、10 格（18、19）保持空白。
+            // 颜色 B（黄橙）换行另起占用第 3～4 行：
+            //   第 3 行：第 1～10 格（整行 10 格，索引 20~29）；
+            //   第 4 行：第 1～8 格（共 8 格，索引 30~37）；第 4 行第 9、10 格（38、39）保持空白。
+            // 颜色 C（浅柔紫）换行另起占用第 5～6 行：
+            //   第 5 行：第 1～10 格（整行 10 格，索引 40~49）；
+            //   第 6 行：第 1～8 格（共 8 格，索引 50~57）；第 6 行第 9、10 格（58、59）保持空白。
+            // 第 7～10 行保持未涂色空白。
+            function generate18Blocks(mode = 'split-rows') {
+                state.cells.fill('NONE');
+
+                if (mode === 'split-rows') {
+                    // 分行独立排布 (3组独立的0.18，每组占2行)
+                    // 颜色 A：0~9 与 10~17
+                    for (let i = 0; i < 10; i++) state.cells[i] = 'A';
+                    for (let i = 10; i < 18; i++) state.cells[i] = 'A';
+
+                    // 颜色 B：20~29 与 30~37
+                    for (let i = 20; i < 30; i++) state.cells[i] = 'B';
+                    for (let i = 30; i < 38; i++) state.cells[i] = 'B';
+
+                    // 颜色 C：40~49 与 50~57
+                    for (let i = 40; i < 50; i++) state.cells[i] = 'C';
+                    for (let i = 50; i < 58; i++) state.cells[i] = 'C';
+                } else if (mode === 'compact') {
+                    // 紧凑拼接排布 (连续填满54格)
+                    // 颜色 A：前18格 (0~17)
+                    for (let i = 0; i < 18; i++) state.cells[i] = 'A';
+                    // 颜色 B：紧接着18格 (18~35)
+                    for (let i = 18; i < 36; i++) state.cells[i] = 'B';
+                    // 颜色 C：紧接着18格 (36~53)
+                    for (let i = 36; i < 54; i++) state.cells[i] = 'C';
+                }
+
+                // 播放阶梯音效并渲染
+                playSound('fill18');
+                renderCells();
+            }
+
+            // 13. 合并 / 拆分 模式切换 (PRD 3.4)
+            function setViewMode(mode) {
+                state.viewMode = mode;
+                if (mode === 'split') {
+                    // 切换为拆分三方阵模式
+                    viewSingleEl.classList.add('hidden');
+                    viewSplitEl.classList.remove('hidden');
+                    labelMergeToggle.textContent = '合并全屏';
+                    iconMergeState.innerHTML = `
+                        <path d="M4 14h6m0 0v6m0-6L3 21"></path>
+                        <path d="M20 10h-6m0 0V4m0 6l7-7"></path>
+                    `;
+                    playSound('merge');
+                    renderMiniGrids();
+                } else {
+                    // 切换为单一大正方形合并模式
+                    viewSplitEl.classList.add('hidden');
+                    viewSingleEl.classList.remove('hidden');
+                    labelMergeToggle.textContent = '拆分对比';
+                    iconMergeState.innerHTML = `
+                        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+                    `;
+                    playSound('merge');
+                    renderCells();
+                }
+            }
+
+            // 14. 合并模式下的排布样式切换（分行对比 vs 紧凑拼满）
+            function setPackingMode(mode) {
+                state.packingMode = mode;
+                if (mode === 'split-rows') {
+                    btnPackSplitRows.className = 'px-3 py-1 rounded-lg font-medium text-cyan-300 bg-slate-800 border border-cyan-400/30 transition-all cursor-pointer';
+                    btnPackCompact.className = 'px-3 py-1 rounded-lg font-medium text-slate-400 hover:text-white transition-all cursor-pointer';
+                    generate18Blocks('split-rows');
+                } else {
+                    btnPackCompact.className = 'px-3 py-1 rounded-lg font-medium text-cyan-300 bg-slate-800 border border-cyan-400/30 transition-all cursor-pointer';
+                    btnPackSplitRows.className = 'px-3 py-1 rounded-lg font-medium text-slate-400 hover:text-white transition-all cursor-pointer';
+                    generate18Blocks('compact');
+                }
+            }
+
+            // 15. 事件监听绑定
+            function bindEvents() {
+                // 笔刷切换按钮
+                toolButtons.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        setActiveTool(btn.dataset.tool);
+                        playSound('paint');
+                    });
+                });
+
+                // 快捷生成 18 格 (PRD 3.2)
+                btnQuick18.addEventListener('click', () => {
+                    if (state.viewMode === 'split') {
+                        setViewMode('single');
+                    }
+                    generate18Blocks(state.packingMode);
+                });
+
+                // 合并/拆分模式切换 (PRD 3.4)
+                btnToggleMerge.addEventListener('click', () => {
+                    const nextMode = state.viewMode === 'single' ? 'split' : 'single';
+                    setViewMode(nextMode);
+                });
+
+                // 拆分模式中的引导合并按钮
+                btnTriggerMergeAction.addEventListener('click', () => {
+                    setViewMode('single');
+                    // 确保大网格中拥有 3 组各 18 格
+                    let hasBlocks = state.cells.some(c => c !== 'NONE');
+                    if (!hasBlocks) {
+                        generate18Blocks(state.packingMode);
+                    }
+                });
+
+                // 全部清空
+                btnClearAll.addEventListener('click', () => {
+                    state.cells.fill('NONE');
+                    renderCells();
+                    playSound('clear');
+                });
+
+                // 音效开关
+                btnSoundToggle.addEventListener('click', () => {
+                    state.soundEnabled = !state.soundEnabled;
+                    if (state.soundEnabled) {
+                        iconSound.classList.remove('text-slate-500');
+                        iconSound.classList.add('text-cyan-400');
+                        playSound('paint');
+                    } else {
+                        iconSound.classList.remove('text-cyan-400');
+                        iconSound.classList.add('text-slate-500');
+                    }
+                });
+
+                // 分行 vs 紧凑排布切换
+                btnPackSplitRows.addEventListener('click', () => setPackingMode('split-rows'));
+                btnPackCompact.addEventListener('click', () => setPackingMode('compact'));
+            }
+
+            // 16. 初始化启动
+            initGrids();
+            setupPointerPainting();
+            bindEvents();
+            setActiveTool('A');
+            // 初始直接载入 3×18 规整展示 (完美贴合课件教学演示情境)
+            generate18Blocks('split-rows');
+
+        })();
+    </script>
+</body>
+
+</html>
