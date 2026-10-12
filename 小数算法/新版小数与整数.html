@@ -53,7 +53,7 @@
             --color-b: #f59b20;
             --color-c: #9d7fe6;
             /* 响应式动态自适应计算：最大化铺满视口剩余空间，且保持 1:1 正方形 */
-            --board-size: min(calc(100vw - 80px), calc(100vh - 130px));
+            --board-size: min(calc(100vw - 64px), calc(100vh - 100px));
         }
 
         * {
@@ -61,7 +61,10 @@
             -webkit-tap-highlight-color: transparent;
         }
 
+        html,
         body {
+            height: 100vh;
+            max-height: 100vh;
             background-color: var(--bg-page);
             color: #f1f5f9;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
@@ -222,12 +225,12 @@
     </style>
 </head>
 
-<body class="min-h-screen flex flex-col bg-[#0e1424] text-slate-100 overflow-y-auto selection:bg-cyan-500/30">
+<body class="h-screen w-screen flex flex-col bg-[#0e1424] text-slate-100 overflow-hidden selection:bg-cyan-500/30">
     <!-- 空间环境背景光晕 -->
     <div class="ambient-glow"></div>
 
     <!-- 主容器 -->
-    <div class="relative z-10 flex flex-col min-h-screen w-full">
+    <div class="relative z-10 flex flex-col h-screen w-full overflow-hidden">
 
         <!-- ==============================================
              顶部导航与操作工具栏 (PRD 2.1 & 4)
@@ -298,18 +301,17 @@
                         <span>生成 18 块</span>
                     </button>
 
-                    <!-- 合并 / 拆分 切换 (PRD 3.4) -->
-                    <button id="btn-toggle-merge"
-                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-400/40 text-xs md:text-sm font-bold shadow-md transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer">
-                        <svg id="icon-merge-state" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2.2">
-                            <!-- 默认显示“拆分”图标 -->
-                            <path
-                                d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3">
-                            </path>
-                        </svg>
-                        <span id="label-merge-toggle">拆分对比</span>
-                    </button>
+                    <!-- 排布模式切换：分行对比 (3×18) vs 紧密拼满 (累计54格) -->
+                    <div class="flex items-center bg-slate-900/80 p-1 rounded-xl border border-white/10 text-xs">
+                        <button id="btn-pack-split-rows"
+                            class="px-3 py-1.5 rounded-lg font-medium text-cyan-300 bg-slate-800 border border-cyan-400/30 transition-all cursor-pointer">
+                            分行对比
+                        </button>
+                        <button id="btn-pack-compact"
+                            class="px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition-all cursor-pointer">
+                            紧密拼满
+                        </button>
+                    </div>
 
                     <!-- 全部清空 (PRD 4) -->
                     <button id="btn-clear-all"
@@ -396,101 +398,7 @@
                     </div>
                 </div>
 
-                <!-- 合并模式时的“排布视图切换”辅助栏 (PRD 3.2 & 3.4 进阶算理展示) -->
-                <div id="merge-packing-controls" class="mt-2 flex items-center gap-2 transition-all duration-300">
-                    <div class="flex items-center bg-slate-900/80 p-1 rounded-xl border border-white/10 text-xs">
-                        <button id="btn-pack-split-rows"
-                            class="px-3 py-1 rounded-lg font-medium text-cyan-300 bg-slate-800 border border-cyan-400/30 transition-all cursor-pointer">
-                            分行对比
-                        </button>
-                        <button id="btn-pack-compact"
-                            class="px-3 py-1 rounded-lg font-medium text-slate-400 hover:text-white transition-all cursor-pointer">
-                            紧密拼满
-                        </button>
-                    </div>
-                </div>
             </div>
-
-            <!-- 模式 B：拆分状态（三方阵并排教学模式，PRD 3.4.1） -->
-            <div id="view-split-grid"
-                class="w-full flex-1 flex flex-col items-center justify-center hidden transition-all duration-500 py-2">
-                <div class="text-center mb-4">
-                    <span
-                        class="text-xs font-semibold px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-400/30">
-                        三方阵独立对比 · 拆分模式
-                    </span>
-                    <h2 class="text-base md:text-xl font-bold mt-1 text-white">3 个独立的正方形，每个涂出 0.18（18格）</h2>
-                </div>
-
-                <!-- 三个小方阵横向排列，中间带加号 -->
-                <div class="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 w-full max-w-5xl px-4">
-
-                    <!-- 第 1 个方阵：颜色 A (0.18) -->
-                    <div class="flex-1 w-full max-w-[240px] flex flex-col items-center">
-                        <div class="w-full p-2.5 rounded-2xl glass-panel border border-[#2cd5f6]/30 shadow-glow-a">
-                            <div id="mini-grid-a" class="mini-grid">
-                                <!-- JS 动态生成 100 小格 -->
-                            </div>
-                        </div>
-                        <div class="mt-3 text-center">
-                            <div class="text-xs text-cyan-300 font-semibold mb-0.5">颜色 A 涂满 18 格</div>
-                            <div class="text-2xl font-black text-[#2cd5f6] font-mono tracking-wider">0.18</div>
-                            <div class="text-[11px] text-slate-400">10格 + 8格 = 18%</div>
-                        </div>
-                    </div>
-
-                    <!-- 加号连接符 1 -->
-                    <div class="text-2xl md:text-4xl font-extrabold text-cyan-400/80 flex items-center justify-center">
-                        +
-                    </div>
-
-                    <!-- 第 2 个方阵：颜色 B (0.18) -->
-                    <div class="flex-1 w-full max-w-[240px] flex flex-col items-center">
-                        <div class="w-full p-2.5 rounded-2xl glass-panel border border-[#f59b20]/30 shadow-glow-b">
-                            <div id="mini-grid-b" class="mini-grid">
-                                <!-- JS 动态生成 100 小格 -->
-                            </div>
-                        </div>
-                        <div class="mt-3 text-center">
-                            <div class="text-xs text-amber-300 font-semibold mb-0.5">颜色 B 涂满 18 格</div>
-                            <div class="text-2xl font-black text-[#f59b20] font-mono tracking-wider">0.18</div>
-                            <div class="text-[11px] text-slate-400">10格 + 8格 = 18%</div>
-                        </div>
-                    </div>
-
-                    <!-- 加号连接符 2 -->
-                    <div class="text-2xl md:text-4xl font-extrabold text-amber-400/80 flex items-center justify-center">
-                        +
-                    </div>
-
-                    <!-- 第 3 个方阵：颜色 C (0.18) -->
-                    <div class="flex-1 w-full max-w-[240px] flex flex-col items-center">
-                        <div class="w-full p-2.5 rounded-2xl glass-panel border border-[#9d7fe6]/30 shadow-glow-c">
-                            <div id="mini-grid-c" class="mini-grid">
-                                <!-- JS 动态生成 100 小格 -->
-                            </div>
-                        </div>
-                        <div class="mt-3 text-center">
-                            <div class="text-xs text-purple-300 font-semibold mb-0.5">颜色 C 涂满 18 格</div>
-                            <div class="text-2xl font-black text-[#9d7fe6] font-mono tracking-wider">0.18</div>
-                            <div class="text-[11px] text-slate-400">10格 + 8格 = 18%</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 拆分模式下的汇聚合并引导按钮 -->
-                <div class="mt-6">
-                    <button id="btn-trigger-merge-action"
-                        class="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white font-bold text-sm md:text-base shadow-xl shadow-cyan-500/25 hover:scale-105 active:scale-95 transition-all cursor-pointer">
-                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                            <path d="M4 14h6m0 0v6m0-6L3 21"></path>
-                            <path d="M20 10h-6m0 0V4m0 6l7-7"></path>
-                        </svg>
-                        <span>一键合并汇入大正方形网格 →</span>
-                    </button>
-                </div>
-            </div>
-
         </main>
 
 
@@ -632,10 +540,6 @@
             // 4. DOM 元素缓存
             const mainBoardEl = document.getElementById('main-grid-board');
             const viewSingleEl = document.getElementById('view-single-grid');
-            const viewSplitEl = document.getElementById('view-split-grid');
-            const miniGridAEl = document.getElementById('mini-grid-a');
-            const miniGridBEl = document.getElementById('mini-grid-b');
-            const miniGridCEl = document.getElementById('mini-grid-c');
 
             const btnToolA = document.getElementById('btn-tool-a');
             const btnToolB = document.getElementById('btn-tool-b');
@@ -644,23 +548,17 @@
             const toolButtons = [btnToolA, btnToolB, btnToolC, btnToolEraser];
 
             const btnQuick18 = document.getElementById('btn-quick-18');
-            const btnToggleMerge = document.getElementById('btn-toggle-merge');
             const btnClearAll = document.getElementById('btn-clear-all');
             const btnSoundToggle = document.getElementById('btn-sound-toggle');
             const iconSound = document.getElementById('icon-sound');
-            const iconMergeState = document.getElementById('icon-merge-state');
-            const labelMergeToggle = document.getElementById('label-merge-toggle');
-            const btnTriggerMergeAction = document.getElementById('btn-trigger-merge-action');
 
             const btnPackSplitRows = document.getElementById('btn-pack-split-rows');
             const btnPackCompact = document.getElementById('btn-pack-compact');
-            const mergePackingControls = document.getElementById('merge-packing-controls');
 
             const gridHoverTip = document.getElementById('grid-hover-tip');
 
-            // 5. 初始化 10×10 大网格 DOM 与拆分三方阵 DOM
+            // 5. 初始化 10×10 大网格 DOM
             function initGrids() {
-                // 主网格 100 格
                 mainBoardEl.innerHTML = '';
                 for (let i = 0; i < 100; i++) {
                     const cell = document.createElement('div');
@@ -668,20 +566,7 @@
                     cell.dataset.index = i;
                     mainBoardEl.appendChild(cell);
                 }
-
-                // 拆分模式中的 3 个迷你小网格（各 100 格）
-                [miniGridAEl, miniGridBEl, miniGridCEl].forEach((miniEl, gIdx) => {
-                    miniEl.innerHTML = '';
-                    for (let i = 0; i < 100; i++) {
-                        const cell = document.createElement('div');
-                        cell.className = 'mini-cell';
-                        cell.dataset.index = i;
-                        miniEl.appendChild(cell);
-                    }
-                });
-
                 renderCells();
-                renderMiniGrids();
             }
 
             // 6. 渲染大网格中的颜色与类名
@@ -703,26 +588,6 @@
                 updateStatsAndFormula();
             }
 
-            // 7. 渲染拆分三方阵（各固定呈现其 0.18 / 18格 规范填充，或同步对应颜色数据）
-            function renderMiniGrids() {
-                // 每个独立方阵涂满前 18 格 (第 1 行 10 格 + 第 2 行 8 格)
-                const cellsA = miniGridAEl.children;
-                const cellsB = miniGridBEl.children;
-                const cellsC = miniGridCEl.children;
-
-                for (let i = 0; i < 100; i++) {
-                    cellsA[i].classList.remove('colored-a');
-                    cellsB[i].classList.remove('colored-b');
-                    cellsC[i].classList.remove('colored-c');
-
-                    // 18格：前10格(第1行) + 第2行前8格(10~17)
-                    if (i < 18) {
-                        cellsA[i].classList.add('colored-a');
-                        cellsB[i].classList.add('colored-b');
-                        cellsC[i].classList.add('colored-c');
-                    }
-                }
-            }
 
             // 8. 实时统计与状态安全更新
             function updateStatsAndFormula() {
@@ -938,48 +803,21 @@
                 renderCells();
             }
 
-            // 13. 合并 / 拆分 模式切换 (PRD 3.4)
-            function setViewMode(mode) {
-                state.viewMode = mode;
-                if (mode === 'split') {
-                    // 切换为拆分三方阵模式
-                    viewSingleEl.classList.add('hidden');
-                    viewSplitEl.classList.remove('hidden');
-                    labelMergeToggle.textContent = '合并全屏';
-                    iconMergeState.innerHTML = `
-                        <path d="M4 14h6m0 0v6m0-6L3 21"></path>
-                        <path d="M20 10h-6m0 0V4m0 6l7-7"></path>
-                    `;
-                    playSound('merge');
-                    renderMiniGrids();
-                } else {
-                    // 切换为单一大正方形合并模式
-                    viewSplitEl.classList.add('hidden');
-                    viewSingleEl.classList.remove('hidden');
-                    labelMergeToggle.textContent = '拆分对比';
-                    iconMergeState.innerHTML = `
-                        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
-                    `;
-                    playSound('merge');
-                    renderCells();
-                }
-            }
-
-            // 14. 合并模式下的排布样式切换（分行对比 vs 紧凑拼满）
+            // 13. 排布样式切换（分行对比 vs 紧凑拼满）
             function setPackingMode(mode) {
                 state.packingMode = mode;
                 if (mode === 'split-rows') {
-                    btnPackSplitRows.className = 'px-3 py-1 rounded-lg font-medium text-cyan-300 bg-slate-800 border border-cyan-400/30 transition-all cursor-pointer';
-                    btnPackCompact.className = 'px-3 py-1 rounded-lg font-medium text-slate-400 hover:text-white transition-all cursor-pointer';
+                    btnPackSplitRows.className = 'px-3 py-1.5 rounded-lg font-medium text-cyan-300 bg-slate-800 border border-cyan-400/30 transition-all cursor-pointer';
+                    btnPackCompact.className = 'px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition-all cursor-pointer';
                     generate18Blocks('split-rows');
                 } else {
-                    btnPackCompact.className = 'px-3 py-1 rounded-lg font-medium text-cyan-300 bg-slate-800 border border-cyan-400/30 transition-all cursor-pointer';
-                    btnPackSplitRows.className = 'px-3 py-1 rounded-lg font-medium text-slate-400 hover:text-white transition-all cursor-pointer';
+                    btnPackCompact.className = 'px-3 py-1.5 rounded-lg font-medium text-cyan-300 bg-slate-800 border border-cyan-400/30 transition-all cursor-pointer';
+                    btnPackSplitRows.className = 'px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition-all cursor-pointer';
                     generate18Blocks('compact');
                 }
             }
 
-            // 15. 事件监听绑定
+            // 14. 事件监听绑定
             function bindEvents() {
                 // 笔刷切换按钮
                 toolButtons.forEach(btn => {
@@ -991,26 +829,7 @@
 
                 // 快捷生成 18 格 (PRD 3.2)
                 btnQuick18.addEventListener('click', () => {
-                    if (state.viewMode === 'split') {
-                        setViewMode('single');
-                    }
                     generate18Blocks(state.packingMode);
-                });
-
-                // 合并/拆分模式切换 (PRD 3.4)
-                btnToggleMerge.addEventListener('click', () => {
-                    const nextMode = state.viewMode === 'single' ? 'split' : 'single';
-                    setViewMode(nextMode);
-                });
-
-                // 拆分模式中的引导合并按钮
-                btnTriggerMergeAction.addEventListener('click', () => {
-                    setViewMode('single');
-                    // 确保大网格中拥有 3 组各 18 格
-                    let hasBlocks = state.cells.some(c => c !== 'NONE');
-                    if (!hasBlocks) {
-                        generate18Blocks(state.packingMode);
-                    }
                 });
 
                 // 全部清空
