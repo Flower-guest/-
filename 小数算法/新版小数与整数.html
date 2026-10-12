@@ -772,48 +772,122 @@
             //   第 5 行：第 1～10 格（整行 10 格，索引 40~49）；
             //   第 6 行：第 1～8 格（共 8 格，索引 50~57）；第 6 行第 9、10 格（58、59）保持空白。
             // 第 7～10 行保持未涂色空白。
-            function generate18Blocks(mode = 'split-rows') {
-                state.cells.fill('NONE');
-
-                if (mode === 'split-rows') {
-                    // 分行独立排布 (3组独立的0.18，每组占2行)
-                    // 颜色 A：0~9 与 10~17
-                    for (let i = 0; i < 10; i++) state.cells[i] = 'A';
-                    for (let i = 10; i < 18; i++) state.cells[i] = 'A';
-
-                    // 颜色 B：20~29 与 30~37
-                    for (let i = 20; i < 30; i++) state.cells[i] = 'B';
-                    for (let i = 30; i < 38; i++) state.cells[i] = 'B';
-
-                    // 颜色 C：40~49 与 50~57
-                    for (let i = 40; i < 50; i++) state.cells[i] = 'C';
-                    for (let i = 50; i < 58; i++) state.cells[i] = 'C';
-                } else if (mode === 'compact') {
-                    // 紧凑拼接排布 (连续填满54格)
-                    // 颜色 A：前18格 (0~17)
-                    for (let i = 0; i < 18; i++) state.cells[i] = 'A';
-                    // 颜色 B：紧接着18格 (18~35)
-                    for (let i = 18; i < 36; i++) state.cells[i] = 'B';
-                    // 颜色 C：紧接着18格 (36~53)
-                    for (let i = 36; i < 54; i++) state.cells[i] = 'C';
+            // 12. 快捷生成 18 格按钮逻辑 (针对单一颜色生成 18 块，PRD 3.2 严格排布规则)
+            function generate18BlocksForColor(targetColor = null) {
+                let color = targetColor || state.activeTool;
+                if (color === 'ERASER' || !['A', 'B', 'C'].includes(color)) {
+                    color = 'A';
+                    setActiveTool('A');
                 }
 
-                // 播放阶梯音效并渲染
+                // 统计各颜色当前已有数量
+                const countA = state.cells.filter(c => c === 'A').length;
+                const countB = state.cells.filter(c => c === 'B').length;
+                const countC = state.cells.filter(c => c === 'C').length;
+
+                // 如果未显式传参且当前选中的颜色已经生成了18格，自动顺延到下一个未满18格的颜色
+                if (!targetColor) {
+                    if (color === 'A' && countA >= 18) {
+                        if (countB < 18) {
+                            color = 'B';
+                            setActiveTool('B');
+                        } else if (countC < 18) {
+                            color = 'C';
+                            setActiveTool('C');
+                        }
+                    } else if (color === 'B' && countB >= 18) {
+                        if (countC < 18) {
+                            color = 'C';
+                            setActiveTool('C');
+                        } else if (countA < 18) {
+                            color = 'A';
+                            setActiveTool('A');
+                        }
+                    } else if (color === 'C' && countC >= 18) {
+                        if (countA < 18) {
+                            color = 'A';
+                            setActiveTool('A');
+                        } else if (countB < 18) {
+                            color = 'B';
+                            setActiveTool('B');
+                        }
+                    }
+                }
+
+                // 先将网格中属于该颜色的旧格子置空，保持其他颜色不受影响
+                for (let i = 0; i < 100; i++) {
+                    if (state.cells[i] === color) {
+                        state.cells[i] = 'NONE';
+                    }
+                }
+
+                if (state.packingMode === 'compact') {
+                    // 紧凑拼接排布 (每个颜色占18格)
+                    let start = 0;
+                    if (color === 'A') start = 0;
+                    else if (color === 'B') start = 18;
+                    else if (color === 'C') start = 36;
+
+                    for (let i = start; i < start + 18; i++) {
+                        state.cells[i] = color;
+                    }
+                } else {
+                    // 分行对比排布 (每组独立占2行：10格+8格)
+                    let rowStart = 0;
+                    if (color === 'A') rowStart = 0;
+                    else if (color === 'B') rowStart = 20;
+                    else if (color === 'C') rowStart = 40;
+
+                    for (let i = rowStart; i < rowStart + 10; i++) {
+                        state.cells[i] = color;
+                    }
+                    for (let i = rowStart + 10; i < rowStart + 18; i++) {
+                        state.cells[i] = color;
+                    }
+                }
+
                 playSound('fill18');
                 renderCells();
             }
 
-            // 13. 排布样式切换（分行对比 vs 紧凑拼满）
+            // 13. 排布样式切换（分行对比 vs 紧凑拼满，重排已有颜色）
             function setPackingMode(mode) {
                 state.packingMode = mode;
                 if (mode === 'split-rows') {
                     btnPackSplitRows.className = 'px-3 py-1.5 rounded-lg font-medium text-cyan-300 bg-slate-800 border border-cyan-400/30 transition-all cursor-pointer';
                     btnPackCompact.className = 'px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition-all cursor-pointer';
-                    generate18Blocks('split-rows');
                 } else {
                     btnPackCompact.className = 'px-3 py-1.5 rounded-lg font-medium text-cyan-300 bg-slate-800 border border-cyan-400/30 transition-all cursor-pointer';
                     btnPackSplitRows.className = 'px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition-all cursor-pointer';
-                    generate18Blocks('compact');
+                }
+
+                const hasA = state.cells.includes('A');
+                const hasB = state.cells.includes('B');
+                const hasC = state.cells.includes('C');
+
+                // 若网格中已有色块，按当前模式重新排布已有的颜色
+                if (hasA || hasB || hasC) {
+                    state.cells.fill('NONE');
+                    if (mode === 'compact') {
+                        if (hasA) for (let i = 0; i < 18; i++) state.cells[i] = 'A';
+                        if (hasB) for (let i = 18; i < 36; i++) state.cells[i] = 'B';
+                        if (hasC) for (let i = 36; i < 54; i++) state.cells[i] = 'C';
+                    } else {
+                        if (hasA) {
+                            for (let i = 0; i < 10; i++) state.cells[i] = 'A';
+                            for (let i = 10; i < 18; i++) state.cells[i] = 'A';
+                        }
+                        if (hasB) {
+                            for (let i = 20; i < 30; i++) state.cells[i] = 'B';
+                            for (let i = 30; i < 38; i++) state.cells[i] = 'B';
+                        }
+                        if (hasC) {
+                            for (let i = 40; i < 50; i++) state.cells[i] = 'C';
+                            for (let i = 50; i < 58; i++) state.cells[i] = 'C';
+                        }
+                    }
+                    playSound('merge');
+                    renderCells();
                 }
             }
 
@@ -827,9 +901,9 @@
                     });
                 });
 
-                // 快捷生成 18 格 (PRD 3.2)
+                // 快捷生成 18 格 (针对单一颜色生成 18 块)
                 btnQuick18.addEventListener('click', () => {
-                    generate18Blocks(state.packingMode);
+                    generate18BlocksForColor();
                 });
 
                 // 全部清空
