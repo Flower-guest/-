@@ -14,29 +14,29 @@
             theme: {
                 extend: {
                     colors: {
-                        darkBg: '#0e1424',
-                        cellDark: '#1b2438',
-                        cellBorder: '#24324f',
+                        pageBg: '#f8fafc',
+                        cellLight: '#ffffff',
+                        cellBorder: '#cbd5e1',
                         colorA: {
-                            DEFAULT: '#2cd5f6',
-                            glow: 'rgba(44, 213, 246, 0.45)',
-                            light: '#a5f3fc'
+                            DEFAULT: '#0ea5e9',
+                            glow: 'rgba(14, 165, 233, 0.4)',
+                            light: '#e0f2fe'
                         },
                         colorB: {
-                            DEFAULT: '#f59b20',
-                            glow: 'rgba(245, 155, 32, 0.45)',
-                            light: '#fed7aa'
+                            DEFAULT: '#f97316',
+                            glow: 'rgba(249, 115, 22, 0.4)',
+                            light: '#ffedd5'
                         },
                         colorC: {
-                            DEFAULT: '#9d7fe6',
-                            glow: 'rgba(157, 127, 230, 0.45)',
-                            light: '#ddd6fe'
+                            DEFAULT: '#8b5cf6',
+                            glow: 'rgba(139, 92, 246, 0.4)',
+                            light: '#ede9fe'
                         }
                     },
                     boxShadow: {
-                        'glow-a': '0 0 20px rgba(44, 213, 246, 0.35)',
-                        'glow-b': '0 0 20px rgba(245, 155, 32, 0.35)',
-                        'glow-c': '0 0 20px rgba(157, 127, 230, 0.35)',
+                        'glow-a': '0 2px 10px rgba(14, 165, 233, 0.35)',
+                        'glow-b': '0 2px 10px rgba(249, 115, 22, 0.35)',
+                        'glow-c': '0 2px 10px rgba(139, 92, 246, 0.35)',
                     }
                 }
             }
@@ -44,14 +44,14 @@
     </script>
 
     <style>
-        /* 根变量与核心微调 */
+        /* 根变量与高对比度浅色模式 */
         :root {
-            --bg-page: #0e1424;
-            --cell-bg: #1b2438;
-            --cell-border: #263554;
-            --color-a: #2cd5f6;
-            --color-b: #f59b20;
-            --color-c: #9d7fe6;
+            --bg-page: #f8fafc;
+            --cell-bg: #ffffff;
+            --cell-border: #cbd5e1;
+            --color-a: #0ea5e9;
+            --color-b: #f97316;
+            --color-c: #8b5cf6;
             /* 响应式动态自适应计算：最大化铺满视口剩余空间，且保持 1:1 正方形 */
             --board-size: min(calc(100vw - 64px), calc(100vh - 100px));
         }
@@ -66,23 +66,23 @@
             height: 100vh;
             max-height: 100vh;
             background-color: var(--bg-page);
-            color: #f1f5f9;
+            color: #1e293b;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
             overflow: hidden;
             user-select: none;
             -webkit-user-select: none;
         }
 
-        /* 背景微光背景纹理 */
+        /* 明亮教学环境柔和光晕纹理 */
         .ambient-glow {
             position: fixed;
             inset: 0;
             pointer-events: none;
             z-index: 0;
             background:
-                radial-gradient(circle at 18% 18%, rgba(44, 213, 246, 0.08) 0%, transparent 45%),
-                radial-gradient(circle at 82% 22%, rgba(245, 155, 32, 0.06) 0%, transparent 50%),
-                radial-gradient(circle at 50% 85%, rgba(157, 127, 230, 0.08) 0%, transparent 55%);
+                radial-gradient(circle at 16% 18%, rgba(14, 165, 233, 0.08) 0%, transparent 45%),
+                radial-gradient(circle at 84% 20%, rgba(249, 115, 22, 0.07) 0%, transparent 50%),
+                radial-gradient(circle at 50% 85%, rgba(139, 92, 246, 0.07) 0%, transparent 55%);
         }
 
         /* 保证大正方形 1:1 最大化铺满视口且不溢出 */
@@ -108,41 +108,42 @@
             touch-action: none;
         }
 
-        /* 单元格基本样式与过渡 */
+        /* 单元格清晰网格基本样式与过渡 */
         .grid-cell {
             position: relative;
             background-color: var(--cell-bg);
-            border-radius: clamp(3px, 0.5vw, 8px);
-            transition: transform 0.15s ease, background-color 0.22s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.22s ease;
+            border-radius: clamp(3px, 0.5vw, 6px);
+            transition: transform 0.14s ease, background-color 0.18s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.18s ease;
             box-shadow: inset 0 0 0 1px var(--cell-border);
             cursor: pointer;
             touch-action: none;
         }
 
         .grid-cell:hover {
-            filter: brightness(1.18);
-            transform: scale(1.04);
+            filter: brightness(0.97);
+            transform: scale(1.05);
+            box-shadow: inset 0 0 0 1.5px #0ea5e9, 0 2px 8px rgba(14, 165, 233, 0.2);
             z-index: 5;
         }
 
         .grid-cell:active {
-            transform: scale(0.96);
+            transform: scale(0.95);
         }
 
-        /* 各颜色涂色状态 */
+        /* 各颜色涂色状态（白底高对比、色彩鲜艳分明） */
         .grid-cell.colored-a {
             background-color: var(--color-a) !important;
-            box-shadow: 0 0 8px rgba(44, 213, 246, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.3) !important;
+            box-shadow: 0 2px 8px rgba(14, 165, 233, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.6) !important;
         }
 
         .grid-cell.colored-b {
             background-color: var(--color-b) !important;
-            box-shadow: 0 0 8px rgba(245, 155, 32, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.3) !important;
+            box-shadow: 0 2px 8px rgba(249, 115, 22, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.6) !important;
         }
 
         .grid-cell.colored-c {
             background-color: var(--color-c) !important;
-            box-shadow: 0 0 8px rgba(157, 127, 230, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.3) !important;
+            box-shadow: 0 2px 8px rgba(139, 92, 246, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.6) !important;
         }
 
         /* 拆分模式下的三小网格 */
@@ -155,9 +156,9 @@
             gap: 1.5px;
             padding: 4px;
             border-radius: 12px;
-            background: rgba(15, 23, 42, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
             touch-action: none;
         }
 
@@ -170,63 +171,39 @@
 
         .mini-cell.colored-a {
             background-color: var(--color-a) !important;
-            box-shadow: 0 0 4px rgba(44, 213, 246, 0.4) !important;
+            box-shadow: 0 1px 4px rgba(14, 165, 233, 0.4) !important;
         }
 
         .mini-cell.colored-b {
             background-color: var(--color-b) !important;
-            box-shadow: 0 0 4px rgba(245, 155, 32, 0.4) !important;
+            box-shadow: 0 1px 4px rgba(249, 115, 22, 0.4) !important;
         }
 
         .mini-cell.colored-c {
             background-color: var(--color-c) !important;
-            box-shadow: 0 0 4px rgba(157, 127, 230, 0.4) !important;
+            box-shadow: 0 1px 4px rgba(139, 92, 246, 0.4) !important;
         }
 
-        /* 数字微徽章 */
-        .math-badge {
-            font-feature-settings: "tnum";
-            font-variant-numeric: tabular-nums;
-        }
-
-        /* 脉冲光效动画 */
-        @keyframes gentle-pulse {
-
-            0%,
-            100% {
-                opacity: 0.95;
-                transform: scale(1);
-            }
-
-            50% {
-                opacity: 0.75;
-                transform: scale(0.99);
-            }
-        }
-
-        .pulse-subtle {
-            animation: gentle-pulse 3s infinite ease-in-out;
-        }
-
-        /* 毛玻璃卡片通用样式 */
+        /* 教学白色毛玻璃面板卡片通用样式 */
         .glass-panel {
-            background: rgba(19, 28, 48, 0.72);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
         }
 
-        /* 标尺行号列号文字 */
+        /* 标尺行号列号文字（加粗清晰易读） */
         .board-ruler-text {
-            font-size: 10px;
-            font-family: monospace;
+            font-size: 11px;
+            font-weight: 700;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
             color: #64748b;
         }
     </style>
 </head>
 
-<body class="h-screen w-screen flex flex-col bg-[#0e1424] text-slate-100 overflow-hidden selection:bg-cyan-500/30">
-    <!-- 空间环境背景光晕 -->
+<body class="h-screen w-screen flex flex-col bg-slate-50 text-slate-800 overflow-hidden selection:bg-sky-500/20">
+    <!-- 空间环境背景柔和光晕 -->
     <div class="ambient-glow"></div>
 
     <!-- 主容器 -->
@@ -235,49 +212,49 @@
         <!-- ==============================================
              顶部导航与操作工具栏 (PRD 2.1 & 4)
              ============================================== -->
-        <header class="w-full glass-panel border-b border-white/10 px-4 py-2.5 shadow-lg sticky top-0 z-30">
+        <header class="w-full glass-panel border-b border-slate-200/90 px-4 py-2.5 shadow-sm sticky top-0 z-30">
             <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
                 <!-- 课件标题与知识点引导 -->
                 <div class="flex items-center gap-3">
                     <div>
-                        <div class="flex items-center gap-2">
-                            <h1 class="text-base md:text-lg font-bold tracking-wide text-white">小数乘整数</h1>
+                        <div class="flex items-center gap-2.5">
+                            <h1 class="text-base md:text-lg font-extrabold tracking-tight text-slate-800">小数乘整数</h1>
                             <span
-                                class="text-xs px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/30 font-medium">0.18
-                                * 3</span>
+                                class="text-xs px-2.5 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200 font-bold tracking-wide">0.18
+                                × 3</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- 核心工具箱：4种笔刷选择 (PRD 3.1 & 4) -->
                 <div
-                    class="flex items-center bg-slate-900/80 p-1 rounded-2xl border border-white/10 shadow-inner gap-1">
-                    <!-- 颜色 A (青蓝) -->
+                    class="flex items-center bg-slate-100/90 p-1 rounded-2xl border border-slate-200 shadow-inner gap-1">
+                    <!-- 颜色 A (天蓝) -->
                     <button id="btn-tool-a" data-tool="A"
-                        class="tool-btn flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs md:text-sm font-semibold transition-all duration-200 cursor-pointer text-white">
-                        <span class="w-4 h-4 rounded-full bg-[#2cd5f6] shadow-[0_0_8px_#2cd5f6]"></span>
-                        <span>颜色 A
+                        class="tool-btn flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs md:text-sm font-bold transition-all duration-200 cursor-pointer bg-white text-sky-700 shadow-md ring-2 ring-sky-500/40">
+                        <span class="w-4 h-4 rounded-full bg-[#0ea5e9] shadow-[0_0_6px_rgba(14,165,233,0.5)]"></span>
+                        <span>颜色 A</span>
                     </button>
 
-                    <!-- 颜色 B (黄橙) -->
+                    <!-- 颜色 B (暖橙) -->
                     <button id="btn-tool-b" data-tool="B"
-                        class="tool-btn flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs md:text-sm font-semibold transition-all duration-200 cursor-pointer text-slate-300 hover:text-white">
-                        <span class="w-4 h-4 rounded-full bg-[#f59b20] shadow-[0_0_8px_#f59b20]"></span>
-                        <span>颜色 B
+                        class="tool-btn flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs md:text-sm font-semibold transition-all duration-200 cursor-pointer text-slate-600 hover:text-slate-900">
+                        <span class="w-4 h-4 rounded-full bg-[#f97316] shadow-[0_0_6px_rgba(249,115,22,0.5)]"></span>
+                        <span>颜色 B</span>
                     </button>
 
-                    <!-- 颜色 C (浅紫) -->
+                    <!-- 颜色 C (淡紫) -->
                     <button id="btn-tool-c" data-tool="C"
-                        class="tool-btn flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs md:text-sm font-semibold transition-all duration-200 cursor-pointer text-slate-300 hover:text-white">
-                        <span class="w-4 h-4 rounded-full bg-[#9d7fe6] shadow-[0_0_8px_#9d7fe6]"></span>
-                        <span>颜色 C
+                        class="tool-btn flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs md:text-sm font-semibold transition-all duration-200 cursor-pointer text-slate-600 hover:text-slate-900">
+                        <span class="w-4 h-4 rounded-full bg-[#8b5cf6] shadow-[0_0_6px_rgba(139,92,246,0.5)]"></span>
+                        <span>颜色 C</span>
                     </button>
 
                     <!-- 橡皮擦 (PRD 3.3) -->
                     <button id="btn-tool-eraser" data-tool="ERASER"
-                        class="tool-btn flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs md:text-sm font-semibold transition-all duration-200 cursor-pointer text-slate-300 hover:text-white">
-                        <svg class="w-4 h-4 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        class="tool-btn flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs md:text-sm font-semibold transition-all duration-200 cursor-pointer text-slate-600 hover:text-slate-900">
+                        <svg class="w-4 h-4 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                             <path
                                 d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21">
                             </path>
@@ -292,7 +269,7 @@
                 <div class="flex items-center gap-2">
                     <!-- 快捷生成 18 格 (PRD 3.2) -->
                     <button id="btn-quick-18"
-                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-sky-600 to-cyan-500 hover:from-sky-500 hover:to-cyan-400 text-white text-xs md:text-sm font-bold shadow-md hover:shadow-cyan-500/30 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer">
+                        class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white text-xs md:text-sm font-bold shadow-md hover:shadow-sky-500/30 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer">
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                             <rect width="18" height="18" x="3" y="3" rx="2"></rect>
                             <path d="M3 9h18"></path>
@@ -302,22 +279,22 @@
                     </button>
 
                     <!-- 排布模式切换：分行对比 (3×18) vs 紧密拼满 (累计54格) -->
-                    <div class="flex items-center bg-slate-900/80 p-1 rounded-xl border border-white/10 text-xs">
+                    <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
                         <button id="btn-pack-split-rows"
-                            class="px-3 py-1.5 rounded-lg font-medium text-cyan-300 bg-slate-800 border border-cyan-400/30 transition-all cursor-pointer">
+                            class="px-3 py-1.5 rounded-lg font-bold text-sky-700 bg-white shadow-xs border border-slate-200/90 transition-all cursor-pointer">
                             分行对比
                         </button>
                         <button id="btn-pack-compact"
-                            class="px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition-all cursor-pointer">
+                            class="px-3 py-1.5 rounded-lg font-semibold text-slate-500 hover:text-slate-800 transition-all cursor-pointer">
                             紧密拼满
                         </button>
                     </div>
 
                     <!-- 全部清空 (PRD 4) -->
                     <button id="btn-clear-all"
-                        class="p-2 rounded-xl bg-slate-800/80 hover:bg-rose-950/40 text-slate-300 hover:text-rose-400 border border-white/10 hover:border-rose-500/40 transition-all duration-200 cursor-pointer"
+                        class="p-2 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 border border-slate-200 hover:border-rose-300 transition-all duration-200 cursor-pointer shadow-xs"
                         title="全部清空">
-                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                             <path d="M3 6h18"></path>
                             <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
                             <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
@@ -326,10 +303,10 @@
 
                     <!-- 音效切换开关 -->
                     <button id="btn-sound-toggle"
-                        class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-white/10 transition-all duration-200 cursor-pointer"
+                        class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 border border-slate-200 transition-all duration-200 cursor-pointer shadow-xs"
                         title="音效开关">
-                        <svg id="icon-sound" class="w-4 h-4 text-cyan-400" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2">
+                        <svg id="icon-sound" class="w-4 h-4 text-sky-600" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2.2">
                             <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
                             <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
                             <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
@@ -352,7 +329,7 @@
                 <div class="relative flex flex-col items-center justify-center">
 
                     <!-- 顶部列标尺 (1~10列，宽度精确与大网格一致并按10列网格居中对齐) -->
-                    <div class="grid grid-cols-10 mb-1 board-ruler-text opacity-70 text-center font-mono select-none"
+                    <div class="grid grid-cols-10 mb-1.5 board-ruler-text text-center select-none"
                         style="width: var(--board-size);">
                         <span>1</span>
                         <span>2</span>
@@ -368,7 +345,7 @@
 
                     <div class="flex items-center">
                         <!-- 左侧行标尺 (1~10行，高度精确与大网格一致并按10行网格居中对齐) -->
-                        <div class="grid grid-rows-10 mr-1.5 board-ruler-text opacity-70 font-mono select-none items-center justify-center text-center"
+                        <div class="grid grid-rows-10 mr-1.5 board-ruler-text select-none items-center justify-center text-center"
                             style="height: var(--board-size);">
                             <span class="flex items-center justify-center">1</span>
                             <span class="flex items-center justify-center">2</span>
@@ -382,17 +359,17 @@
                             <span class="flex items-center justify-center">10</span>
                         </div>
 
-                        <!-- 10×10 大正方形网格板 (PRD 2.1 & 3.1) -->
-                        <div class="relative p-1.5 md:p-2 rounded-2xl glass-panel border border-white/15 shadow-2xl">
+                        <!-- 10×10 大正方形网格板 (白底明朗高对比) -->
+                        <div class="relative p-2 sm:p-2.5 rounded-2xl bg-white border border-slate-200/90 shadow-xl shadow-slate-200/60">
                             <div id="main-grid-board"
-                                class="main-square-board bg-[#121b2f] rounded-xl shadow-inner select-none">
+                                class="main-square-board bg-slate-50/80 rounded-xl border border-slate-200/70 select-none">
                                 <!-- JS 动态渲染 100 个格子 -->
                             </div>
 
                             <!-- 涂色状态悬浮指示微章 (当鼠标悬浮或滑动时显示) -->
                             <div id="grid-hover-tip"
-                                class="absolute -top-3 right-4 px-2.5 py-0.5 rounded-full bg-slate-900/90 border border-white/20 text-[11px] text-cyan-300 shadow-md opacity-0 pointer-events-none transition-opacity duration-150">
-                                格子 #1 · 0.01
+                                class="absolute -top-3.5 right-4 px-3 py-0.5 rounded-full bg-slate-800/90 text-white text-[11px] font-semibold shadow-md opacity-0 pointer-events-none transition-opacity duration-150">
+                                第1行 第1列 · 格 #1
                             </div>
                         </div>
                     </div>
@@ -400,7 +377,6 @@
 
             </div>
         </main>
-
 
     </div>
 
@@ -411,12 +387,12 @@
         (function () {
             'use strict';
 
-            // 1. 颜色与常量配置 (PRD 2.2)
+            // 1. 颜色与常量配置（白底高对比度鲜明调色）
             const COLOR_CONFIG = {
                 NONE: 'NONE',
-                A: { id: 'A', name: '颜色 A', hex: '#2cd5f6', class: 'colored-a', value: 0.18 },
-                B: { id: 'B', name: '颜色 B', hex: '#f59b20', class: 'colored-b', value: 0.18 },
-                C: { id: 'C', name: '颜色 C', hex: '#9d7fe6', class: 'colored-c', value: 0.18 }
+                A: { id: 'A', name: '颜色 A', hex: '#0ea5e9', class: 'colored-a', value: 0.18 },
+                B: { id: 'B', name: '颜色 B', hex: '#f97316', class: 'colored-b', value: 0.18 },
+                C: { id: 'C', name: '颜色 C', hex: '#8b5cf6', class: 'colored-c', value: 0.18 }
             };
 
             // 2. 响应式应用状态
@@ -425,7 +401,7 @@
                 activeTool: 'A',
                 // 100个格子的颜色数据：Array(100).fill('NONE')
                 cells: Array(100).fill('NONE'),
-                // 当前视图模式：'single' (合并/单大正方形) | 'split' (三小正方形拆分对比)
+                // 当前视图模式：'single' (合并/单大正方形)
                 viewMode: 'single',
                 // 合并模式下的排布样式：'split-rows' (每种颜色占两行) | 'compact' (连续紧凑拼接54格)
                 packingMode: 'split-rows',
@@ -459,7 +435,7 @@
                     const now = ctx.currentTime;
 
                     if (type === 'paint') {
-                        // 涂色音效：清脆水滴声 (根据当前工具频率微调)
+                        // 涂色音效：清脆水滴声
                         const osc = ctx.createOscillator();
                         const gain = ctx.createGain();
                         const freq = state.activeTool === 'A' ? 680 : (state.activeTool === 'B' ? 580 : 760);
@@ -585,93 +561,23 @@
                         cellEl.classList.add('colored-c');
                     }
                 }
-                updateStatsAndFormula();
             }
 
-
-            // 8. 实时统计与状态安全更新
-            function updateStatsAndFormula() {
-                const statCountA = document.getElementById('stat-count-a');
-                if (!statCountA) return;
-
-                let countA = 0;
-                let countB = 0;
-                let countC = 0;
-
-                for (let i = 0; i < 100; i++) {
-                    if (state.cells[i] === 'A') countA++;
-                    else if (state.cells[i] === 'B') countB++;
-                    else if (state.cells[i] === 'C') countC++;
-                }
-
-                const total = countA + countB + countC;
-                const valA = (countA / 100).toFixed(2);
-                const valB = (countB / 100).toFixed(2);
-                const valC = (countC / 100).toFixed(2);
-                const valTotal = (total / 100).toFixed(2);
-
-                statCountA.textContent = countA;
-                const statCountB = document.getElementById('stat-count-b');
-                if (statCountB) statCountB.textContent = countB;
-                const statCountC = document.getElementById('stat-count-c');
-                if (statCountC) statCountC.textContent = countC;
-                const statCountTotal = document.getElementById('stat-count-total');
-                if (statCountTotal) statCountTotal.textContent = total;
-
-                const statValA = document.getElementById('stat-val-a');
-                if (statValA) statValA.textContent = valA;
-                const statValB = document.getElementById('stat-val-b');
-                if (statValB) statValB.textContent = valB;
-                const statValC = document.getElementById('stat-val-c');
-                if (statValC) statValC.textContent = valC;
-
-                const formulaAddition = document.getElementById('formula-addition');
-                if (formulaAddition) {
-                    formulaAddition.innerHTML = `
-                        <span class="text-[#2cd5f6]">${valA}</span> + 
-                        <span class="text-[#f59b20]">${valB}</span> + 
-                        <span class="text-[#9d7fe6]">${valC}</span> = 
-                        <span class="text-emerald-400 font-black">${valTotal}</span>
-                    `;
-                }
-
-                const formulaMultiplication = document.getElementById('formula-multiplication');
-                if (formulaMultiplication) {
-                    if (countA === 18 && countB === 18 && countC === 18) {
-                        formulaMultiplication.textContent = '0.18 × 3 = 0.54';
-                        formulaMultiplication.className = 'text-sm md:text-base font-extrabold text-cyan-300 bg-cyan-500/15 px-2.5 py-0.5 rounded-lg border border-cyan-400/50 shadow-[0_0_12px_rgba(44,213,246,0.25)]';
-                    } else if (countA === countB && countB === countC && countA > 0) {
-                        formulaMultiplication.textContent = `${valA} × 3 = ${valTotal}`;
-                        formulaMultiplication.className = 'text-sm md:text-base font-extrabold text-cyan-300 bg-cyan-500/10 px-2 py-0.5 rounded-lg border border-cyan-400/30';
-                    } else if (total === 0) {
-                        formulaMultiplication.textContent = '自由涂色或点击【生成18块】';
-                        formulaMultiplication.className = 'text-xs md:text-sm font-medium text-slate-400 bg-slate-800/80 px-2.5 py-0.5 rounded-lg border border-white/10';
-                    } else {
-                        formulaMultiplication.textContent = `合计 ${total} 个 0.01 = ${valTotal}`;
-                        formulaMultiplication.className = 'text-xs md:text-sm font-semibold text-slate-300 bg-slate-800/80 px-2 py-0.5 rounded-lg border border-white/10';
-                    }
-                }
-            }
-
-            // 9. 工具选择切换逻辑
+            // 7. 工具选择切换逻辑（白底模式外观）
             function setActiveTool(tool) {
                 state.activeTool = tool;
 
-                // 更新按钮外观状态
                 toolButtons.forEach(btn => {
                     const btnTool = btn.dataset.tool;
                     if (btnTool === tool) {
-                        btn.classList.add('bg-slate-800', 'ring-2', 'ring-white/80', 'scale-105', 'shadow-lg');
-                        btn.classList.remove('text-slate-300');
-                        btn.classList.add('text-white');
+                        btn.className = 'tool-btn flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs md:text-sm font-bold transition-all duration-200 cursor-pointer bg-white text-slate-900 shadow-md ring-2 ring-sky-500/40 scale-105';
                     } else {
-                        btn.classList.remove('bg-slate-800', 'ring-2', 'ring-white/80', 'scale-105', 'shadow-lg');
-                        btn.classList.add('text-slate-300');
+                        btn.className = 'tool-btn flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs md:text-sm font-semibold transition-all duration-200 cursor-pointer text-slate-600 hover:text-slate-900';
                     }
                 });
             }
 
-            // 10. 涂色与擦除核心动作 (PRD 3.1 & 3.3)
+            // 8. 涂色与擦除核心动作 (PRD 3.1 & 3.3)
             function paintCellAtIndex(index) {
                 if (index < 0 || index >= 100) return;
                 if (state.lastPaintedIndex === index) return; // 避免同格重复触发
@@ -688,12 +594,11 @@
                     else if (newColor === 'B') cellEl.classList.add('colored-b');
                     else if (newColor === 'C') cellEl.classList.add('colored-c');
 
-                    updateStatsAndFormula();
                     playSound(newColor === 'NONE' ? 'erase' : 'paint');
                 }
             }
 
-            // 11. 触控与拖拽滑动涂色事件监听 (PointerEvent + elementFromPoint)
+            // 9. 触控与拖拽滑动涂色事件监听 (PointerEvent + elementFromPoint)
             function setupPointerPainting() {
                 // 指针按下开始涂色
                 mainBoardEl.addEventListener('pointerdown', (e) => {
@@ -701,7 +606,6 @@
                     state.isPointerDown = true;
                     state.lastPaintedIndex = -1;
 
-                    // 捕获指针事件
                     try {
                         mainBoardEl.setPointerCapture(e.pointerId);
                     } catch (err) { }
@@ -760,19 +664,7 @@
                 gridHoverTip.style.opacity = '1';
             }
 
-            // 12. 快捷生成 18 格按钮逻辑 (PRD 3.2 严格排布规则)
-            // 规则：
-            // 颜色 A（青蓝）占用第 1～2 行：
-            //   第 1 行：第 1～10 格（整行 10 格，索引 0~9）；
-            //   第 2 行：第 1～8 格（共 8 格，索引 10~17）；第 2 行第 9、10 格（18、19）保持空白。
-            // 颜色 B（黄橙）换行另起占用第 3～4 行：
-            //   第 3 行：第 1～10 格（整行 10 格，索引 20~29）；
-            //   第 4 行：第 1～8 格（共 8 格，索引 30~37）；第 4 行第 9、10 格（38、39）保持空白。
-            // 颜色 C（浅柔紫）换行另起占用第 5～6 行：
-            //   第 5 行：第 1～10 格（整行 10 格，索引 40~49）；
-            //   第 6 行：第 1～8 格（共 8 格，索引 50~57）；第 6 行第 9、10 格（58、59）保持空白。
-            // 第 7～10 行保持未涂色空白。
-            // 12. 快捷生成 18 格按钮逻辑 (针对单一颜色生成 18 块，PRD 3.2 严格排布规则)
+            // 10. 快捷生成 18 格按钮逻辑 (PRD 3.2 严格排布规则)
             function generate18BlocksForColor(targetColor = null) {
                 let color = targetColor || state.activeTool;
                 if (color === 'ERASER' || !['A', 'B', 'C'].includes(color)) {
@@ -850,15 +742,15 @@
                 renderCells();
             }
 
-            // 13. 排布样式切换（分行对比 vs 紧凑拼满，重排已有颜色）
+            // 11. 排布样式切换（分行对比 vs 紧凑拼满，重排已有颜色）
             function setPackingMode(mode) {
                 state.packingMode = mode;
                 if (mode === 'split-rows') {
-                    btnPackSplitRows.className = 'px-3 py-1.5 rounded-lg font-medium text-cyan-300 bg-slate-800 border border-cyan-400/30 transition-all cursor-pointer';
-                    btnPackCompact.className = 'px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition-all cursor-pointer';
+                    btnPackSplitRows.className = 'px-3 py-1.5 rounded-lg font-bold text-sky-700 bg-white shadow-xs border border-slate-200/90 transition-all cursor-pointer';
+                    btnPackCompact.className = 'px-3 py-1.5 rounded-lg font-semibold text-slate-500 hover:text-slate-800 transition-all cursor-pointer';
                 } else {
-                    btnPackCompact.className = 'px-3 py-1.5 rounded-lg font-medium text-cyan-300 bg-slate-800 border border-cyan-400/30 transition-all cursor-pointer';
-                    btnPackSplitRows.className = 'px-3 py-1.5 rounded-lg font-medium text-slate-400 hover:text-white transition-all cursor-pointer';
+                    btnPackCompact.className = 'px-3 py-1.5 rounded-lg font-bold text-sky-700 bg-white shadow-xs border border-slate-200/90 transition-all cursor-pointer';
+                    btnPackSplitRows.className = 'px-3 py-1.5 rounded-lg font-semibold text-slate-500 hover:text-slate-800 transition-all cursor-pointer';
                 }
 
                 const hasA = state.cells.includes('A');
@@ -891,7 +783,7 @@
                 }
             }
 
-            // 14. 事件监听绑定
+            // 12. 事件监听绑定
             function bindEvents() {
                 // 笔刷切换按钮
                 toolButtons.forEach(btn => {
@@ -917,12 +809,12 @@
                 btnSoundToggle.addEventListener('click', () => {
                     state.soundEnabled = !state.soundEnabled;
                     if (state.soundEnabled) {
-                        iconSound.classList.remove('text-slate-500');
-                        iconSound.classList.add('text-cyan-400');
+                        iconSound.classList.remove('text-slate-400');
+                        iconSound.classList.add('text-sky-600');
                         playSound('paint');
                     } else {
-                        iconSound.classList.remove('text-cyan-400');
-                        iconSound.classList.add('text-slate-500');
+                        iconSound.classList.remove('text-sky-600');
+                        iconSound.classList.add('text-slate-400');
                     }
                 });
 
@@ -931,12 +823,11 @@
                 btnPackCompact.addEventListener('click', () => setPackingMode('compact'));
             }
 
-            // 16. 初始化启动
+            // 13. 初始化启动
             initGrids();
             setupPointerPainting();
             bindEvents();
             setActiveTool('A');
-            // 页面初始化时保持空白无涂色格子，供自由涂色或点击【生成 18 块】
 
         })();
     </script>
